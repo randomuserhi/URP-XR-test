@@ -135,7 +135,6 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: 
   features:
-  - {fileID: 7884432664469176630}
   - {fileID: -3507203358736552540}
   - {fileID: -3866124807234086504}
   - {fileID: 2904197110788876905}
@@ -148,11 +147,12 @@ MonoBehaviour:
   - {fileID: 9054338235032608883}
   - {fileID: 5081546120305653264}
   - {fileID: 8510258460582046833}
-  - {fileID: 7966456651006823514}
   - {fileID: -7885929759646395723}
   - {fileID: 1483544551733599244}
+  - {fileID: 7966456651006823514}
+  - {fileID: 7884432664469176630}
   m_renderMode: 1
-  m_depthSubmissionMode: 0
+  m_depthSubmissionMode: 2
 --- !u!114 &-3866124807234086504
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -675,7 +675,7 @@ MonoBehaviour:
   - {fileID: 7237217021311679982}
   - {fileID: 7400398996663850052}
   m_renderMode: 1
-  m_depthSubmissionMode: 0
+  m_depthSubmissionMode: 1
 --- !u!114 &6478528973204103254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -790,7 +790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d2e2731103cdda44af77955a0b4814c, type: 3}
   m_Name: AppRemotingPlugin Standalone
   m_EditorClassIdentifier: 
-  m_enabled: 1
+  m_enabled: 0
   nameUi: Holographic Remoting remote app
   version: 1.4.3
   featureIdInternal: com.microsoft.openxr.feature.appremoting

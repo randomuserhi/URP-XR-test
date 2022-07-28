@@ -1505,3 +1505,4 @@ Received Import Request.
   path: Assets/Editor/Vuforia/ImageTargetTextures/TestCalibrator/IMG-20220727-WA0001_scaled.jpg
   artifactKey: Guid(0d64557e870549a9a988ab884b045d1f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
 Start importing Assets/Editor/Vuforia/ImageTargetTextures/TestCalibrator/IMG-20220727-WA0001_scaled.jpg using Guid(0d64557e870549a9a988ab884b045d1f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9a64a9a928dd14ca4c45845b79793957') in 0.015333 seconds 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file
