@@ -45,3 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   filingCount: {x: 8, y: 8, z: 8}
   filingPrefab: {fileID: 73714366636482306, guid: 4e49967946a643849aa3a707baeb1ec7, type: 3}
+  filingPlacerPrefab: {fileID: 73714366636482306, guid: 4d1156f0076a1534aa442d05022ab292, type: 3}

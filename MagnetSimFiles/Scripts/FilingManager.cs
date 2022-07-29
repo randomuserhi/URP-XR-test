@@ -7,23 +7,29 @@ public class FilingManager : MonoBehaviour
     public static List<Magnet> magnets = new List<Magnet>();
     public Vector3Int filingCount = new Vector3Int(8, 8, 8);
     public GameObject filingPrefab;
-    private GameObject[,,] filings;
+    public static GameObject[] filings;
 
-    private float scale = 0.10f;
+    public static float scale = 0.125f;
+
+    public GameObject followTarget;
 
     void Start()
     {
-        //filings = new GameObject[filingCount.x * filingCount.y * filingCount.z];
-        filings = new GameObject[filingCount.x, filingCount.y, filingCount.z];
+        filings = new GameObject[filingCount.x * filingCount.y * filingCount.z];
+        //filings = new GameObject[filingCount.x, filingCount.y, filingCount.z];
         for (int i = 0; i < filingCount.z; i++)
         {
             for (int j = 0; j < filingCount.y; j++)
             {
                 for (int k = 0; k < filingCount.x; k++)
                 {
-                    //filings[i * filingCount.x * filingCount.y + j * filingCount.x + k] = Instantiate(filingPrefab, new Vector3((k - filingCount.x / 2) * scale, (j - filingCount.y / 2) * scale, (i - filingCount.z / 2) * scale), Quaternion.identity, transform);
-                    filings[i,j,k] = Instantiate(filingPrefab, new Vector3((k - filingCount.x / 2) * scale, (j - filingCount.y / 2) * scale, (i - filingCount.z / 2) * scale), Quaternion.identity, transform);
+                    Vector3 pos = new Vector3((k - filingCount.x / 2) * scale, (j - filingCount.y / 2) * scale, (i - filingCount.z / 2) * scale);
+                    filings[i * filingCount.x * filingCount.y + j * filingCount.x + k] = Instantiate(filingPrefab, pos, Quaternion.identity, transform);
+                    //filings[i,j,k] = Instantiate(filingPrefab, new Vector3((k - filingCount.x / 2) * scale, (j - filingCount.y / 2) * scale, (i - filingCount.z / 2) * scale), Quaternion.identity, transform);
                     //filings[i * filingCount.x * filingCount.y + j * filingCount.x + k].GetComponent<Filing>().magnet = magnet;
+                    Filing f = filings[i * filingCount.x * filingCount.y + j * filingCount.x + k].GetComponent<Filing>();
+                    f.relPos = pos;
+                    f.parent = followTarget;
                 }
             }
         }

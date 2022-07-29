@@ -20,7 +20,7 @@ public class Generate3DTexture : MonoBehaviour
         Color[] colors = new Color[size * size * size];
 
         // Populate the array so that the x, y, and z values of the texture will map to red, blue, and green colors
-        float inverseResolution = 1.0f / (size - 1.0f);
+        //float inverseResolution = 1.0f / (size - 1.0f);
         for (int z = 0; z < size; z++)
         {
             int zOffset = z * size * size;
