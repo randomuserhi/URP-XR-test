@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7612acbc1a4a4ed0afa5f4ccbe42bee4, type: 3}
-  m_Name: MainProfile
+  m_Name: SparseMRTK
   m_EditorClassIdentifier: 
   isCustomProfile: 1
   experienceSettingsProfile: {fileID: 0}
   targetExperienceScale: 3
   enableCameraSystem: 0
-  cameraProfile: {fileID: 11400000, guid: 6d8face473a227c43b8c2b4bba9c9204, type: 2}
+  cameraProfile: {fileID: 0}
   cameraSystemType:
-    reference: Microsoft.MixedReality.Toolkit.CameraSystem.MixedRealityCameraSystem,
-      Microsoft.MixedReality.Toolkit.Services.CameraSystem
+    reference: 
   enableInputSystem: 1
-  inputSystemProfile: {fileID: 11400000, guid: ec7ce0b5b268cab429d9e0ab4131a71a, type: 2}
+  inputSystemProfile: {fileID: 11400000, guid: 7ddd454fa47beab4b86902f80c1ba019, type: 2}
   inputSystemType:
     reference: Microsoft.MixedReality.Toolkit.Input.MixedRealityInputSystem, Microsoft.MixedReality.Toolkit.Services.InputSystem
   enableBoundarySystem: 0
