@@ -319,7 +319,7 @@ public class FilingSimulation
                 }
             }
 
-            f.position += f.dir * f.forceDir * Mathf.Min(step, closest);
+            f.position += f.dir * f.forceDir * Mathf.Min(step, Mathf.Sqrt(closest));
             f.points.Add(f.position);
         }
     }
