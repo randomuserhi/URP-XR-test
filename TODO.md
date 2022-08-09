@@ -1,5 +1,13 @@
 ## MagnetSim
 Add Toggle to freeze filings in place while moving magnet.
+
+- Rewrite magnet code to support eletric charges
+- Create filing sim using efficient algorithm
+- add directions lines to fields
+- different colors for different magnet lines
+- UI
+- Documentation (Technical details)
+
 ## Optical Sim
 https://math.stackexchange.com/questions/1403126/what-is-the-general-equation-for-rotated-ellipsoid
 
