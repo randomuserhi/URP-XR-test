@@ -48,6 +48,50 @@ public class Lens : MonoBehaviour
     public SphereCollider back;
     public BoxCollider bounds;
 
+    Vector3 frontFocalPoint;
+    Vector3 backFocalPoint;
+
+    //Baked properties
+    float r1; //radius of first sphere
+    float r2; //radius of second sphere
+    Vector3 dir;
+    Vector3 normDir;
+    Vector3 p1;
+    Vector3 p2;
+    Vector3 center;
+
+    public void Update()
+    {
+        CalculateFocalPoints();
+    }
+
+    private void Bake()
+    {
+        r1 = front.radius * Mathf.Max(front.transform.localScale.x, front.transform.localScale.y, front.transform.localScale.z); //radius of first sphere
+        r2 = back.radius * Mathf.Max(back.transform.localScale.x, back.transform.localScale.y, back.transform.localScale.z); //radius of second sphere
+
+        dir = back.transform.position - front.transform.position;
+        normDir = dir.normalized;
+        p1 = front.transform.position + normDir * r1;
+        p2 = back.transform.position - normDir * r2;
+        center = p1 + (p2 - p1) / 2f;
+    }
+
+    public void CalculateFocalPoints()
+    {
+        Bake();
+        float d = (p2 - p1).magnitude;
+
+        const float w = 0.64f;
+        float r = refractiveIndex.index(w);
+        float ra = refractiveIndexofAir.index(w);
+        float rf = (r - ra) / ra;
+        float f = rf * (1f / r2 - 1 / r1 + d * rf / (r * r1 * r2));
+        frontFocalPoint = center - f * normDir;
+        f = rf * (1f / r1 - 1 / r2 + d * rf / (r * r1 * r2));
+        backFocalPoint = center - f * normDir;
+    }
+
     public bool verifyHit(RaycastHit hit, ref bool backface)
     {
         switch (type)
@@ -62,14 +106,7 @@ public class Lens : MonoBehaviour
                 }
             case Type.ConvexLens:
                 {
-                    float r1 = front.radius * Mathf.Max(front.transform.localScale.x, front.transform.localScale.y, front.transform.localScale.z); //radius of first sphere
-                    float r2 = back.radius * Mathf.Max(back.transform.localScale.x, back.transform.localScale.y, back.transform.localScale.z); //radius of second sphere
-
-                    Vector3 dir = (back.transform.position - front.transform.position);
-                    Vector3 normDir = dir.normalized;
-                    Vector3 p1 = front.transform.position + normDir * r1;
-                    Vector3 p2 = back.transform.position - normDir * r2;
-                    Vector3 center = p1 + (p2 - p1) / 2f;
+                    Bake();
                     float sqrdistance = dir.sqrMagnitude;
                     float distance = dir.magnitude;
                     //refer to https://www.quora.com/Two-spheres-with-radii-of-6-and-4-have-centers-8m-apart-Whats-the-radius-of-the-circle-at-which-the-spheres-intersect
@@ -83,5 +120,11 @@ public class Lens : MonoBehaviour
             default:
                 return true;
         }
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(frontFocalPoint, 0.1f);
+        Gizmos.DrawSphere(backFocalPoint, 0.1f);
     }
 }

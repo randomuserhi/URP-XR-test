@@ -141,7 +141,7 @@ public class Emitter : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Debug.DrawLine(l.pos, l.pos + l.dir*1.5f);
+        Debug.DrawLine(l.pos, l.pos + l.dir*10f);
         Debug.DrawLine(l.pos, l.pos + l.norm, Color.red);
         Debug.DrawLine(l.pos, l.pos - l.norm*1.5f, Color.green);
         Debug.DrawLine(l.pos, l.pos - l.prevDir, Color.magenta);
