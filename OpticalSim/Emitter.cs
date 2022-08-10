@@ -4,9 +4,22 @@ using System.Collections.Specialized;
 using System.Linq;
 using UnityEngine;
 
+public struct RayHit
+{
+    public Vector3 point;
+    public Vector3 normal;
+    public Lens l;
+    public bool backface;
+
+    public static implicit operator RayHit(RaycastHit hit)
+    {
+        return new RayHit() { point = hit.point, normal = hit.normal, l = hit.transform.GetComponentInParent<Lens>() };
+    }
+}
+
 public struct Light
 {
-    public RaycastHit hit;
+    public RayHit hit;
     public Vector3 pos;
     public Vector3 dir;
     public Vector3 prevDir;
@@ -34,17 +47,30 @@ public struct Light
     {
         const float far = 1000f;
 
+        Parabola[] curves = Object.FindObjectsOfType<Parabola>();
+        List<RayHit> hits = new List<RayHit>();
+        RayHit[] buffer = new RayHit[2];
+        for (int i = 0; i < curves.Length; i++)
+        {
+            Parabola p = curves[i];
+            if (!p.gameObject.activeSelf || !p.enabled) continue;
+            int count = p.Solve(pos, dir, buffer);
+            for (int j = 0; j < count; j++) hits.Add(buffer[j]);
+        }
+
         bool backface = false;
-        bool reverseNormal = false;
         bool success = false;
-        RaycastHit[] forward = Physics.RaycastAll(pos, dir, float.PositiveInfinity, 1 << 3);
+        RaycastHit[] unity = Physics.RaycastAll(pos, dir, float.PositiveInfinity, 1 << 3);
+        for (int i = 0; i < unity.Length; i++) hits.Add(unity[i]);
+        RayHit[] forward = hits.ToArray();
         Lens l = null;
         for (int i = 0; i < forward.Length; i++)
         {
-            ref RaycastHit f = ref forward[i];
-            if (!success || (f.point - pos).sqrMagnitude < (hit.point - pos).sqrMagnitude)
+            ref RayHit f = ref forward[i];
+            if (Vector3.Dot(f.point - pos, dir) <= 0) continue;
+            l = f.l;
+            if (!success || (f.point != pos && (f.point - pos).sqrMagnitude < (hit.point - pos).sqrMagnitude))
             {
-                l = f.transform.GetComponentInParent<Lens>();
                 bool temp = false;
                 if (l.verifyHit(f, ref temp))
                 {
@@ -60,7 +86,7 @@ public struct Light
         {
             ref RaycastHit b = ref back[i];
             if (Vector3.Dot(b.point - pos, dir) <= 0) continue;
-            if (!success || (b.point - pos).sqrMagnitude < (hit.point - pos).sqrMagnitude)
+            if (!success || (b.point != pos && (b.point - pos).sqrMagnitude < (hit.point - pos).sqrMagnitude))
             {
                 l = b.transform.GetComponentInParent<Lens>();
                 bool temp = true;
@@ -69,12 +95,11 @@ public struct Light
                     hit = b;
                     success = true;
                     backface = temp;
-                    reverseNormal = true;
                 }
             }
         }
         if (!success) return false;
-        if (reverseNormal) hit.normal = -hit.normal;
+        if (Vector3.Dot(hit.normal, dir) > 0) hit.normal = -hit.normal;
 
         prevDir = dir;
 
@@ -120,21 +145,29 @@ public class Emitter : MonoBehaviour
     private void Start()
     {
         l.Init(1f / wavelength);
+        l.dir = transform.forward;
+        l.pos = transform.position;
 
         Physics.queriesHitBackfaces = true;
     }
 
     private void Update()
     {
-        //for (;count < 10; count++)
+        l.Init(1f / wavelength);
+        l.pos = transform.position;
+        l.dir = transform.forward;
+        l.Reset();
+
+        for (int count = 0; count < 10; count++)
         {
-            if (!l.Update())
+            l.Update();
+            /*if (!l.Update())
             {
                 l.Init(1f / wavelength);
                 l.pos = transform.position;
                 l.dir = transform.forward;
                 l.Reset();
-            }
+            }*/
             current = l.currentRefractiveIndex;
         }
     }

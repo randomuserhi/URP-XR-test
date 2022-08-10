@@ -33,6 +33,7 @@ public class Lens : MonoBehaviour
     public enum Type
     {
         Surface,
+        CustomSurface,
         ConvexLens,
         ConcaveLens
     }
@@ -46,7 +47,7 @@ public class Lens : MonoBehaviour
     //TODO:: Change this if a better solution can be found
     public SphereCollider front;
     public SphereCollider back;
-    public BoxCollider bounds;
+    public float bound;
 
     Vector3 frontFocalPoint;
     Vector3 backFocalPoint;
@@ -62,7 +63,7 @@ public class Lens : MonoBehaviour
 
     public void Update()
     {
-        CalculateFocalPoints();
+        if (type != Type.Surface && type != Type.CustomSurface) CalculateFocalPoints();
     }
 
     private void Bake()
@@ -77,7 +78,7 @@ public class Lens : MonoBehaviour
         center = p1 + (p2 - p1) / 2f;
     }
 
-    public void CalculateFocalPoints()
+    public void CalculateFocalPoints() //This doesnt work properly
     {
         Bake();
         float d = (p2 - p1).magnitude;
@@ -86,23 +87,20 @@ public class Lens : MonoBehaviour
         float r = refractiveIndex.index(w);
         float ra = refractiveIndexofAir.index(w);
         float rf = (r - ra) / ra;
-        float f = rf * (1f / r2 - 1 / r1 + d * rf / (r * r1 * r2));
+        float f = rf * (1f / r2 - 1f / r1 + d * rf / (r * r1 * r2));
         frontFocalPoint = center - f * normDir;
-        f = rf * (1f / r1 - 1 / r2 + d * rf / (r * r1 * r2));
+        f = rf * (1f / r1 - 1f / r2 + d * rf / (r * r1 * r2));
         backFocalPoint = center - f * normDir;
     }
 
-    public bool verifyHit(RaycastHit hit, ref bool backface)
+    public bool verifyHit(RayHit hit, ref bool backface)
     {
         switch (type)
         {
             case Type.ConcaveLens:
                 {
-                    if (hit.collider == bounds) return false;
-                    if (!bounds.bounds.Contains(hit.point)) return false;
-                    if (hit.collider == front || hit.collider == back) backface = !backface;
-
-                    return true;
+                    Bake();
+                    return (center - hit.point).sqrMagnitude < bound;
                 }
             case Type.ConvexLens:
                 {
@@ -115,6 +113,9 @@ public class Lens : MonoBehaviour
 
                     return (center - hit.point).sqrMagnitude < y;
                 }
+            case Type.CustomSurface:
+                backface = hit.backface;
+                return true;
             case Type.Surface: 
                 return true;
             default:
@@ -126,5 +127,9 @@ public class Lens : MonoBehaviour
     {
         Gizmos.DrawSphere(frontFocalPoint, 0.1f);
         Gizmos.DrawSphere(backFocalPoint, 0.1f);
+
+        Gizmos.DrawSphere(p1, 0.1f);
+        Gizmos.DrawSphere(p2, 0.1f);
+        Gizmos.DrawSphere(center, 0.1f);
     }
 }

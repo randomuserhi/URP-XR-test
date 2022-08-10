@@ -15,7 +15,7 @@ public class LensEditor : Editor
 
         lens.type = (Lens.Type)EditorGUILayout.EnumPopup("Type", lens.type);
 
-        if (lens.type != Lens.Type.Surface)
+        if (lens.type != Lens.Type.Surface && lens.type != Lens.Type.CustomSurface)
         {
             SerializedProperty f = serializedObject.FindProperty("front");
             EditorGUILayout.PropertyField(f, new GUIContent("Front"));
