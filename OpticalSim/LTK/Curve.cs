@@ -70,9 +70,10 @@ namespace LightTK
             }
         }
 
-        public Plane(Vector2 minimum, Vector2 maximum)
+        public Plane(float zOffset, Vector2 minimum, Vector2 maximum)
         {
             parameters = CurveParameter.Plane;
+            parameters.u = zOffset;
             parameters.minimum = minimum;
             parameters.maximum = maximum;
             parameters.radial = 0f;
@@ -117,9 +118,10 @@ namespace LightTK
             }
         }
 
-        public Paraboloid(float minimum, float maximum) : base()
+        public Paraboloid(float zOffset, float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Paraboloid;
+            parameters.u = zOffset;
         }
     }
 
@@ -161,9 +163,10 @@ namespace LightTK
             }
         }
 
-        public Cylinder(float minimum, float maximum) : base()
+        public Cylinder(float zOffset, float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Cylinder;
+            parameters.u = zOffset;
             parameters.minimum.z = minimum;
             parameters.maximum.z = maximum;
         }
@@ -219,9 +222,10 @@ namespace LightTK
             }
         }
 
-        public Elliptoid(float minimum, float maximum) : base()
+        public Elliptoid(float zOffset, float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Elliptoid;
+            parameters.u = zOffset;
             parameters.minimum.z = minimum;
             parameters.maximum.z = maximum;
         }
@@ -265,9 +269,10 @@ namespace LightTK
             }
         }
 
-        public Sphere(float minimum, float maximum) : base()
+        public Sphere(float zOffset, float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Sphere;
+            parameters.u = zOffset;
             parameters.minimum.z = minimum;
             parameters.maximum.z = maximum;
         }
@@ -311,9 +316,10 @@ namespace LightTK
             }
         }
 
-        public Hyperboloid(float minimum, float maximum) : base()
+        public Hyperboloid(float zOffset, float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Hyperboloid;
+            parameters.u = zOffset;
             parameters.minimum.z = minimum;
             parameters.maximum.z = maximum;
         }

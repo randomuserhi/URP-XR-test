@@ -7,15 +7,15 @@ using UnityEngine;
 
 namespace LightTK
 {
+    public struct LightRayHit
+    {
+        public Vector3 point;
+        public Vector3 normal;
+        public CurveParameter curve;
+    }
+
     public partial class LTK
     {
-        public struct LightRayHit
-        {
-            public Vector3 point;
-            public Vector3 normal;
-            public CurveParameter curve;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int Quadratic(float a, float b, float c, float[] answers)
         {
@@ -89,6 +89,9 @@ namespace LightTK
                 bq = curve.q * (curve.p - 1f);
                 cq = curve.l * (a * a + b * b) - curve.r;
 
+                bq = bq - 2f * aq * curve.u;
+                cq = aq * curve.u * curve.u - bq * curve.u + cq;
+
                 count = Quadratic(aq, bq, cq, solutions);
                 if (count == 0) return 0;
                 else for (int i = 0, j = 0, length = count; i < length; j++, i++)
@@ -109,16 +112,11 @@ namespace LightTK
                             2f * curve.l * curve.h * curve.p * curve.q / (curve.s * curve.s) * hit.point.z
                             + curve.q * (curve.p - 1)
                             );
-
-                        bool isBound;
-                        if (curve.radial != 0f)
-                            isBound = hit.point.sqrMagnitude < curve.radial * curve.radial;
-                        else
-                            isBound = (hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
-                                      (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
-                                      (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z);
                         
-                        if (isBound)
+                        if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) && 
+                            ((hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
+                            (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
+                            (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z)))
                         {
                             count -= 1;
                             j -= 1;
@@ -143,6 +141,9 @@ namespace LightTK
             bq = curve.q * (curve.p - 1f) - (2f * curve.l / f) * (c / f * ddee + adbe);
             cq = curve.l * (cf * cf * ddee - 2f * cf * adbe + a * a + b * b) - curve.r;
 
+            bq = bq - 2f * aq * curve.u;
+            cq = aq * curve.u * curve.u - bq * curve.u + cq;
+
             count = Quadratic(aq, bq, cq, solutions);
             if (count == 0) return 0;
             else for (int i = 0, j = 0, length = count; i < length; j++, i++)
@@ -164,15 +165,10 @@ namespace LightTK
                         + curve.q * (curve.p - 1)
                         );
 
-                    bool isBound;
-                    if (curve.radial != 0f)
-                        isBound = hit.point.sqrMagnitude < curve.radial * curve.radial;
-                    else
-                        isBound = (hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
-                                  (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
-                                  (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z);
-
-                    if (isBound)
+                    if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) &&
+                        ((hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
+                        (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
+                        (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z)))
                     {
                         count -= 1;
                         j -= 1;
@@ -233,14 +229,14 @@ namespace LightTK
         public RefractionEquation singleRefractiveIndex;
         public RefractionEquation positiveRefractiveIndex;
         public RefractionEquation negativeRefractiveIndex;
-        public float refractiveIndex(float waveLength, float direction = 0)
+        public float refractiveIndex(float waveLength, float sign = 0)
         {
             switch (type)
             {
                 case Type.Single:
                     return singleRefractiveIndex.index(waveLength);
                 case Type.Edge: 
-                    if (direction > 0)
+                    if (sign > 0)
                         return positiveRefractiveIndex.index(waveLength);
                     else
                         return negativeRefractiveIndex.index(waveLength);
@@ -259,15 +255,16 @@ namespace LightTK
         public float p;
         public float r;
         public float s;
+        public float u;
 
         public static Vector3 minimumInfinity = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
         public static Vector3 maximumInfinity = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
-        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0, s = 1f, h = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0, s = 1f, h = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Cylinder = new CurveParameter { l = 1f, q = 0f, r = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0, s = 1f, h = 1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0, s = 1f, h = 1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Cylinder = new CurveParameter { l = 1f, q = 0f, r = 1f, minimum = minimumInfinity, u = 0f, maximum = maximumInfinity };
+        public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
         public static CurveParameter Sphere = Elliptoid;
-        public static CurveParameter Hyperboloid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = -1f, r = -1f, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Hyperboloid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = -1f, r = -1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
     }
 }
