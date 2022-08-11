@@ -9,9 +9,22 @@ namespace LightTK
 {
     public partial class LTK
     {
+        public struct LightRayHit
+        {
+            public Vector3 point;
+            public Vector3 normal;
+            public CurveParameter curve;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int Quadratic(float a, float b, float c, float[] answers)
         {
+            if (a == 0)
+            {
+                answers[0] = -c / b;
+                return 1;
+            }
+
             float det = b * b - 4 * a * c;
             if (det < 0) return 0;
             else
@@ -23,24 +36,36 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, RayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points)
         {
             return GetIntersection(origin, dir, curve.parameters, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, RayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, LightRayHit[] points)
         {
             return GetIntersection(origin, dir, curve, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, RayHit[] points, bool relative = false)
+        public static int GetIntersection(LightRay ray, Curve curve, LightRayHit[] points, bool relative = false)
+        {
+            return GetIntersection(ray.position, ray.direction, curve.parameters, points, relative);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points, bool relative = false)
         {
             return GetIntersection(origin, dir, curve.parameters, points, relative);
         }
 
-        public static int GetIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, RayHit[] points, bool relative = false)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIntersection(LightRay ray, CurveParameter curve, LightRayHit[] points, bool relative = false)
+        {
+            return GetIntersection(ray.position, ray.direction, curve, points, relative);
+        }
+
+        public static int GetIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, LightRayHit[] points, bool relative = false)
         {
             if (!relative)
             {
@@ -69,7 +94,8 @@ namespace LightTK
                 else for (int i = 0, j = 0, length = count; i < length; j++, i++)
                     {
                         float z = solutions[i];
-                        ref RayHit hit = ref points[j];
+                        ref LightRayHit hit = ref points[j];
+                        hit.curve = curve;
                         hit.point = new Vector3(
                             a,
                             b,
@@ -122,7 +148,8 @@ namespace LightTK
             else for (int i = 0, j = 0, length = count; i < length; j++, i++)
                 {
                     float z = solutions[i];
-                    ref RayHit hit = ref points[j];
+                    ref LightRayHit hit = ref points[j];
+                    hit.curve = curve;
                     hit.point = new Vector3(
                         d / f * (z - c) + a,
                         e / f * (z - c) + b,
@@ -204,8 +231,23 @@ namespace LightTK
         }
         public Type type;
         public RefractionEquation singleRefractiveIndex;
-        public RefractionEquation frontRefractiveIndex;
-        public RefractionEquation backRefractiveIndex;
+        public RefractionEquation positiveRefractiveIndex;
+        public RefractionEquation negativeRefractiveIndex;
+        public float refractiveIndex(float waveLength, float direction = 0)
+        {
+            switch (type)
+            {
+                case Type.Single:
+                    return singleRefractiveIndex.index(waveLength);
+                case Type.Edge: 
+                    if (direction > 0)
+                        return positiveRefractiveIndex.index(waveLength);
+                    else
+                        return negativeRefractiveIndex.index(waveLength);
+                default:
+                    return singleRefractiveIndex.index(waveLength);
+            }
+        }
 
         public Vector3 minimum;
         public Vector3 maximum;
@@ -221,8 +263,8 @@ namespace LightTK
         public static Vector3 minimumInfinity = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
         public static Vector3 maximumInfinity = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
-        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0, s = 1f, h = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0, s = 1f, h = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
         public static CurveParameter Cylinder = new CurveParameter { l = 1f, q = 0f, r = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
         public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
         public static CurveParameter Sphere = Elliptoid;

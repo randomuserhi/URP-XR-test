@@ -38,6 +38,11 @@ namespace LightTK
             parameters.maximum = CurveParameter.maximumInfinity;
             parameters.radial = 0f;
         }
+
+        public static implicit operator CurveParameter(Curve c)
+        {
+            return c.parameters;
+        }
     }
 
     public class Plane : Curve
