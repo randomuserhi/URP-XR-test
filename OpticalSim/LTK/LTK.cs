@@ -20,11 +20,20 @@ namespace LightTK
             }
         }
 
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, RayHit[] points)
+        {
+            return GetIntersection(origin, dir, curve.parameters, points, true);
+        }
+
         public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, RayHit[] points)
         {
             return GetIntersection(origin, dir, curve, points, true);
         }
 
+        public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, RayHit[] points, bool relative = false)
+        {
+            return GetIntersection(origin, dir, curve.parameters, points, relative);
+        }
         public static int GetIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, RayHit[] points, bool relative = false)
         {
             if (!relative)
@@ -179,11 +188,5 @@ namespace LightTK
         public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f };
         public static CurveParameter Sphere = Elliptoid;
         public static CurveParameter Hyperboloid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = -1f, r = -1f };
-    }
-
-    public struct Ray
-    {
-        public Vector3 origin;
-        public Vector3 dir;
     }
 }
