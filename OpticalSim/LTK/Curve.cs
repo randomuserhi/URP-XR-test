@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace LightTK
@@ -33,8 +34,8 @@ namespace LightTK
 
         public Curve()
         {
-            parameters.minimum = new Vector3(float.NegativeInfinity, float.NegativeInfinity, -1f);
-            parameters.maximum = new Vector3(float.PositiveInfinity, float.PositiveInfinity, 1f);
+            parameters.minimum = CurveParameter.minimumInfinity;
+            parameters.maximum = CurveParameter.maximumInfinity;
             parameters.radial = 0f;
         }
     }
@@ -158,6 +159,8 @@ namespace LightTK
         public Cylinder(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Cylinder;
+            parameters.minimum.z = minimum;
+            parameters.maximum.z = maximum;
         }
     }
 
@@ -214,6 +217,8 @@ namespace LightTK
         public Elliptoid(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Elliptoid;
+            parameters.minimum.z = minimum;
+            parameters.maximum.z = maximum;
         }
     }
 
@@ -258,6 +263,8 @@ namespace LightTK
         public Sphere(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Sphere;
+            parameters.minimum.z = minimum;
+            parameters.maximum.z = maximum;
         }
     }
 
@@ -302,6 +309,8 @@ namespace LightTK
         public Hyperboloid(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Hyperboloid;
+            parameters.minimum.z = minimum;
+            parameters.maximum.z = maximum;
         }
     }
 }

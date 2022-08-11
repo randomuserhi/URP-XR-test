@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 // Light Toolkit
 
 namespace LightTK
 {
-    public class LTK
+    public partial class LTK
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int Quadratic(float a, float b, float c, float[] answers)
         {
             float det = b * b - 4 * a * c;
@@ -20,20 +22,24 @@ namespace LightTK
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, RayHit[] points)
         {
             return GetIntersection(origin, dir, curve.parameters, points, true);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, RayHit[] points)
         {
             return GetIntersection(origin, dir, curve, points, true);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, RayHit[] points, bool relative = false)
         {
             return GetIntersection(origin, dir, curve.parameters, points, relative);
         }
+
         public static int GetIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, RayHit[] points, bool relative = false)
         {
             if (!relative)
@@ -82,9 +88,9 @@ namespace LightTK
                         if (curve.radial != 0f)
                             isBound = hit.point.sqrMagnitude < curve.radial * curve.radial;
                         else
-                            isBound = (hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
-                                      (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
-                                      (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z);
+                            isBound = (hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
+                                      (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
+                                      (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z);
                         
                         if (isBound)
                         {
@@ -135,9 +141,9 @@ namespace LightTK
                     if (curve.radial != 0f)
                         isBound = hit.point.sqrMagnitude < curve.radial * curve.radial;
                     else
-                        isBound = (hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
-                                  (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
-                                  (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z);
+                        isBound = (hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
+                                  (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
+                                  (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z);
 
                     if (isBound)
                     {
@@ -212,11 +218,14 @@ namespace LightTK
         public float r;
         public float s;
 
-        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0 };
-        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0 };
-        public static CurveParameter Cylinder = new CurveParameter { l = 1f, q = 0f, r = 1f };
-        public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f };
+        public static Vector3 minimumInfinity = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+        public static Vector3 maximumInfinity = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+
+        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Cylinder = new CurveParameter { l = 1f, q = 0f, r = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
+        public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f, minimum = minimumInfinity, maximum = maximumInfinity };
         public static CurveParameter Sphere = Elliptoid;
-        public static CurveParameter Hyperboloid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = -1f, r = -1f };
+        public static CurveParameter Hyperboloid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = -1f, r = -1f, minimum = minimumInfinity, maximum = maximumInfinity };
     }
 }
