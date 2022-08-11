@@ -78,6 +78,15 @@ namespace LightTK
                             + curve.q * (curve.p - 1)
                             );
 
+                        if ((hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
+                        (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
+                        (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z))
+                        {
+                            count -= 1;
+                            i -= 1;
+                            continue;
+                        }
+
                         if (!relative)
                         {
                             hit.normal = Quaternion.Inverse(curve.rotation) * hit.normal;
@@ -103,18 +112,27 @@ namespace LightTK
                     float z = solutions[i];
                     ref RayHit hit = ref points[i];
                     hit.point = new Vector3(
-                        d/f * (z - c) + a,
-                        e/f * (z - c) + b,
+                        d / f * (z - c) + a,
+                        e / f * (z - c) + b,
                         z);
 
                     hit.normal = new Vector3(
                         2f * curve.l * hit.point.x,
-                        
+
                         2f * curve.l * hit.point.y,
 
                         2f * curve.l * curve.h * curve.p * curve.q / (curve.s * curve.s) * hit.point.z
                         + curve.q * (curve.p - 1)
                         );
+
+                    if ((hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
+                        (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
+                        (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z))
+                    {
+                        count -= 1;
+                        i -= 1;
+                        continue;
+                    }
 
                     if (!relative)
                     {
