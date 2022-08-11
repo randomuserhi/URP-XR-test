@@ -60,10 +60,10 @@ namespace LightTK
 
                 count = Quadratic(aq, bq, cq, solutions);
                 if (count == 0) return 0;
-                else for (int i = 0; i < count; i++)
+                else for (int i = 0, j = 0, length = count; i < length; j++, i++)
                     {
                         float z = solutions[i];
-                        ref RayHit hit = ref points[i];
+                        ref RayHit hit = ref points[j];
                         hit.point = new Vector3(
                             a,
                             b,
@@ -78,12 +78,18 @@ namespace LightTK
                             + curve.q * (curve.p - 1)
                             );
 
-                        if ((hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
-                        (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
-                        (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z))
+                        bool isBound;
+                        if (curve.radial != 0f)
+                            isBound = hit.point.sqrMagnitude < curve.radial * curve.radial;
+                        else
+                            isBound = (hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
+                                      (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
+                                      (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z);
+                        
+                        if (isBound)
                         {
                             count -= 1;
-                            i -= 1;
+                            j -= 1;
                             continue;
                         }
 
@@ -107,10 +113,10 @@ namespace LightTK
 
             count = Quadratic(aq, bq, cq, solutions);
             if (count == 0) return 0;
-            else for (int i = 0; i < count; i++)
+            else for (int i = 0, j = 0, length = count; i < length; j++, i++)
                 {
                     float z = solutions[i];
-                    ref RayHit hit = ref points[i];
+                    ref RayHit hit = ref points[j];
                     hit.point = new Vector3(
                         d / f * (z - c) + a,
                         e / f * (z - c) + b,
@@ -125,12 +131,18 @@ namespace LightTK
                         + curve.q * (curve.p - 1)
                         );
 
-                    if ((hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
-                        (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
-                        (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z))
+                    bool isBound;
+                    if (curve.radial != 0f)
+                        isBound = hit.point.sqrMagnitude < curve.radial * curve.radial;
+                    else
+                        isBound = (hit.point.x >= curve.maximum.x) || (hit.point.x <= curve.minimum.x) ||
+                                  (hit.point.y >= curve.maximum.y) || (hit.point.y <= curve.minimum.y) ||
+                                  (hit.point.z >= curve.maximum.z) || (hit.point.z <= curve.minimum.z);
+
+                    if (isBound)
                     {
                         count -= 1;
-                        i -= 1;
+                        j -= 1;
                         continue;
                     }
 

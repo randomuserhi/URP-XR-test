@@ -30,6 +30,13 @@ namespace LightTK
         }
 
         public CurveParameter parameters;
+
+        public Curve()
+        {
+            parameters.minimum = new Vector3(float.NegativeInfinity, float.NegativeInfinity, -1f);
+            parameters.maximum = new Vector3(float.PositiveInfinity, float.PositiveInfinity, 1f);
+            parameters.radial = 0f;
+        }
     }
 
     public class Plane : Curve
@@ -62,7 +69,7 @@ namespace LightTK
             parameters = CurveParameter.Plane;
             parameters.minimum = minimum;
             parameters.maximum = maximum;
-            parameters.radial = 0;
+            parameters.radial = 0f;
         }
     }
 
@@ -104,12 +111,9 @@ namespace LightTK
             }
         }
 
-        public Paraboloid(float minimum, float maximum)
+        public Paraboloid(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Paraboloid;
-            parameters.minimum = new Vector3(0, 0, minimum);
-            parameters.maximum = new Vector3(0, 0, maximum);
-            parameters.radial = 0;
         }
     }
 
@@ -151,12 +155,9 @@ namespace LightTK
             }
         }
 
-        public Cylinder(float minimum, float maximum)
+        public Cylinder(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Cylinder;
-            parameters.minimum = new Vector3(0, 0, minimum);
-            parameters.maximum = new Vector3(0, 0, maximum);
-            parameters.radial = 0;
         }
     }
 
@@ -210,12 +211,9 @@ namespace LightTK
             }
         }
 
-        public Elliptoid(float minimum, float maximum)
+        public Elliptoid(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Elliptoid;
-            parameters.minimum = new Vector3(0, 0, minimum);
-            parameters.maximum = new Vector3(0, 0, maximum);
-            parameters.radial = 0;
         }
     }
 
@@ -257,12 +255,9 @@ namespace LightTK
             }
         }
 
-        public Sphere(float minimum, float maximum)
+        public Sphere(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Sphere;
-            parameters.minimum = new Vector3(0, 0, minimum);
-            parameters.maximum = new Vector3(0, 0, maximum);
-            parameters.radial = 0;
         }
     }
 
@@ -304,12 +299,9 @@ namespace LightTK
             }
         }
 
-        public Hyperboloid(float minimum, float maximum)
+        public Hyperboloid(float minimum, float maximum) : base()
         {
             parameters = CurveParameter.Hyperboloid;
-            parameters.minimum = new Vector3(0, 0, minimum);
-            parameters.maximum = new Vector3(0, 0, maximum);
-            parameters.radial = 0;
         }
     }
 }
