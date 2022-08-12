@@ -151,7 +151,6 @@ namespace LightTK
                 else count = 0; //Equation is null, 0x^2 + 0x + 0 = 0y
             }
             else count = Quadratic(aq, bq, cq, solutions); // Solving quadratic, ax^2 + bx + c = dy
-            Debug.Log(curve.o + " > " + count);
             for (int i = 0, temp = count, j = 0; i < temp; i++, j++)
             {
                 float v = solutions[i];
@@ -204,7 +203,6 @@ namespace LightTK
                     hit.point = Quaternion.Inverse(curve.rotation) * hit.point + curve.position;
                 }
             }
-            Debug.Log(count);
             return count;
         }
     }

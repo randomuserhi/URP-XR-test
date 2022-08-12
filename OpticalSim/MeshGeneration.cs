@@ -20,8 +20,9 @@ public class MeshGeneration : MonoBehaviour
     public void GenerateMesh() {
         Mesh m = new Mesh();
         
-        Curve c = new Hyperboloid(0f, 0f, 5f);
-        c.parameters.h = -5;
+        Surface c = new Hyperboloid(0f, float.PositiveInfinity, 0f);
+        ((Hyperboloid)c).squash = -1f / 25f;
+        ((Hyperboloid)c).seperation = -1f / 25f;
 
         LightRayHit[] hits = new LightRayHit[2];
 
@@ -33,7 +34,6 @@ public class MeshGeneration : MonoBehaviour
                 float x = i * step;
                 float y = j * step;
                 int hitCount = GetRelativeIntersection(new Vector3(x, y, 0), Vector3.forward, c, hits);
-
                 if (hitCount == 1)
                 {
                     vertices.Add(hits[0].point);
