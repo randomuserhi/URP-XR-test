@@ -130,27 +130,22 @@ namespace LightTK
 
             float bead = r1.a - r0.a * ed;
             float cfad = r2.a - r0.a * fd;
-            float bq = -2f * r0.d * r0.e + r1.d * (2f * ed * bead - 2f * r1.e * ed) + r2.d * (2f * fd * cfad - 2f * r2.e * fd) + r1.f * ed + r2.f * fd + curve.m;
+            float bq = -2f * r0.d * r0.e + r1.d * (2f * ed * bead - 2f * r1.e * ed) + r2.d * (2f * fd * cfad - 2f * r2.e * fd) + r1.f * ed + r2.f * fd + r0.f;
 
             float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + r1.f * bead + r2.f * cfad + curve.p;
 
             float[] solutions = new float[2];
             int count;
-            if (aq == 0) //Solving linear equation or constant
+            if (aq == 0)
             {
-                if (bq != 0) //Solving linear equation, 0x^2 + ax + b = cy
+                if (bq != 0) // Solve Linear equation 0x^2 + bx + c = 0
                 {
-                    solutions[0] = curve.o * -cq / bq;
+                    solutions[0] = -cq / bq;
                     count = 1;
                 }
-                else if (curve.o != 0) //Solving constant, 0x^2 + 0x + a = cy
-                {
-                    solutions[0] = curve.o * -cq;
-                    count = 1;
-                }
-                else count = 0; //Equation is null, 0x^2 + 0x + 0 = 0y
+                else count = 0; // Invalid equation 0x^2 + 0x + c = 0
             }
-            else count = Quadratic(aq, bq, cq, solutions); // Solving quadratic, ax^2 + bx + c = dy
+            else count = Quadratic(aq, bq, cq, solutions); // Solving quadratic, ax^2 + bx + c = 0
             for (int i = 0, temp = count, j = 0; i < temp; i++, j++)
             {
                 float v = solutions[i];
