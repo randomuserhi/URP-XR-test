@@ -11,7 +11,7 @@ namespace LightTK
     {
         public Vector3 point;
         public Vector3 normal;
-        public CurveParameter curve;
+        public Curve curve;
     }
 
     public partial class LTK
@@ -19,12 +19,6 @@ namespace LightTK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int Quadratic(float a, float b, float c, float[] answers)
         {
-            if (a == 0)
-            {
-                answers[0] = -c / b;
-                return 1;
-            }
-
             float det = b * b - 4 * a * c;
             if (det < 0) return 0;
             else
@@ -36,36 +30,46 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points)
         {
-            return GetIntersection(origin, dir, curve.parameters, points, true);
+            return GetIntersection(origin, dir, curve.curve, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, LightRayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points)
         {
             return GetIntersection(origin, dir, curve, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIntersection(LightRay ray, Surface curve, LightRayHit[] points, bool relative = false)
+        {
+            return GetIntersection(ray.position, ray.direction, curve.curve, points, relative);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool relative = false)
+        {
+            return GetIntersection(origin, dir, curve.curve, points, relative);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetIntersection(LightRay ray, Curve curve, LightRayHit[] points, bool relative = false)
-        {
-            return GetIntersection(ray.position, ray.direction, curve.parameters, points, relative);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points, bool relative = false)
-        {
-            return GetIntersection(origin, dir, curve.parameters, points, relative);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(LightRay ray, CurveParameter curve, LightRayHit[] points, bool relative = false)
         {
             return GetIntersection(ray.position, ray.direction, curve, points, relative);
         }
 
-        public static int GetIntersection(Vector3 origin, Vector3 dir, CurveParameter curve, LightRayHit[] points, bool relative = false)
+        private struct partialEquation
+        {
+            public float a;
+            public float b;
+
+            public float d;
+            public float e;
+            public float f;
+        }
+
+        public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points, bool relative = false)
         {
             if (!relative)
             {
@@ -73,116 +77,181 @@ namespace LightTK
                 dir = curve.rotation * dir;
             }
 
-            float a = origin.x;
-            float b = origin.y;
-            float c = origin.z;
-            float d = dir.x;
-            float e = dir.y;
-            float f = dir.z;
-            float[] solutions = new float[2];
-            float aq, bq, cq;
-            int count;
+            if (curve.j == 0 &&
+                curve.k == 0 &&
+                curve.l == 0 &&
+                curve.m == 0 &&
+                curve.n == 0 &&
+                curve.o == 0) 
+                return 0;
 
-            if (f == 0)
+            partialEquation[] l = new partialEquation[3]
             {
-                aq = curve.l * curve.h * curve.p * curve.q / (curve.s * curve.s);
-                bq = curve.q * (curve.p - 1f);
-                cq = curve.l * (a * a + b * b) - curve.r;
-
-                bq = bq - 2f * aq * curve.u;
-                cq = aq * curve.u * curve.u - bq * curve.u + cq;
-
-                count = Quadratic(aq, bq, cq, solutions);
-                if (count == 0) return 0;
-                else for (int i = 0, j = 0, length = count; i < length; j++, i++)
-                    {
-                        float z = solutions[i];
-                        ref LightRayHit hit = ref points[j];
-                        hit.curve = curve;
-                        hit.point = new Vector3(
-                            a,
-                            b,
-                            z);
-
-                        hit.normal = new Vector3(
-                            2f * curve.l * hit.point.x,
-
-                            2f * curve.l * hit.point.y,
-
-                            2f * curve.l * curve.h * curve.p * curve.q / (curve.s * curve.s) * hit.point.z
-                            + curve.q * (curve.p - 1)
-                            );
-                        
-                        if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) && 
-                            ((hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
-                            (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
-                            (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z)))
-                        {
-                            count -= 1;
-                            j -= 1;
-                            continue;
-                        }
-
-                        if (!relative)
-                        {
-                            hit.normal = Quaternion.Inverse(curve.rotation) * hit.normal;
-                            hit.point = Quaternion.Inverse(curve.rotation) * hit.point + curve.position;
-                        }
-                    }
-
-                return count;
+                new partialEquation()
+                {
+                    a = origin.x, // a
+                    b = dir.x, // d
+                    d = curve.j,
+                    e = curve.g,
+                    f = curve.m
+                },
+                new partialEquation()
+                {
+                    a = origin.y, // b
+                    b = dir.y, // e
+                    d = curve.k,
+                    e = curve.h,
+                    f = curve.n
+                },
+                new partialEquation()
+                {
+                    a = origin.z, // c
+                    b = dir.z, // f
+                    d = curve.l,
+                    e = curve.i,
+                    f = curve.o
+                }
+            };
+            int rel = 0;
+            for (int i = 0; i < l.Length && l[rel].b == 0; i++, rel++) { }
+            if (l[rel].b == 0)
+            {
+                Debug.LogWarning("Direction is Vector.zero!");
+                return 0;
             }
 
-            float ddee = d * d + e * e;
-            float adbe = a * d + b * e;
-            float cf = c / f;
-            
-            aq = curve.l * ((curve.h * curve.p * curve.q) / (curve.s * curve.s) + ddee/(f * f));
-            bq = curve.q * (curve.p - 1f) - (2f * curve.l / f) * (c / f * ddee + adbe);
-            cq = curve.l * (cf * cf * ddee - 2f * cf * adbe + a * a + b * b) - curve.r;
+            ref partialEquation r0 = ref l[rel];
+            ref partialEquation r1 = ref l[(rel + 1) % l.Length];
+            ref partialEquation r2 = ref l[(rel + 2) % l.Length];
 
-            bq = bq - 2f * aq * curve.u;
-            cq = aq * curve.u * curve.u - bq * curve.u + cq;
+            float ed = r1.b / r0.b;
+            float fd = r2.b / r0.b;
+            float aq = r0.d + r1.d * ed * ed + r2.d * fd * fd;
 
-            count = Quadratic(aq, bq, cq, solutions);
-            if (count == 0) return 0;
-            else for (int i = 0, j = 0, length = count; i < length; j++, i++)
+            float bead = r1.a - r0.a * ed;
+            float cfad = r2.a - r0.a * fd;
+            float bq = -2f * r0.d * r0.e + r1.d * (2f * ed * bead - 2f * r1.e * ed) + r2.d * (2f * fd * cfad - 2f * r2.e * fd) + r1.f * ed + r2.f * fd + curve.m;
+
+            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + r1.f * bead + r2.f * cfad + curve.p;
+
+            float[] solutions = new float[2];
+            int count;
+            if (aq == 0) //Solving linear equation or constant
+            {
+                if (bq != 0) //Solving linear equation, 0x^2 + ax + b = cy
                 {
-                    float z = solutions[i];
-                    ref LightRayHit hit = ref points[j];
-                    hit.curve = curve;
-                    hit.point = new Vector3(
-                        d / f * (z - c) + a,
-                        e / f * (z - c) + b,
-                        z);
-
-                    hit.normal = new Vector3(
-                        2f * curve.l * hit.point.x,
-
-                        2f * curve.l * hit.point.y,
-
-                        2f * curve.l * curve.h * curve.p * curve.q / (curve.s * curve.s) * hit.point.z
-                        + curve.q * (curve.p - 1)
-                        );
-
-                    if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) &&
-                        ((hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
-                        (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
-                        (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z)))
-                    {
-                        count -= 1;
-                        j -= 1;
-                        continue;
-                    }
-
-                    if (!relative)
-                    {
-                        hit.normal = Quaternion.Inverse(curve.rotation) * hit.normal;
-                        hit.point = Quaternion.Inverse(curve.rotation) * hit.point + curve.position;
-                    }
+                    solutions[0] = curve.o * -cq / bq;
+                    count = 1;
+                }
+                else if (curve.o != 0) //Solving constant, 0x^2 + 0x + a = cy
+                {
+                    solutions[0] = curve.o * -cq;
+                    count = 1;
+                }
+                else count = 0; //Equation is null, 0x^2 + 0x + 0 = 0y
+            }
+            else count = Quadratic(aq, bq, cq, solutions); // Solving quadratic, ax^2 + bx + c = dy
+            Debug.Log(curve.o + " > " + count);
+            for (int i = 0, temp = count, j = 0; i < temp; i++, j++)
+            {
+                float v = solutions[i];
+                ref LightRayHit hit = ref points[j];
+                hit.curve = curve;
+                switch (rel)
+                {
+                    case 0:
+                        hit.point = new Vector3(
+                            v,
+                            ed * v + bead,
+                            fd * v + cfad);
+                        break;
+                    case 1:
+                        hit.point = new Vector3(
+                            fd * v + cfad,
+                            v,
+                            ed * v + bead);
+                        break;
+                    case 2:
+                        hit.point = new Vector3(
+                            ed * v + bead,
+                            fd * v + cfad,
+                            v);
+                        break;
+                    default:
+                        Debug.LogError("rel is not within bounds!");
+                        break;
                 }
 
+                hit.normal = new Vector3(
+                    2f * curve.j * hit.point.x - 2f * curve.j * curve.g + curve.m,
+                    2f * curve.k * hit.point.y - 2f * curve.k * curve.h + curve.n,
+                    2f * curve.l * hit.point.z - 2f * curve.l * curve.i + curve.o
+                    );
+
+                if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) &&
+                    ((hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
+                    (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
+                    (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z)))
+                {
+                    count -= 1;
+                    j -= 1;
+                    continue;
+                }
+
+                if (!relative)
+                {
+                    hit.normal = Quaternion.Inverse(curve.rotation) * hit.normal;
+                    hit.point = Quaternion.Inverse(curve.rotation) * hit.point + curve.position;
+                }
+            }
+            Debug.Log(count);
             return count;
+        }
+    }
+
+    public struct RefractionSettings
+    {
+        public enum Type
+        {
+            Single,
+            Edge,
+            Reflective
+        }
+        public Type type;
+        public RefractionEquation single;
+        public RefractionEquation positive;
+        public RefractionEquation negative;
+        public float refractiveIndex(float waveLength, float sign = 0)
+        {
+            switch (type)
+            {
+                case Type.Single:
+                    return single.index(waveLength);
+                case Type.Edge:
+                    if (sign > 0)
+                        return positive.index(waveLength);
+                    else
+                        return negative.index(waveLength);
+                default:
+                    return single.index(waveLength);
+            }
+        }
+
+        public static implicit operator RefractionSettings(float refractiveIndex)
+        {
+            return new RefractionSettings()
+            {
+                type = Type.Single,
+                single = refractiveIndex
+            };
+        }
+        public static implicit operator RefractionSettings(RefractionEquation refractiveIndex)
+        {
+            return new RefractionSettings()
+            {
+                type = Type.Single,
+                single = refractiveIndex
+            };
         }
     }
 
@@ -209,62 +278,49 @@ namespace LightTK
             if (isFixed) return refractionIndex;
             return m * invWavelength + c;
         }
+
+        public static implicit operator float(RefractionEquation equation)
+        {
+            return equation.refractionIndex;
+        }
+
+        public static implicit operator RefractionEquation(float refractiveIndex)
+        {
+            return new RefractionEquation()
+            {
+                isFixed = true,
+                refractionIndex = refractiveIndex
+            };
+        }
+
+        public static RefractionEquation air = new RefractionEquation() { m = 0.0277f, c = 0.9726f, refractionIndex = 1.000293f };
+        public static RefractionEquation crownGlass = new RefractionEquation() { m = 0.0163f, c = 1.4835f, refractionIndex = 1.523f };
     }
 
-    public struct CurveParameter
+    public struct Curve
     {
+        public RefractionSettings refractionSettings;
+
         /// <summary>
-        /// l(x^2+y^2)+((lhpq)z^2)/s^2+q(p-1)z = r
+        /// j(x-g)^2+k(y-h)^2+l(z-i)^2+mx+ny+oz+p=0
         /// </summary>
 
         public Vector3 position;
         public Quaternion rotation;
 
-        public enum Type
-        {
-            Single,
-            Edge
-        }
-        public Type type;
-        public RefractionEquation singleRefractiveIndex;
-        public RefractionEquation positiveRefractiveIndex;
-        public RefractionEquation negativeRefractiveIndex;
-        public float refractiveIndex(float waveLength, float sign = 0)
-        {
-            switch (type)
-            {
-                case Type.Single:
-                    return singleRefractiveIndex.index(waveLength);
-                case Type.Edge: 
-                    if (sign > 0)
-                        return positiveRefractiveIndex.index(waveLength);
-                    else
-                        return negativeRefractiveIndex.index(waveLength);
-                default:
-                    return singleRefractiveIndex.index(waveLength);
-            }
-        }
-
         public Vector3 minimum;
         public Vector3 maximum;
         public float radial;
 
-        public float l;
+        public float g;
         public float h;
-        public float q;
+        public float i;
+        public float j;
+        public float k;
+        public float l;
+        public float m;
+        public float n;
+        public float o;
         public float p;
-        public float r;
-        public float s;
-        public float u;
-
-        public static Vector3 minimumInfinity = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
-        public static Vector3 maximumInfinity = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
-
-        public static CurveParameter Plane = new CurveParameter { l = 0f, p = 2, q = 1, r = 0, s = 1f, h = 1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Paraboloid = new CurveParameter { l = 1f, p = 0, q = 1, r = 0, s = 1f, h = 1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Cylinder = new CurveParameter { l = 1f, q = 0f, r = 1f, minimum = minimumInfinity, u = 0f, maximum = maximumInfinity };
-        public static CurveParameter Elliptoid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = 1f, r = 1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
-        public static CurveParameter Sphere = Elliptoid;
-        public static CurveParameter Hyperboloid = new CurveParameter { l = 1f, p = 1f, s = 1f, q = 1f, h = -1f, r = -1f, u = 0f, minimum = minimumInfinity, maximum = maximumInfinity };
     }
 }
