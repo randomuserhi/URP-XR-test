@@ -71,15 +71,20 @@ namespace LightTK
 
         public float offset
         {
-            get { return -curve.p; }
-            set { curve.p = -value; }
+            get { return -curve.surfaceEquation.p; }
+            set { curve.surfaceEquation.p = -value; }
         }
 
         public Plane(float offset = 0)
         {
+            Equation equation = new Equation()
+            {
+                o = 1f
+            };
             curve = new Curve()
             {
-                o = 1f,
+                surfaceEquation = equation,
+                normalEquation = equation,
                 refractionSettings = RefractionEquation.crownGlass
             };
             minimum = Vector3.negativeInfinity;
@@ -89,9 +94,14 @@ namespace LightTK
 
         public Plane(Vector2 minimum, Vector2 maximum, float offset = 0)
         {
+            Equation equation = new Equation()
+            {
+                o = 1f
+            };
             curve = new Curve()
             {
-                o = 1f,
+                surfaceEquation = equation,
+                normalEquation = equation,
                 refractionSettings = RefractionEquation.crownGlass
             };
             this.minimum = minimum;
@@ -116,11 +126,16 @@ namespace LightTK
 
         public Cylinder(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity)
         {
-            curve = new Curve()
+            Equation equation = new Equation()
             {
                 j = 1f,
                 k = 1f,
-                p = -1f,
+                p = -1f
+            };
+            curve = new Curve()
+            {
+                surfaceEquation = equation,
+                normalEquation = equation,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 refractionSettings = RefractionEquation.crownGlass
@@ -146,24 +161,29 @@ namespace LightTK
 
         public float offset
         {
-            get { return curve.i; }
-            set { curve.i = value; }
+            get { return curve.surfaceEquation.i; }
+            set { curve.surfaceEquation.i = value; }
         }
 
         public float radius
         {
-            get { return -curve.p; }
-            set { curve.p = -value; }
+            get { return -curve.surfaceEquation.p; }
+            set { curve.surfaceEquation.p = -value; }
         }
 
         public Sphere(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            curve = new Curve()
+            Equation equation = new Equation()
             {
                 j = 1f,
                 k = 1f,
                 l = 1f,
-                p = -1f,
+                p = -1f
+            };
+            curve = new Curve()
+            {
+                surfaceEquation = equation,
+                normalEquation = equation,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 refractionSettings = RefractionEquation.crownGlass
@@ -190,14 +210,14 @@ namespace LightTK
 
         public float offset
         {
-            get { return curve.i; }
-            set { curve.i = value; }
+            get { return curve.surfaceEquation.i; }
+            set { curve.surfaceEquation.i = value; }
         }
 
         public float radius
         {
-            get { return -curve.p; }
-            set { curve.p = -value; }
+            get { return -curve.surfaceEquation.p; }
+            set { curve.surfaceEquation.p = -value; }
         }
 
         /*public Vector3 squash
@@ -207,18 +227,23 @@ namespace LightTK
         }*/
         public float squash
         {
-            get { return curve.l; }
-            set { curve.l = value; }
+            get { return curve.surfaceEquation.l; }
+            set { curve.surfaceEquation.l = value; }
         }
 
         public Ellipsoid(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            curve = new Curve()
+            Equation equation = new Equation()
             {
                 j = 1f,
                 k = 1f,
-                l = 1f,
-                p = -1f,
+                l = 1f / (4f * 4f),
+                p = -1f
+            };
+            curve = new Curve()
+            {
+                surfaceEquation = equation,
+                normalEquation = equation,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 refractionSettings = RefractionEquation.crownGlass
@@ -245,14 +270,14 @@ namespace LightTK
 
         public float offset
         {
-            get { return curve.i; }
-            set { curve.i = value; }
+            get { return curve.surfaceEquation.i; }
+            set { curve.surfaceEquation.i = value; }
         }
 
         public float seperation
         {
-            get { return -curve.p; }
-            set { curve.p = -value; }
+            get { return -curve.surfaceEquation.p; }
+            set { curve.surfaceEquation.p = -value; }
         }
 
         /*public Vector3 squash
@@ -262,18 +287,23 @@ namespace LightTK
         }*/
         public float squash
         {
-            get { return curve.l; }
-            set { curve.l = value; }
+            get { return curve.surfaceEquation.l; }
+            set { curve.surfaceEquation.l = value; }
         }
 
         public Hyperboloid(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            curve = new Curve()
+            Equation equation = new Equation()
             {
                 j = 1f,
                 k = 1f,
                 l = -1f,
-                p = 1f,
+                p = 1f
+            };
+            curve = new Curve()
+            {
+                surfaceEquation = equation,
+                normalEquation = equation,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 refractionSettings = RefractionEquation.crownGlass
@@ -300,8 +330,8 @@ namespace LightTK
 
         public float offset
         {
-            get { return curve.i; }
-            set { curve.i = value; }
+            get { return curve.surfaceEquation.i; }
+            set { curve.surfaceEquation.i = value; }
         }
 
         /*public Vector2 scale
@@ -311,17 +341,22 @@ namespace LightTK
         }*/
         public float scale
         {
-            get { return curve.j; }
-            set { curve.j = value; curve.k = value; }
+            get { return curve.surfaceEquation.j; }
+            set { curve.surfaceEquation.j = value; curve.surfaceEquation.k = value; }
         }
 
         public Paraboloid(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            curve = new Curve()
+            Equation equation = new Equation()
             {
                 j = 1f,
-                k = 1f, 
-                o = -1f,
+                k = 1f,
+                o = -1f
+            };
+            curve = new Curve()
+            {
+                surfaceEquation = equation,
+                normalEquation = equation,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 refractionSettings = RefractionEquation.crownGlass

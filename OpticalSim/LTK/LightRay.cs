@@ -54,26 +54,44 @@ namespace LightTK
             }
 #endif
             if (sign > 0) p.normal = -p.normal;
+            //if (p.curve.normalEquation.type == Equation.Type.Asymmetrical) p.normal = -p.normal;
+            //else if (p.curve.normalEquation.type == Equation.Type.Symmetrical) p.normal.z = -p.normal.z;
 
+            //Round(ref l.direction);
+            l.direction = l.direction.normalized;
             l.prevDirection = l.direction;
+
+            float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
+
+            //Debug.Log("----");
+            //Debug.Log(l.direction);
             float ratio = l.refractiveIndex / refractiveIndex;
-            float cosI = -Vector3.Dot(p.normal, l.direction);
+            float cosI = 1;// Vector3.Dot(-p.normal, l.direction);
             float sinT2 = ratio * ratio * (1f - cosI * cosI);
             if (refraction.type == RefractionSettings.Type.Reflective || sinT2 > 1.0f) // Total internal reflection
             {
-                Vector3 perp = Vector3.Cross(l.direction, p.normal);
+                /*Vector3 perp = Vector3.Cross(l.direction, p.normal);
                 Vector3 aligned = Vector3.Cross(p.normal, perp);
                 Vector3 projection = Vector3.Project(l.direction, aligned);
-                l.direction = -l.direction + projection * 2;
+                l.direction = -l.direction + projection * 2;*/
+
+                l.direction = l.direction - 2f * Vector3.Dot(l.direction, p.normal) * p.normal;
+
+                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, p.normal));
+                Debug.Log(l.refractiveIndex + ", " + refractiveIndex + " > " + Mathf.Rad2Deg * AngleI + ", " + Mathf.Rad2Deg * AngleT);
             }
             else
             {
                 float cosT = Mathf.Sqrt(1f - sinT2);
                 l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.normal;
+
+                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
+                Debug.Log(l.refractiveIndex + ", " + refractiveIndex + " > " + AngleI + ", " + AngleT);
             }
 
             l.position = p.point;
             l.normal = p.normal;
+            //Round(ref l.direction);
 
             if (refraction.type == RefractionSettings.Type.Edge)
                 l.refractiveIndex = refractiveIndex;

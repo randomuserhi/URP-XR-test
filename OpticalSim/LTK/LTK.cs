@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -69,20 +70,30 @@ namespace LightTK
             public float f;
         }
 
+        private const int precision = 4;
+        private static void Round(ref Vector3 v)
+        {
+            v.x = (float)Math.Round(v.x, precision);
+            v.y = (float)Math.Round(v.y, precision);
+            v.z = (float)Math.Round(v.z, precision);
+        }
+
         public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points, bool relative = false)
         {
             if (!relative)
             {
                 origin = curve.rotation * (origin - curve.position);
                 dir = curve.rotation * dir;
+                Round(ref origin);
+                Round(ref dir);
             }
 
-            if (curve.j == 0 &&
-                curve.k == 0 &&
-                curve.l == 0 &&
-                curve.m == 0 &&
-                curve.n == 0 &&
-                curve.o == 0) 
+            if (curve.surfaceEquation.j == 0 &&
+                curve.surfaceEquation.k == 0 &&
+                curve.surfaceEquation.l == 0 &&
+                curve.surfaceEquation.m == 0 &&
+                curve.surfaceEquation.n == 0 &&
+                curve.surfaceEquation.o == 0) 
                 return 0;
 
             partialEquation[] l = new partialEquation[3]
@@ -91,25 +102,25 @@ namespace LightTK
                 {
                     a = origin.x, // a
                     b = dir.x, // d
-                    d = curve.j,
-                    e = curve.g,
-                    f = curve.m
+                    d = curve.surfaceEquation.j,
+                    e = curve.surfaceEquation.g,
+                    f = curve.surfaceEquation.m
                 },
                 new partialEquation()
                 {
                     a = origin.y, // b
                     b = dir.y, // e
-                    d = curve.k,
-                    e = curve.h,
-                    f = curve.n
+                    d = curve.surfaceEquation.k,
+                    e = curve.surfaceEquation.h,
+                    f = curve.surfaceEquation.n
                 },
                 new partialEquation()
                 {
                     a = origin.z, // c
                     b = dir.z, // f
-                    d = curve.l,
-                    e = curve.i,
-                    f = curve.o
+                    d = curve.surfaceEquation.l,
+                    e = curve.surfaceEquation.i,
+                    f = curve.surfaceEquation.o
                 }
             };
             int rel = 0;
@@ -132,7 +143,7 @@ namespace LightTK
             float cfad = r2.a - r0.a * fd;
             float bq = -2f * r0.d * r0.e + r1.d * (2f * ed * bead - 2f * r1.e * ed) + r2.d * (2f * fd * cfad - 2f * r2.e * fd) + r1.f * ed + r2.f * fd + r0.f;
 
-            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + r1.f * bead + r2.f * cfad + curve.p;
+            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + r1.f * bead + r2.f * cfad + curve.surfaceEquation.p;
 
             float[] solutions = new float[2];
             int count;
@@ -177,9 +188,9 @@ namespace LightTK
                 }
 
                 hit.normal = new Vector3(
-                    2f * curve.j * hit.point.x - 2f * curve.j * curve.g + curve.m,
-                    2f * curve.k * hit.point.y - 2f * curve.k * curve.h + curve.n,
-                    2f * curve.l * hit.point.z - 2f * curve.l * curve.i + curve.o
+                    2f * curve.normalEquation.j * hit.point.x - 2f * curve.normalEquation.j * curve.normalEquation.g + curve.normalEquation.m,
+                    2f * curve.normalEquation.k * hit.point.y - 2f * curve.normalEquation.k * curve.normalEquation.h + curve.normalEquation.n,
+                    2f * curve.normalEquation.l * hit.point.z - 2f * curve.normalEquation.l * curve.normalEquation.i + curve.normalEquation.o
                     );
 
                 if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) &&
@@ -194,9 +205,12 @@ namespace LightTK
 
                 if (!relative)
                 {
-                    hit.normal = Quaternion.Inverse(curve.rotation) * hit.normal;
+                    hit.normal = (Quaternion.Inverse(curve.rotation) * hit.normal);
                     hit.point = Quaternion.Inverse(curve.rotation) * hit.point + curve.position;
                 }
+
+                hit.normal = hit.normal.normalized;
+                //Round(ref hit.normal);
             }
             return count;
         }
@@ -286,8 +300,29 @@ namespace LightTK
             };
         }
 
-        public static RefractionEquation air = new RefractionEquation() { m = 0.0277f, c = 0.9726f, refractionIndex = 1.000293f };
-        public static RefractionEquation crownGlass = new RefractionEquation() { m = 0.0163f, c = 1.4835f, refractionIndex = 1.523f };
+        public static RefractionEquation air = new RefractionEquation() { isFixed = true, m = 0.0277f, c = 0.9726f, refractionIndex = 1.000293f };
+        public static RefractionEquation crownGlass = new RefractionEquation() { isFixed = true, m = 0.0163f, c = 1.4835f, refractionIndex = 1.523f };
+    }
+
+    public struct Equation
+    {
+        public enum Type
+        {
+            Asymmetrical,
+            Symmetrical
+        }
+        public Type type;
+
+        public float g;
+        public float h;
+        public float i;
+        public float j;
+        public float k;
+        public float l;
+        public float m;
+        public float n;
+        public float o;
+        public float p;
     }
 
     public struct Curve
@@ -305,15 +340,7 @@ namespace LightTK
         public Vector3 maximum;
         public float radial;
 
-        public float g;
-        public float h;
-        public float i;
-        public float j;
-        public float k;
-        public float l;
-        public float m;
-        public float n;
-        public float o;
-        public float p;
+        public Equation surfaceEquation;
+        public Equation normalEquation;
     }
 }
