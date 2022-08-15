@@ -20,18 +20,18 @@ namespace LightTK
 
     public partial class LTK
     {
-        public static Curve[] BakeCurves(Surface[] surfaces)
+        public static Surface[] BakeCurves(AbstractSurface[] surfaces)
         {
-            Curve[] curves = new Curve[surfaces.Length];
+            Surface[] curves = new Surface[surfaces.Length];
             for (int i = 0; i < surfaces.Length; i++)
             {
                 curves[i] = surfaces[i].curve;
             }
             return curves;
         }
-        public static Curve[] BakeCurves(List<Surface> surfaces)
+        public static Surface[] BakeCurves(List<AbstractSurface> surfaces)
         {
-            Curve[] curves = new Curve[surfaces.Count];
+            Surface[] curves = new Surface[surfaces.Count];
             for (int i = 0; i < surfaces.Count; i++)
             {
                 curves[i] = surfaces[i].curve;
@@ -42,43 +42,56 @@ namespace LightTK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SolveRay(ref LightRay l, LightRayHit p)
         {
-            RefractionSettings refraction = p.curve.refractionSettings;
+            l.prevDirection = l.direction;
+            l.position = p.point;
+            l.normal = p.normal;
+
+            switch (p.surface.type)
+            {
+                case SurfaceSettings.SurfaceType.Reflective:
+                    return SolveRayReflection(ref l, p);
+                case SurfaceSettings.SurfaceType.Refractive:
+                    return SolveRayRefraction(ref l, p);
+                case SurfaceSettings.SurfaceType.ThinLens:
+                    return SolveRayIdealLens(ref l, p);
+                default:
+                    return true;
+            }
+        }
+
+        public static bool SolveRayIdealLens(ref LightRay l, LightRayHit p)
+        {
+            RefractionSettings refraction = p.surface.refractionSettings;
 
             float sign = Vector3.Dot(p.normal, l.direction);
             float refractiveIndex = refraction.refractiveIndex(l.wavelength, sign);
 #if UNITY_EDITOR
-            if (refraction.type != RefractionSettings.Type.Reflective && refractiveIndex == 0)
+            if (refractiveIndex == 0)
             {
                 Debug.LogError("refractiveIndex is 0");
                 return false;
             }
+            else if (refraction.type != RefractionSettings.Type.Single)
+            {
+                Debug.LogError("ideal lens can only have refractive type of single");
+                return false;
+            }
 #endif
-            if (sign > 0) p.normal = -p.normal;
-            //if (p.curve.normalEquation.type == Equation.Type.Asymmetrical) p.normal = -p.normal;
-            //else if (p.curve.normalEquation.type == Equation.Type.Symmetrical) p.normal.z = -p.normal.z;
+            //TODO:: maybe make oNormal and normal an array and surfaces contain an array of equations for normals
+            //       This way infinitely thing combinations of surfaces can be made instead of just 2 surfaces
+            //       normal and onormal
 
-            //Round(ref l.direction);
+            if (sign > 0) p.normal = -p.normal;
             l.direction = l.direction.normalized;
-            l.prevDirection = l.direction;
 
             float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
 
-            //Debug.Log("----");
-            //Debug.Log(l.direction);
             float ratio = l.refractiveIndex / refractiveIndex;
-            float cosI = 1;// Vector3.Dot(-p.normal, l.direction);
+            float cosI = Vector3.Dot(-p.normal, l.direction);
             float sinT2 = ratio * ratio * (1f - cosI * cosI);
-            if (refraction.type == RefractionSettings.Type.Reflective || sinT2 > 1.0f) // Total internal reflection
+            if (sinT2 > 1.0f) // Total internal reflection
             {
-                /*Vector3 perp = Vector3.Cross(l.direction, p.normal);
-                Vector3 aligned = Vector3.Cross(p.normal, perp);
-                Vector3 projection = Vector3.Project(l.direction, aligned);
-                l.direction = -l.direction + projection * 2;*/
-
-                l.direction = l.direction - 2f * Vector3.Dot(l.direction, p.normal) * p.normal;
-
-                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, p.normal));
-                Debug.Log(l.refractiveIndex + ", " + refractiveIndex + " > " + Mathf.Rad2Deg * AngleI + ", " + Mathf.Rad2Deg * AngleT);
+                SolveRayReflection(ref l, p);
             }
             else
             {
@@ -86,12 +99,71 @@ namespace LightTK
                 l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.normal;
 
                 float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
-                Debug.Log(l.refractiveIndex + ", " + refractiveIndex + " > " + AngleI + ", " + AngleT);
             }
 
-            l.position = p.point;
-            l.normal = p.normal;
-            //Round(ref l.direction);
+            if (sign > 0) p.oNormal = -p.oNormal;
+            l.direction = l.direction.normalized;
+
+            AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.oNormal));
+
+            ratio = refractiveIndex / l.refractiveIndex;
+            cosI = Vector3.Dot(-p.oNormal, l.direction);
+            sinT2 = ratio * ratio * (1f - cosI * cosI);
+            if (sinT2 > 1.0f) // Total internal reflection
+            {
+                SolveRayReflection(ref l, p);
+            }
+            else
+            {
+                float cosT = Mathf.Sqrt(1f - sinT2);
+                l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.oNormal;
+
+                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.oNormal));
+            }
+
+            return true;
+        }
+
+        public static bool SolveRayReflection(ref LightRay l, LightRayHit p)
+        {
+            l.direction = l.direction - 2f * Vector3.Dot(l.direction, p.normal) * p.normal;
+            float AngleT = Mathf.Acos(Vector3.Dot(l.direction, p.normal));
+
+            return true;
+        }
+
+        public static bool SolveRayRefraction(ref LightRay l, LightRayHit p)
+        {
+            RefractionSettings refraction = p.surface.refractionSettings;
+
+            float sign = Vector3.Dot(p.normal, l.direction);
+            float refractiveIndex = refraction.refractiveIndex(l.wavelength, sign);
+#if UNITY_EDITOR
+            if (refractiveIndex == 0)
+            {
+                Debug.LogError("refractiveIndex is 0");
+                return false;
+            }
+#endif
+            if (sign > 0) p.normal = -p.normal;
+            l.direction = l.direction.normalized;
+
+            float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
+
+            float ratio = l.refractiveIndex / refractiveIndex;
+            float cosI = Vector3.Dot(-p.normal, l.direction);
+            float sinT2 = ratio * ratio * (1f - cosI * cosI);
+            if (sinT2 > 1.0f) // Total internal reflection
+            {
+                SolveRayReflection(ref l, p);
+            }
+            else
+            {
+                float cosT = Mathf.Sqrt(1f - sinT2);
+                l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.normal;
+
+                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
+            }
 
             if (refraction.type == RefractionSettings.Type.Edge)
                 l.refractiveIndex = refractiveIndex;
@@ -100,7 +172,7 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SimulateRay(ref LightRay l, Curve[] curves)
+        public static bool SimulateRay(ref LightRay l, Surface[] curves)
         {
             if (l.direction == Vector3.zero) return false;
             LightRayHit[] hits = new LightRayHit[2];
@@ -109,7 +181,7 @@ namespace LightTK
             bool success = false;
             for (int i = 0; i < curves.Length; i++)
             {
-                ref Curve c = ref curves[i];
+                ref Surface c = ref curves[i];
                 int count = GetIntersection(l, c, hits);
                 for (int j = 0; j < count; j++)
                 {
@@ -130,7 +202,7 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SimulateRay(ref LightRay l, List<Curve> curves)
+        public static bool SimulateRay(ref LightRay l, List<Surface> curves)
         {
             if (l.direction == Vector3.zero) return false;
             LightRayHit[] hits = new LightRayHit[2];
@@ -158,7 +230,7 @@ namespace LightTK
             return SolveRay(ref l, p);
         }
 
-        public static void SimulateRays(LightRay[] rays, Curve[] curves)
+        public static void SimulateRays(LightRay[] rays, Surface[] curves)
         {
             for (int i = 0; i < rays.Length; i++)
             {
@@ -166,14 +238,14 @@ namespace LightTK
             }
         }
 
-        public static void SimulateRays(LightRay[] rays, List<Curve> curves)
+        public static void SimulateRays(LightRay[] rays, List<Surface> curves)
         {
             for (int i = 0; i < rays.Length; i++)
             {
                 SimulateRay(ref rays[i], curves);
             }
         }
-        public static void SimulateRays(List<LightRay> rays, Curve[] curves)
+        public static void SimulateRays(List<LightRay> rays, Surface[] curves)
         {
             for (int i = 0; i < rays.Count; i++)
             {
@@ -183,7 +255,7 @@ namespace LightTK
             }
         }
 
-        public static void SimulateRays(List<LightRay> rays, List<Curve> curves)
+        public static void SimulateRays(List<LightRay> rays, List<Surface> curves)
         {
             for (int i = 0; i < rays.Count; i++)
             {

@@ -12,7 +12,8 @@ namespace LightTK
     {
         public Vector3 point;
         public Vector3 normal;
-        public Curve curve;
+        public Vector3 oNormal;
+        public SurfaceSettings surface;
     }
 
     public partial class LTK
@@ -31,31 +32,31 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points)
         {
             return GetIntersection(origin, dir, curve.curve, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points)
         {
             return GetIntersection(origin, dir, curve, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(LightRay ray, Surface curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(LightRay ray, AbstractSurface curve, LightRayHit[] points, bool relative = false)
         {
             return GetIntersection(ray.position, ray.direction, curve.curve, points, relative);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points, bool relative = false)
         {
             return GetIntersection(origin, dir, curve.curve, points, relative);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(LightRay ray, Curve curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(LightRay ray, Surface curve, LightRayHit[] points, bool relative = false)
         {
             return GetIntersection(ray.position, ray.direction, curve, points, relative);
         }
@@ -78,7 +79,7 @@ namespace LightTK
             v.z = (float)Math.Round(v.z, precision);
         }
 
-        public static int GetIntersection(Vector3 origin, Vector3 dir, Curve curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool relative = false)
         {
             if (!relative)
             {
@@ -88,12 +89,12 @@ namespace LightTK
                 Round(ref dir);
             }
 
-            if (curve.surfaceEquation.j == 0 &&
-                curve.surfaceEquation.k == 0 &&
-                curve.surfaceEquation.l == 0 &&
-                curve.surfaceEquation.m == 0 &&
-                curve.surfaceEquation.n == 0 &&
-                curve.surfaceEquation.o == 0) 
+            if (curve.surface.j == 0 &&
+                curve.surface.k == 0 &&
+                curve.surface.l == 0 &&
+                curve.surface.m == 0 &&
+                curve.surface.n == 0 &&
+                curve.surface.o == 0) 
                 return 0;
 
             partialEquation[] l = new partialEquation[3]
@@ -102,25 +103,25 @@ namespace LightTK
                 {
                     a = origin.x, // a
                     b = dir.x, // d
-                    d = curve.surfaceEquation.j,
-                    e = curve.surfaceEquation.g,
-                    f = curve.surfaceEquation.m
+                    d = curve.surface.j,
+                    e = curve.surface.g,
+                    f = curve.surface.m
                 },
                 new partialEquation()
                 {
                     a = origin.y, // b
                     b = dir.y, // e
-                    d = curve.surfaceEquation.k,
-                    e = curve.surfaceEquation.h,
-                    f = curve.surfaceEquation.n
+                    d = curve.surface.k,
+                    e = curve.surface.h,
+                    f = curve.surface.n
                 },
                 new partialEquation()
                 {
                     a = origin.z, // c
                     b = dir.z, // f
-                    d = curve.surfaceEquation.l,
-                    e = curve.surfaceEquation.i,
-                    f = curve.surfaceEquation.o
+                    d = curve.surface.l,
+                    e = curve.surface.i,
+                    f = curve.surface.o
                 }
             };
             int rel = 0;
@@ -141,9 +142,14 @@ namespace LightTK
 
             float bead = r1.a - r0.a * ed;
             float cfad = r2.a - r0.a * fd;
-            float bq = -2f * r0.d * r0.e + r1.d * (2f * ed * bead - 2f * r1.e * ed) + r2.d * (2f * fd * cfad - 2f * r2.e * fd) + r1.f * ed + r2.f * fd + r0.f;
+            float bq = -2f * r0.d * r0.e + 
+                r1.d * (2f * ed * bead - 2f * r1.e * ed) + 
+                r2.d * (2f * fd * cfad - 2f * r2.e * fd) + 
+                r1.f * ed + r2.f * fd + r0.f;
 
-            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + r1.f * bead + r2.f * cfad + curve.surfaceEquation.p;
+            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + 
+                r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + 
+                r1.f * bead + r2.f * cfad + curve.surface.p;
 
             float[] solutions = new float[2];
             int count;
@@ -161,7 +167,7 @@ namespace LightTK
             {
                 float v = solutions[i];
                 ref LightRayHit hit = ref points[j];
-                hit.curve = curve;
+                hit.surface = curve.settings;
                 switch (rel)
                 {
                     case 0:
@@ -188,9 +194,15 @@ namespace LightTK
                 }
 
                 hit.normal = new Vector3(
-                    2f * curve.normalEquation.j * hit.point.x - 2f * curve.normalEquation.j * curve.normalEquation.g + curve.normalEquation.m,
-                    2f * curve.normalEquation.k * hit.point.y - 2f * curve.normalEquation.k * curve.normalEquation.h + curve.normalEquation.n,
-                    2f * curve.normalEquation.l * hit.point.z - 2f * curve.normalEquation.l * curve.normalEquation.i + curve.normalEquation.o
+                    2f * curve.normals.j * hit.point.x - 2f * curve.normals.j * curve.normals.g + curve.normals.m,
+                    2f * curve.normals.k * hit.point.y - 2f * curve.normals.k * curve.normals.h + curve.normals.n,
+                    2f * curve.normals.l * hit.point.z - 2f * curve.normals.l * curve.normals.i + curve.normals.o
+                    );
+
+                hit.oNormal = new Vector3(
+                    2f * curve.oNormals.j * hit.point.x - 2f * curve.oNormals.j * curve.oNormals.g + curve.oNormals.m,
+                    2f * curve.oNormals.k * hit.point.y - 2f * curve.oNormals.k * curve.oNormals.h + curve.oNormals.n,
+                    2f * curve.oNormals.l * hit.point.z - 2f * curve.oNormals.l * curve.oNormals.i + curve.oNormals.o
                     );
 
                 if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) &&
@@ -221,8 +233,7 @@ namespace LightTK
         public enum Type
         {
             Single,
-            Edge,
-            Reflective
+            Edge
         }
         public Type type;
         public RefractionEquation single;
@@ -304,14 +315,34 @@ namespace LightTK
         public static RefractionEquation crownGlass = new RefractionEquation() { isFixed = true, m = 0.0163f, c = 1.4835f, refractionIndex = 1.523f };
     }
 
+    public struct SurfaceSettings
+    {
+        public enum SurfaceType
+        {
+            None,
+            Refractive,
+            Reflective,
+            ThinLens
+        }
+        public SurfaceType type;
+
+        public RefractionSettings refractionSettings;
+
+        public static implicit operator SurfaceSettings(RefractionEquation refractiveIndex)
+        {
+            return new SurfaceSettings()
+            {
+                type = SurfaceType.Refractive,
+                refractionSettings = refractiveIndex
+            };
+        }
+    }
+
     public struct Equation
     {
-        public enum Type
-        {
-            Asymmetrical,
-            Symmetrical
-        }
-        public Type type;
+        /// <summary>
+        /// j(x-g)^2+k(y-h)^2+l(z-i)^2+mx+ny+oz+p=0
+        /// </summary>
 
         public float g;
         public float h;
@@ -325,13 +356,9 @@ namespace LightTK
         public float p;
     }
 
-    public struct Curve
+    public struct Surface
     {
-        public RefractionSettings refractionSettings;
-
-        /// <summary>
-        /// j(x-g)^2+k(y-h)^2+l(z-i)^2+mx+ny+oz+p=0
-        /// </summary>
+        public SurfaceSettings settings;
 
         public Vector3 position;
         public Quaternion rotation;
@@ -340,7 +367,8 @@ namespace LightTK
         public Vector3 maximum;
         public float radial;
 
-        public Equation surfaceEquation;
-        public Equation normalEquation;
+        public Equation surface;
+        public Equation normals;
+        public Equation oNormals;
     }
 }
