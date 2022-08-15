@@ -26,6 +26,7 @@ public class SurfaceEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        serializedObject.Update();
         EditorGUILayout.LabelField("Transform");
         EditorGUILayout.Space();
         s.position = EditorGUILayout.Vector3Field("Position", s.position);
@@ -79,5 +80,7 @@ public class SurfaceEditor : Editor
         s.surface.oNormals.j = polynomialScale.x;
         s.surface.oNormals.k = polynomialScale.y;
         s.surface.oNormals.l = polynomialScale.z;
+
+        serializedObject.ApplyModifiedProperties();
     }
 }
