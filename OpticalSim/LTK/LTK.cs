@@ -34,7 +34,7 @@ namespace LightTK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points)
         {
-            return GetIntersection(origin, dir, curve.curve, points, true);
+            return GetIntersection(origin, dir, curve.surface, points, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,13 +46,13 @@ namespace LightTK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetIntersection(LightRay ray, AbstractSurface curve, LightRayHit[] points, bool relative = false)
         {
-            return GetIntersection(ray.position, ray.direction, curve.curve, points, relative);
+            return GetIntersection(ray.position, ray.direction, curve.surface, points, relative);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points, bool relative = false)
         {
-            return GetIntersection(origin, dir, curve.curve, points, relative);
+            return GetIntersection(origin, dir, curve.surface, points, relative);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -338,6 +338,7 @@ namespace LightTK
         }
     }
 
+    [System.Serializable]
     public struct Equation
     {
         /// <summary>
@@ -356,6 +357,7 @@ namespace LightTK
         public float p;
     }
 
+    [System.Serializable]
     public struct Surface
     {
         public SurfaceSettings settings;

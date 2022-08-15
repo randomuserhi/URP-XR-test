@@ -25,7 +25,7 @@ namespace LightTK
             Surface[] curves = new Surface[surfaces.Length];
             for (int i = 0; i < surfaces.Length; i++)
             {
-                curves[i] = surfaces[i].curve;
+                curves[i] = surfaces[i].surface;
             }
             return curves;
         }
@@ -34,7 +34,7 @@ namespace LightTK
             Surface[] curves = new Surface[surfaces.Count];
             for (int i = 0; i < surfaces.Count; i++)
             {
-                curves[i] = surfaces[i].curve;
+                curves[i] = surfaces[i].surface;
             }
             return curves;
         }
