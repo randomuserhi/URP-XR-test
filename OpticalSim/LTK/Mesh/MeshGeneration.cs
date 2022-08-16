@@ -9,15 +9,18 @@ public class MeshGeneration : MonoBehaviour
 {
     public AbstractSurface[] surfaces;
 
-    Mesh m;
+    private Mesh m;
 
-    List<Vector3> vertices = new List<Vector3>();
-    List<Vector3> normals = new List<Vector3>();
-    List<Vector2> uvs = new List<Vector2>();
+    private List<Vector3> vertices = new List<Vector3>();
+    private List<Vector3> normals = new List<Vector3>();
+    private List<Vector2> uvs = new List<Vector2>();
 
-    List<int>[] triangles;
+    private List<int>[] triangles;
 
-    int currentIndex = 0;
+    public float step = 0.002f;
+    public int gridSize = 50;
+
+    private int currentIndex = 0;
 
     public void GenerateMesh(params AbstractSurface[] surfaces)
     {
@@ -57,9 +60,6 @@ public class MeshGeneration : MonoBehaviour
 
         LightRayHit[] hits = new LightRayHit[2];
 
-        float step = 0.02f;
-        int gridSize = 50;
-
         for (int j = gridSize / 2 - gridSize; j <= gridSize / 2; j++)
         {
             for (int i = gridSize / 2 - gridSize; i <= gridSize / 2; i++)
@@ -67,8 +67,18 @@ public class MeshGeneration : MonoBehaviour
                 float x = i * step;
                 float y = j * step;
                 Vector3 sample = new Vector3(x + c.position.x, y + c.position.y, 0);
-                sample = sample.normalized * Mathf.Min(sample.magnitude, 0.5f);
-                int hitCount = GetIntersection(sample, Vector3.forward, c, hits);
+                if (c.surface.radial != 0)
+                    sample = sample.normalized * Mathf.Min(sample.magnitude, c.surface.radial);
+                else
+                {
+                    sample.x = Mathf.Max(sample.x, c.surface.minimum.x);
+                    sample.y = Mathf.Max(sample.y, c.surface.minimum.y);
+                    sample.z = Mathf.Max(sample.z, c.surface.minimum.z);
+                    sample.x = Mathf.Min(sample.x, c.surface.maximum.x);
+                    sample.y = Mathf.Min(sample.y, c.surface.maximum.y);
+                    sample.z = Mathf.Min(sample.z, c.surface.maximum.z);
+                }
+                int hitCount = GetIntersection(sample, Vector3.forward, c, hits, bounded: false);
                 LightRayHit hit;
                 switch (hitCount)
                 {

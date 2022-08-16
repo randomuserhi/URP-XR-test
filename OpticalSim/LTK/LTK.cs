@@ -18,6 +18,40 @@ namespace LightTK
 
     public partial class LTK
     {
+        public static bool ClosestPointsOnTwoLines(out Vector3 p0, out Vector3 p1, Vector3 origin0, Vector3 dir0, Vector3 origin1, Vector3 dir1)
+        {
+            p0 = Vector3.zero;
+            p1 = Vector3.zero;
+
+            float a = Vector3.Dot(dir0, dir0);
+            float b = Vector3.Dot(dir0, dir1);
+            float e = Vector3.Dot(dir1, dir1);
+
+            float d = a * e - b * b;
+
+            //lines are not parallel
+            if (d != 0.0f)
+            {
+
+                Vector3 r = origin0 - origin1;
+                float c = Vector3.Dot(dir0, r);
+                float f = Vector3.Dot(dir1, r);
+
+                float s = (b * f - c * e) / d;
+                float t = (a * f - c * b) / d;
+
+                p0 = origin0 + dir0 * s;
+                p1 = origin1 + dir1 * t;
+
+                return true;
+            }
+
+            else
+            {
+                return false;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int Quadratic(float a, float b, float c, float[] answers)
         {
@@ -32,33 +66,33 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points, bool bounded = true)
         {
-            return GetIntersection(origin, dir, curve.surface, points, true);
+            return GetIntersection(origin, dir, curve.surface, points, true, bounded);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points)
+        public static int GetRelativeIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool bounded = true)
         {
-            return GetIntersection(origin, dir, curve, points, true);
+            return GetIntersection(origin, dir, curve, points, true, bounded);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(LightRay ray, AbstractSurface curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(LightRay ray, AbstractSurface curve, LightRayHit[] points, bool relative = false, bool bounded = true)
         {
-            return GetIntersection(ray.position, ray.direction, curve.surface, points, relative);
+            return GetIntersection(ray.position, ray.direction, curve.surface, points, relative, bounded);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(Vector3 origin, Vector3 dir, AbstractSurface curve, LightRayHit[] points, bool relative = false, bool bounded = true)
         {
-            return GetIntersection(origin, dir, curve.surface, points, relative);
+            return GetIntersection(origin, dir, curve.surface, points, relative, bounded);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetIntersection(LightRay ray, Surface curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(LightRay ray, Surface curve, LightRayHit[] points, bool relative = false, bool bounded = true)
         {
-            return GetIntersection(ray.position, ray.direction, curve, points, relative);
+            return GetIntersection(ray.position, ray.direction, curve, points, relative, bounded);
         }
 
         private struct partialEquation
@@ -79,12 +113,12 @@ namespace LightTK
             v.z = (float)Math.Round(v.z, precision);
         }
 
-        public static int GetIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool relative = false)
+        public static int GetIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool relative = false, bool bounded = true)
         {
             if (!relative)
             {
-                origin = curve.rotation * (origin - curve.position);
-                dir = curve.rotation * dir;
+                origin = Quaternion.Inverse(curve.rotation) * (origin - curve.position);
+                dir = Quaternion.Inverse(curve.rotation) * dir;
                 Round(ref origin);
                 Round(ref dir);
             }
@@ -94,7 +128,7 @@ namespace LightTK
                 curve.surface.l == 0 &&
                 curve.surface.m == 0 &&
                 curve.surface.n == 0 &&
-                curve.surface.o == 0) 
+                curve.surface.o == 0)
                 return 0;
 
             partialEquation[] l = new partialEquation[3]
@@ -142,13 +176,13 @@ namespace LightTK
 
             float bead = r1.a - r0.a * ed;
             float cfad = r2.a - r0.a * fd;
-            float bq = -2f * r0.d * r0.e + 
-                r1.d * (2f * ed * bead - 2f * r1.e * ed) + 
-                r2.d * (2f * fd * cfad - 2f * r2.e * fd) + 
+            float bq = -2f * r0.d * r0.e +
+                r1.d * (2f * ed * bead - 2f * r1.e * ed) +
+                r2.d * (2f * fd * cfad - 2f * r2.e * fd) +
                 r1.f * ed + r2.f * fd + r0.f;
 
-            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) + 
-                r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) + 
+            float cq = r0.d * r0.e * r0.e + r1.d * (bead * bead - 2f * r1.e * bead + r1.e * r1.e) +
+                r2.d * (cfad * cfad - 2f * r2.e * cfad + r2.e * r2.e) +
                 r1.f * bead + r2.f * cfad + curve.surface.p;
 
             float[] solutions = new float[2];
@@ -205,10 +239,11 @@ namespace LightTK
                     2f * curve.oNormals.l * hit.point.z - 2f * curve.oNormals.l * curve.oNormals.i + curve.oNormals.o
                     );
 
-                if ((curve.radial == 0 || hit.point.sqrMagnitude < curve.radial * curve.radial) &&
+                if (bounded &&
+                    ((curve.radial != 0 && hit.point.sqrMagnitude > curve.radial * curve.radial) ||
                     ((hit.point.x > curve.maximum.x) || (hit.point.x < curve.minimum.x) ||
                     (hit.point.y > curve.maximum.y) || (hit.point.y < curve.minimum.y) ||
-                    (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z)))
+                    (hit.point.z > curve.maximum.z) || (hit.point.z < curve.minimum.z))))
                 {
                     count -= 1;
                     j -= 1;
@@ -217,11 +252,13 @@ namespace LightTK
 
                 if (!relative)
                 {
-                    hit.normal = (Quaternion.Inverse(curve.rotation) * hit.normal);
-                    hit.point = Quaternion.Inverse(curve.rotation) * hit.point + curve.position;
+                    hit.normal = curve.rotation * hit.normal;
+                    hit.oNormal = curve.rotation * hit.oNormal;
+                    hit.point = curve.rotation * hit.point + curve.position;
                 }
 
                 hit.normal = hit.normal.normalized;
+                hit.oNormal = hit.oNormal.normalized;
                 //Round(ref hit.normal);
             }
             return count;
@@ -320,6 +357,7 @@ namespace LightTK
         public enum SurfaceType
         {
             None,
+            Block,
             Refractive,
             Reflective,
             ThinLens

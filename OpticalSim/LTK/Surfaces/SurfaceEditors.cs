@@ -44,6 +44,7 @@ public class SurfaceEditor : Editor
         EditorGUILayout.Space();
         s.surface.minimum = EditorGUILayout.Vector3Field("Minimum", s.surface.minimum);
         s.surface.maximum = EditorGUILayout.Vector3Field("Maximum", s.surface.maximum);
+        s.surface.radial = EditorGUILayout.FloatField("Radius", s.surface.radial);
         EditorGUILayout.Space();
         Vector3 translation = new Vector3(s.surface.surface.g, s.surface.surface.h, s.surface.surface.i);
         translation = EditorGUILayout.Vector3Field("Translation", translation);

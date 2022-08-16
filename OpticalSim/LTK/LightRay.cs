@@ -11,6 +11,7 @@ namespace LightTK
         public Vector3 prevDirection;
         public Vector3 direction;
         public Vector3 normal;
+        public SurfaceSettings.SurfaceType surfaceType;
 
         public float wavelength;
         public float refractiveIndex;
@@ -45,6 +46,7 @@ namespace LightTK
             l.prevDirection = l.direction;
             l.position = p.point;
             l.normal = p.normal;
+            l.surfaceType = p.surface.type;
 
             switch (p.surface.type)
             {
@@ -54,6 +56,8 @@ namespace LightTK
                     return SolveRayRefraction(ref l, p);
                 case SurfaceSettings.SurfaceType.ThinLens:
                     return SolveRayIdealLens(ref l, p);
+                case SurfaceSettings.SurfaceType.Block:
+                    return true;
                 default:
                     return true;
             }
@@ -78,7 +82,7 @@ namespace LightTK
             }
 #endif
             //TODO:: maybe make oNormal and normal an array and surfaces contain an array of equations for normals
-            //       This way infinitely thing combinations of surfaces can be made instead of just 2 surfaces
+            //       This way infinitely thin combinations of surfaces can be made instead of just 2 surfaces
             //       normal and onormal
 
             if (sign > 0) p.normal = -p.normal;
