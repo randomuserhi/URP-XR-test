@@ -259,7 +259,6 @@ namespace LightTK
 
                 hit.normal = hit.normal.normalized;
                 hit.oNormal = hit.oNormal.normalized;
-                //Round(ref hit.normal);
             }
             return count;
         }

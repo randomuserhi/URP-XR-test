@@ -43,24 +43,31 @@ namespace LightTK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SolveRay(ref LightRay l, LightRayHit p)
         {
+            l.direction = l.direction.normalized;
             l.prevDirection = l.direction;
-            l.position = p.point;
             l.normal = p.normal;
             l.surfaceType = p.surface.type;
 
+            bool success = true;
             switch (p.surface.type)
             {
                 case SurfaceSettings.SurfaceType.Reflective:
-                    return SolveRayReflection(ref l, p);
+                    success = SolveRayReflection(ref l, p);
+                    break;
                 case SurfaceSettings.SurfaceType.Refractive:
-                    return SolveRayRefraction(ref l, p);
+                    success = SolveRayRefraction(ref l, p);
+                    break;
                 case SurfaceSettings.SurfaceType.ThinLens:
-                    return SolveRayIdealLens(ref l, p);
+                    success = SolveRayIdealLens(ref l, p);
+                    break;
                 case SurfaceSettings.SurfaceType.Block:
-                    return true;
-                default:
-                    return true;
+                    success = true;
+                    break;
             }
+
+            l.direction = l.direction.normalized;
+            l.position = p.point + l.direction * 0.001f;
+            return success;
         }
 
         public static bool SolveRayIdealLens(ref LightRay l, LightRayHit p)
@@ -86,7 +93,6 @@ namespace LightTK
             //       normal and onormal
 
             if (sign > 0) p.normal = -p.normal;
-            l.direction = l.direction.normalized;
 
             float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
 
@@ -106,7 +112,6 @@ namespace LightTK
             }
 
             if (sign > 0) p.oNormal = -p.oNormal;
-            l.direction = l.direction.normalized;
 
             AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.oNormal));
 
@@ -130,6 +135,16 @@ namespace LightTK
 
         public static bool SolveRayReflection(ref LightRay l, LightRayHit p)
         {
+            //Debug.Log(p.normal.x + ", " + p.normal.y + ", " + p.normal.z);
+
+            /*Vector3 perp = Vector3.Cross(l.direction, p.normal);
+            Vector3 aligned = Vector3.Cross(p.normal, perp);
+            Vector3 projection = Vector3.Project(l.direction, aligned);
+            l.direction = -l.direction + projection * 2;*/
+
+            float sign = Vector3.Dot(p.normal, l.direction);
+            if (sign > 0) p.normal = -p.normal;
+
             l.direction = l.direction - 2f * Vector3.Dot(l.direction, p.normal) * p.normal;
             float AngleT = Mathf.Acos(Vector3.Dot(l.direction, p.normal));
 
@@ -150,7 +165,6 @@ namespace LightTK
             }
 #endif
             if (sign > 0) p.normal = -p.normal;
-            l.direction = l.direction.normalized;
 
             float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
 
