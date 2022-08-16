@@ -18,8 +18,12 @@ public class SurfaceEditor : Editor
 {
     AbstractSurface s;
 
+    SerializedProperty surfaceType;
+
+
     private void OnEnable()
     {
+        surfaceType = serializedObject.FindProperty("surfaceType");
         s = (AbstractSurface)target;
         EditorUtility.SetDirty(s);
     }
@@ -27,6 +31,11 @@ public class SurfaceEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
+
+        EditorGUILayout.LabelField("Surface Settings");
+        EditorGUILayout.PropertyField(surfaceType);
+        s.surface.settings.type = s.surfaceType;
+
         EditorGUILayout.LabelField("Transform");
         EditorGUILayout.Space();
         s.position = EditorGUILayout.Vector3Field("Position", s.position);

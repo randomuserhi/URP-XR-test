@@ -8,6 +8,7 @@ namespace LightTK
     public abstract class AbstractSurface : ScriptableObject
     {
         public Vector3 eulerAngles;
+        public SurfaceSettings.SurfaceType surfaceType;
 
         public Vector3 position
         {

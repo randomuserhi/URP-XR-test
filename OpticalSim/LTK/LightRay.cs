@@ -61,7 +61,7 @@ namespace LightTK
                     success = SolveRayIdealLens(ref l, p);
                     break;
                 case SurfaceSettings.SurfaceType.Block:
-                    success = true;
+                    success = false;
                     break;
             }
 

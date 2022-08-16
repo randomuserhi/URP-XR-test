@@ -18,7 +18,7 @@ namespace LightTK
 
     public partial class LTK
     {
-        private static float FL_EPSILON = 1e-10f;
+        private const float FL_EPSILON = 1e-10f;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool SafeCompare(float a, float b)
@@ -322,6 +322,7 @@ namespace LightTK
         }
     }
 
+    [System.Serializable]
     public struct RefractionEquation
     {
         // refractive index = m * (1 / wavelength) + c
@@ -364,6 +365,7 @@ namespace LightTK
         public static RefractionEquation crownGlass = new RefractionEquation() { isFixed = true, m = 0.0163f, c = 1.4835f, refractionIndex = 1.523f };
     }
 
+    [System.Serializable]
     public struct SurfaceSettings
     {
         public enum SurfaceType
