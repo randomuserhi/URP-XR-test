@@ -43,7 +43,7 @@ namespace LightTK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SolveRay(ref LightRay l, LightRayHit p)
         {
-            l.direction = l.direction.normalized;
+            l.direction.Normalize();
             l.prevDirection = l.direction;
             l.normal = p.normal;
             l.surfaceType = p.surface.type;
@@ -65,8 +65,9 @@ namespace LightTK
                     break;
             }
 
-            l.direction = l.direction.normalized;
-            l.position = p.point + l.direction * 0.001f;
+            l.direction.Normalize();
+            //l.position = p.point + l.direction * 0.001f; // => only applies if rounding is used for GetIntersection
+            l.position = p.point;
             return success;
         }
 

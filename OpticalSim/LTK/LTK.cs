@@ -18,6 +18,14 @@ namespace LightTK
 
     public partial class LTK
     {
+        private static float FL_EPSILON = 1e-10f;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool SafeCompare(float a, float b)
+        {
+            return Mathf.Abs(a - b) <= FL_EPSILON;
+        }
+
         public static bool ClosestPointsOnTwoLines(out Vector3 p0, out Vector3 p1, Vector3 origin0, Vector3 dir0, Vector3 origin1, Vector3 dir1)
         {
             p0 = Vector3.zero;
@@ -119,9 +127,11 @@ namespace LightTK
             {
                 origin = Quaternion.Inverse(curve.rotation) * (origin - curve.position);
                 dir = Quaternion.Inverse(curve.rotation) * dir;
-                Round(ref origin);
-                Round(ref dir);
+                //Round(ref origin);
+                //Round(ref dir);
             }
+
+            dir.Normalize();
 
             if (curve.surface.j == 0 &&
                 curve.surface.k == 0 &&
@@ -158,8 +168,11 @@ namespace LightTK
                     f = curve.surface.o
                 }
             };
+
+            //To keep maths stable make sure to pick the largest b value, otherwise ed and fd will blow up
             int rel = 0;
-            for (int i = 0; i < l.Length && l[rel].b == 0; i++, rel++) { }
+            float curr = l[0].b;
+            for (int i = 1; i < l.Length; i++) if (Mathf.Abs(curr) < Mathf.Abs(l[i].b)) { curr = l[i].b; rel = i; }
             if (l[rel].b == 0)
             {
                 Debug.LogWarning("Direction is Vector.zero!");
@@ -187,9 +200,9 @@ namespace LightTK
 
             float[] solutions = new float[2];
             int count;
-            if (aq == 0)
+            if (SafeCompare(aq, 0)) //SafeCompare to prevent floating point errors
             {
-                if (bq != 0) // Solve Linear equation 0x^2 + bx + c = 0
+                if (!SafeCompare(bq, 0)) // Solve Linear equation 0x^2 + bx + c = 0
                 {
                     solutions[0] = -cq / bq;
                     count = 1;
@@ -257,8 +270,8 @@ namespace LightTK
                     hit.point = curve.rotation * hit.point + curve.position;
                 }
 
-                hit.normal = hit.normal.normalized;
-                hit.oNormal = hit.oNormal.normalized;
+                hit.normal.Normalize();
+                hit.oNormal.Normalize();
             }
             return count;
         }
