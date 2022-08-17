@@ -32,8 +32,6 @@ namespace LightTK
             surface = new Surface()
             {
                 surface = eq,
-                normals = eq,
-                oNormals = eq,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 settings = RefractionEquation.crownGlass

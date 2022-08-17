@@ -60,36 +60,18 @@ public class SurfaceEditor : Editor
         s.surface.surface.g = translation.x;
         s.surface.surface.h = translation.y;
         s.surface.surface.i = translation.z;
-        s.surface.normals.g = translation.x;
-        s.surface.normals.h = translation.y;
-        s.surface.normals.i = translation.z;
-        s.surface.oNormals.g = translation.x;
-        s.surface.oNormals.h = translation.y;
-        s.surface.oNormals.i = translation.z;
 
         Vector3 linearScale = new Vector3(s.surface.surface.m, s.surface.surface.n, s.surface.surface.o);
         linearScale = EditorGUILayout.Vector3Field("Linear Scale", linearScale);
         s.surface.surface.m = linearScale.x;
         s.surface.surface.n = linearScale.y;
         s.surface.surface.o = linearScale.z;
-        s.surface.normals.m = linearScale.x;
-        s.surface.normals.n = linearScale.y;
-        s.surface.normals.o = linearScale.z;
-        s.surface.oNormals.m = linearScale.x;
-        s.surface.oNormals.n = linearScale.y;
-        s.surface.oNormals.o = linearScale.z;
 
         Vector3 polynomialScale = new Vector3(s.surface.surface.j, s.surface.surface.k, s.surface.surface.l);
         polynomialScale = EditorGUILayout.Vector3Field("Polynomial Scale", polynomialScale);
         s.surface.surface.j = polynomialScale.x;
         s.surface.surface.k = polynomialScale.y;
         s.surface.surface.l = polynomialScale.z;
-        s.surface.normals.j = polynomialScale.x;
-        s.surface.normals.k = polynomialScale.y;
-        s.surface.normals.l = polynomialScale.z;
-        s.surface.oNormals.j = polynomialScale.x;
-        s.surface.oNormals.k = polynomialScale.y;
-        s.surface.oNormals.l = polynomialScale.z;
 
         serializedObject.ApplyModifiedProperties();
     }

@@ -57,8 +57,8 @@ namespace LightTK
                 case SurfaceSettings.SurfaceType.Refractive:
                     success = SolveRayRefraction(ref l, p);
                     break;
-                case SurfaceSettings.SurfaceType.ThinLens:
-                    success = SolveRayIdealLens(ref l, p);
+                case SurfaceSettings.SurfaceType.IdealLens:
+                    success = SolveRayIdealConvexLens(ref l, p);
                     break;
                 case SurfaceSettings.SurfaceType.Block:
                     success = false;
@@ -71,7 +71,8 @@ namespace LightTK
             return success;
         }
 
-        public static bool SolveRayIdealLens(ref LightRay l, LightRayHit p)
+        //NOTE:: Only works on Plane surfaces
+        public static bool SolveRayIdealConvexLens(ref LightRay l, LightRayHit p)
         {
             RefractionSettings refraction = p.surface.refractionSettings;
 
@@ -80,56 +81,27 @@ namespace LightTK
 #if UNITY_EDITOR
             if (refractiveIndex == 0)
             {
-                Debug.LogError("refractiveIndex is 0");
+                Debug.LogError("refractiveIndex cannot be 0.");
                 return false;
             }
-            else if (refraction.type != RefractionSettings.Type.Single)
+            else if (p.surface.refractionSettings.type != RefractionSettings.Type.Single)
             {
-                Debug.LogError("ideal lens can only have refractive type of single");
+                Debug.LogError("Ideal lens surface can only have refractive type single.");
+                return false;
+            }
+            else if (p.surface.focalLength(ref l) == 0)
+            {
+                Debug.LogError("Focal length cannot be 0.");
                 return false;
             }
 #endif
-            //TODO:: maybe make oNormal and normal an array and surfaces contain an array of equations for normals
-            //       This way infinitely thin combinations of surfaces can be made instead of just 2 surfaces
-            //       normal and onormal
-
             if (sign > 0) p.normal = -p.normal;
 
-            float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
-
-            float ratio = l.refractiveIndex / refractiveIndex;
-            float cosI = Vector3.Dot(-p.normal, l.direction);
-            float sinT2 = ratio * ratio * (1f - cosI * cosI);
-            if (sinT2 > 1.0f) // Total internal reflection
-            {
-                SolveRayReflection(ref l, p);
-            }
-            else
-            {
-                float cosT = Mathf.Sqrt(1f - sinT2);
-                l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.normal;
-
-                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
-            }
-
-            if (sign > 0) p.oNormal = -p.oNormal;
-
-            AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.oNormal));
-
-            ratio = refractiveIndex / l.refractiveIndex;
-            cosI = Vector3.Dot(-p.oNormal, l.direction);
-            sinT2 = ratio * ratio * (1f - cosI * cosI);
-            if (sinT2 > 1.0f) // Total internal reflection
-            {
-                SolveRayReflection(ref l, p);
-            }
-            else
-            {
-                float cosT = Mathf.Sqrt(1f - sinT2);
-                l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.oNormal;
-
-                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.oNormal));
-            }
+            float I = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
+            float tanI = Mathf.Tan(I);
+            float R = Mathf.Atan(tanI - p.relPoint.magnitude / p.surface.focalLength(ref l));
+            Vector3 component = p.relPoint.normalized * Mathf.Sin(R);
+            l.direction = component - p.normal * Mathf.Sqrt(1 - component.sqrMagnitude);
 
             return true;
         }
@@ -147,7 +119,6 @@ namespace LightTK
             if (sign > 0) p.normal = -p.normal;
 
             l.direction = l.direction - 2f * Vector3.Dot(l.direction, p.normal) * p.normal;
-            float AngleT = Mathf.Acos(Vector3.Dot(l.direction, p.normal));
 
             return true;
         }
@@ -167,8 +138,6 @@ namespace LightTK
 #endif
             if (sign > 0) p.normal = -p.normal;
 
-            float AngleI = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
-
             float ratio = l.refractiveIndex / refractiveIndex;
             float cosI = Vector3.Dot(-p.normal, l.direction);
             float sinT2 = ratio * ratio * (1f - cosI * cosI);
@@ -180,8 +149,6 @@ namespace LightTK
             {
                 float cosT = Mathf.Sqrt(1f - sinT2);
                 l.direction = ratio * l.direction + (ratio * cosI - cosT) * p.normal;
-
-                float AngleT = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
             }
 
             if (refraction.type == RefractionSettings.Type.Edge)

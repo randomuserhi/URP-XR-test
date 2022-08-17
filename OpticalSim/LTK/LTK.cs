@@ -11,8 +11,8 @@ namespace LightTK
     public struct LightRayHit
     {
         public Vector3 point;
+        public Vector3 relPoint;
         public Vector3 normal;
-        public Vector3 oNormal;
         public SurfaceSettings surface;
     }
 
@@ -241,15 +241,9 @@ namespace LightTK
                 }
 
                 hit.normal = new Vector3(
-                    2f * curve.normals.j * hit.point.x - 2f * curve.normals.j * curve.normals.g + curve.normals.m,
-                    2f * curve.normals.k * hit.point.y - 2f * curve.normals.k * curve.normals.h + curve.normals.n,
-                    2f * curve.normals.l * hit.point.z - 2f * curve.normals.l * curve.normals.i + curve.normals.o
-                    );
-
-                hit.oNormal = new Vector3(
-                    2f * curve.oNormals.j * hit.point.x - 2f * curve.oNormals.j * curve.oNormals.g + curve.oNormals.m,
-                    2f * curve.oNormals.k * hit.point.y - 2f * curve.oNormals.k * curve.oNormals.h + curve.oNormals.n,
-                    2f * curve.oNormals.l * hit.point.z - 2f * curve.oNormals.l * curve.oNormals.i + curve.oNormals.o
+                    2f * curve.surface.j * hit.point.x - 2f * curve.surface.j * curve.surface.g + curve.surface.m,
+                    2f * curve.surface.k * hit.point.y - 2f * curve.surface.k * curve.surface.h + curve.surface.n,
+                    2f * curve.surface.l * hit.point.z - 2f * curve.surface.l * curve.surface.i + curve.surface.o
                     );
 
                 if (bounded &&
@@ -263,15 +257,14 @@ namespace LightTK
                     continue;
                 }
 
+                hit.relPoint = hit.point;
                 if (!relative)
                 {
                     hit.normal = curve.rotation * hit.normal;
-                    hit.oNormal = curve.rotation * hit.oNormal;
                     hit.point = curve.rotation * hit.point + curve.position;
                 }
 
                 hit.normal.Normalize();
-                hit.oNormal.Normalize();
             }
             return count;
         }
@@ -374,9 +367,41 @@ namespace LightTK
             Block,
             Refractive,
             Reflective,
-            ThinLens
+            IdealLens
         }
         public SurfaceType type;
+
+        public void setFocalLength(float focalLength, bool concave = true)
+        {
+            refractionSettings = 1f / (2f * focalLength) + RefractionEquation.air;
+            if (concave)
+            {
+                invR1 = 1f;
+                invR2 = -1f;
+            }
+            else
+            {
+                invR1 = -1f;
+                invR2 = 1f;
+            }
+        }
+        public float focalLength(ref LightRay r)
+        {
+            return 1f / ((refractionSettings.refractiveIndex(r.wavelength) - r.refractiveIndex) * (invR1 - invR2));
+        }
+
+        public float invR1;
+        public float R1
+        {
+            get { return 1f / invR1; }
+            set { invR1 = 1f / value; }
+        }
+        public float invR2;
+        public float R2
+        {
+            get { return 1f / invR2; }
+            set { invR2 = 1f / value; }
+        }
 
         public RefractionSettings refractionSettings;
 
@@ -422,7 +447,5 @@ namespace LightTK
         public float radial;
 
         public Equation surface;
-        public Equation normals;
-        public Equation oNormals;
     }
 }
