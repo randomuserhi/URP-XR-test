@@ -19,7 +19,7 @@ MonoBehaviour:
       type: 2
       invR1: 0
       invR2: 0
-    position: {x: 0, y: 0, z: -0.01}
+    position: {x: 0, y: 0, z: -0.0125}
     rotation: {x: 0, y: 0, z: 0, w: 1}
     minimum: {x: -1e+12, y: -1e+12, z: -1e+12}
     maximum: {x: 1e+12, y: 1e+12, z: 1e+12}
