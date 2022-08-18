@@ -96,10 +96,12 @@ namespace LightTK
             }
 #endif
             float focalLength;
+
+            //Deprecated - old plane solution
+
+            /*
             if (sign > 0) focalLength = -p.surface.settings.focalLength(ref l);
             else focalLength = p.surface.settings.focalLength(ref l);
-
-            //TODO:: find a more effient way to implement this without focalPlane
 
             Surface focalPlane = new Surface()
             {
@@ -118,7 +120,15 @@ namespace LightTK
                 return false;
             }
 #endif
-            l.direction = p.surface.rotation * focalHit[0].point + p.surface.position - p.point;
+            l.direction = p.surface.rotation * focalHit[0].point + p.surface.position - p.point;*/
+
+            if (sign > 0) focalLength = p.surface.settings.focalLength(ref l);
+            else focalLength = -p.surface.settings.focalLength(ref l);
+
+            Vector3 relDir = Quaternion.Inverse(p.surface.rotation) * l.direction;
+            Vector3 hit = new Vector3(focalLength / l.direction.z * l.direction.x, focalLength / l.direction.z * l.direction.y, focalLength);
+
+            l.direction = p.surface.rotation * hit + p.surface.position - p.point;
 
             return true;
         }
