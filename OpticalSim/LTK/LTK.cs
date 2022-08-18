@@ -6,14 +6,17 @@ using UnityEngine;
 
 // Light Toolkit
 
+//TODO:: Assess use of class for surfaces instead of struct (might be better performance wise, not sure)
+
 namespace LightTK
 {
     public struct LightRayHit
     {
         public Vector3 point;
         public Vector3 relPoint;
+        public Vector3 relDir;
         public Vector3 normal;
-        public SurfaceSettings surface;
+        public Surface surface;
     }
 
     public partial class LTK
@@ -113,13 +116,13 @@ namespace LightTK
             public float f;
         }
 
-        private const int precision = 4;
+        /*private const int precision = 4;
         private static void Round(ref Vector3 v)
         {
             v.x = (float)Math.Round(v.x, precision);
             v.y = (float)Math.Round(v.y, precision);
             v.z = (float)Math.Round(v.z, precision);
-        }
+        }*/
 
         public static int GetIntersection(Vector3 origin, Vector3 dir, Surface curve, LightRayHit[] points, bool relative = false, bool bounded = true)
         {
@@ -214,7 +217,7 @@ namespace LightTK
             {
                 float v = solutions[i];
                 ref LightRayHit hit = ref points[j];
-                hit.surface = curve.settings;
+                hit.surface = curve;
                 switch (rel)
                 {
                     case 0:
@@ -258,6 +261,7 @@ namespace LightTK
                 }
 
                 hit.relPoint = hit.point;
+                hit.relDir = dir;
                 if (!relative)
                 {
                     hit.normal = curve.rotation * hit.normal;
@@ -432,6 +436,49 @@ namespace LightTK
         public float n;
         public float o;
         public float p;
+
+        public static Equation Sphere = new Equation()
+        {
+            j = 1f,
+            k = 1f,
+            l = 1f,
+            p = -1f
+        };
+
+        public static Equation Plane = new Equation()
+        {
+            o = 1f
+        };
+
+        public static Equation Paraboloid = new Equation()
+        {
+            j = 1f,
+            k = 1f,
+            o = -1f
+        };
+
+        public static Equation Hyperboloid = new Equation()
+        {
+            j = 1f,
+            k = 1f,
+            l = -1f,
+            p = 1f
+        };
+
+        public static Equation Ellipsoid = new Equation()
+        {
+            j = 1f,
+            k = 1f,
+            l = 1f,
+            p = -1f
+        };
+
+        public static Equation Cylinder = new Equation()
+        {
+            j = 1f,
+            k = 1f,
+            p = -1f
+        };
     }
 
     [System.Serializable]

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LightTK
 {
     [System.Serializable]
-    [CreateAssetMenu(fileName = "Plane", menuName = "Scriptable Objects/Create Plane", order = 1)]
+    [CreateAssetMenu(fileName = "Plane", menuName = "LTK/Create Plane", order = 1)]
     public class Plane : AbstractSurface
     {
         public Vector3 minimum
@@ -45,14 +45,9 @@ namespace LightTK
 
         public Plane(Vector2 minimum, Vector2 maximum, float offset = 0)
         {
-            Equation eq = new Equation()
-            {
-                o = 1f
-            };
-
             surface = new Surface()
             {
-                surface = eq,
+                surface = Equation.Plane,
                 settings = RefractionEquation.crownGlass
             };
             this.minimum = minimum;

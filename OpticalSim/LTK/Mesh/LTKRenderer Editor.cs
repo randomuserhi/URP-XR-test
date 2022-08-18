@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(MeshGeneration))]
-public class MeshGenerationEditor : Editor
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(LTKRenderer))]
+public class LTKRendererEditor : Editor
 {
-    MeshGeneration generator;
+    LTKRenderer generator;
 
     private void OnEnable()
     {
-        generator = (MeshGeneration)target;
+        generator = (LTKRenderer)target;
     }
 
     public override void OnInspectorGUI()
@@ -19,3 +21,5 @@ public class MeshGenerationEditor : Editor
         if (GUILayout.Button("Generate Mesh")) generator.GenerateMesh(generator.surfaces);
     }
 }
+
+#endif

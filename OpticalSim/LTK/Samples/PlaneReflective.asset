@@ -17,34 +17,14 @@ MonoBehaviour:
   surface:
     settings:
       type: 3
+      invR1: 0
+      invR2: 0
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0, w: 1}
     minimum: {x: -0.05, y: -0.05, z: -1e+11}
     maximum: {x: 0.05, y: 0.05, z: 1e+11}
     radial: 0
     surface:
-      g: 0
-      h: 0
-      i: 0
-      j: 0
-      k: 0
-      l: 0
-      m: 0
-      n: 0
-      o: 1
-      p: 0
-    normals:
-      g: 0
-      h: 0
-      i: 0
-      j: 0
-      k: 0
-      l: 0
-      m: 0
-      n: 0
-      o: 1
-      p: 0
-    oNormals:
       g: 0
       h: 0
       i: 0

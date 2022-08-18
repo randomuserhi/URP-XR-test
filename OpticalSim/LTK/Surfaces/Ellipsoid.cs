@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LightTK
 {
     [System.Serializable]
-    [CreateAssetMenu(fileName = "Ellipsoid", menuName = "Scriptable Objects/Create Ellipsoid", order = 1)]
+    [CreateAssetMenu(fileName = "Ellipsoid", menuName = "LTK/Create Ellipsoid", order = 1)]
     public class Ellipsoid : AbstractSurface
     {
         public float minimum
@@ -45,17 +45,9 @@ namespace LightTK
 
         public Ellipsoid(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            Equation eq = new Equation()
-            {
-                j = 1f,
-                k = 1f,
-                l = 1f,
-                p = -1f
-            };
-
             surface = new Surface()
             {
-                surface = eq,
+                surface = Equation.Ellipsoid,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 settings = RefractionEquation.crownGlass

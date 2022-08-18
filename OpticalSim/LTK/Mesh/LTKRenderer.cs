@@ -5,7 +5,7 @@ using LightTK;
 using static LightTK.LTK;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class MeshGeneration : MonoBehaviour
+public class LTKRenderer : MonoBehaviour
 {
     public AbstractSurface[] surfaces;
 

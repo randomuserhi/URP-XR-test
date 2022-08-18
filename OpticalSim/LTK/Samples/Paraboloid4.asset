@@ -9,29 +9,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60e5ac66dfc485f47b1c8b479367864f, type: 3}
-  m_Name: PlaneBlock
-  m_EditorClassIdentifier: 
+  m_Script: {fileID: 11500000, guid: 138d6e8890bd53f47aaed7db74f69b82, type: 3}
+  m_Name: Paraboloid4
+  m_EditorClassIdentifier: Assembly-CSharp:LightTK:Paraboloid
   eulerAngles: {x: 0, y: 0, z: 0}
-  surfaceType: 1
+  surfaceType: 2
   surface:
     settings:
-      type: 1
+      type: 2
       invR1: 0
       invR2: 0
-    position: {x: 0, y: 0, z: 0}
+    position: {x: 0, y: 0, z: 0.001}
     rotation: {x: 0, y: 0, z: 0, w: 1}
-    minimum: {x: -0.1, y: -0.1, z: -1e+11}
-    maximum: {x: 0.1, y: 0.1, z: 1e+12}
-    radial: 0
+    minimum: {x: -1e+12, y: -1e+12, z: -1e+12}
+    maximum: {x: 1e+12, y: 1e+12, z: 1e+12}
+    radial: 0.05
     surface:
       g: 0
       h: 0
       i: 0
-      j: 0
-      k: 0
+      j: 5
+      k: 5
       l: 0
       m: 0
       n: 0
-      o: 1
+      o: -1
       p: 0

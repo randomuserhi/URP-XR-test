@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LightTK
 {
     [System.Serializable]
-    [CreateAssetMenu(fileName = "Paraboloid", menuName = "Scriptable Objects/Create Paraboloid", order = 1)]
+    [CreateAssetMenu(fileName = "Paraboloid", menuName = "LTK/Create Paraboloid", order = 1)]
     public class Paraboloid : AbstractSurface
     {
         public float minimum
@@ -39,16 +39,9 @@ namespace LightTK
 
         public Paraboloid(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            Equation eq = new Equation()
-            {
-                j = 1f,
-                k = 1f,
-                o = -1f
-            };
-
             base.surface = new Surface()
             {
-                surface = eq,
+                surface = Equation.Paraboloid,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 settings = RefractionEquation.crownGlass

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LightTK
 {
     [System.Serializable]
-    [CreateAssetMenu(fileName = "Sphere", menuName = "Scriptable Objects/Create Sphere", order = 1)]
+    [CreateAssetMenu(fileName = "Sphere", menuName = "LTK/Create Sphere", order = 1)]
     public class Sphere : AbstractSurface
     {
         public float minimum
@@ -44,7 +44,7 @@ namespace LightTK
 
             surface = new Surface()
             {
-                surface = eq,
+                surface = Equation.Sphere,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 settings = RefractionEquation.crownGlass

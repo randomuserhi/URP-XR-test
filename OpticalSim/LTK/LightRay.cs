@@ -46,10 +46,10 @@ namespace LightTK
             l.direction.Normalize();
             l.prevDirection = l.direction;
             l.normal = p.normal;
-            l.surfaceType = p.surface.type;
+            l.surfaceType = p.surface.settings.type;
 
             bool success = true;
-            switch (p.surface.type)
+            switch (p.surface.settings.type)
             {
                 case SurfaceSettings.SurfaceType.Reflective:
                     success = SolveRayReflection(ref l, p);
@@ -58,7 +58,7 @@ namespace LightTK
                     success = SolveRayRefraction(ref l, p);
                     break;
                 case SurfaceSettings.SurfaceType.IdealLens:
-                    success = SolveRayIdealConvexLens(ref l, p);
+                    success = SolveRayIdealLens(ref l, p);
                     break;
                 case SurfaceSettings.SurfaceType.Block:
                     success = false;
@@ -72,9 +72,9 @@ namespace LightTK
         }
 
         //NOTE:: Only works on Plane surfaces
-        public static bool SolveRayIdealConvexLens(ref LightRay l, LightRayHit p)
+        public static bool SolveRayIdealLens(ref LightRay l, LightRayHit p)
         {
-            RefractionSettings refraction = p.surface.refractionSettings;
+            RefractionSettings refraction = p.surface.settings.refractionSettings;
 
             float sign = Vector3.Dot(p.normal, l.direction);
             float refractiveIndex = refraction.refractiveIndex(l.wavelength, sign);
@@ -84,24 +84,41 @@ namespace LightTK
                 Debug.LogError("refractiveIndex cannot be 0.");
                 return false;
             }
-            else if (p.surface.refractionSettings.type != RefractionSettings.Type.Single)
+            else if (p.surface.settings.refractionSettings.type != RefractionSettings.Type.Single)
             {
                 Debug.LogError("Ideal lens surface can only have refractive type single.");
                 return false;
             }
-            else if (p.surface.focalLength(ref l) == 0)
+            else if (p.surface.settings.focalLength(ref l) == 0)
             {
                 Debug.LogError("Focal length cannot be 0.");
                 return false;
             }
 #endif
-            if (sign > 0) p.normal = -p.normal;
+            float focalLength;
+            if (sign > 0) focalLength = -p.surface.settings.focalLength(ref l);
+            else focalLength = p.surface.settings.focalLength(ref l);
 
-            float I = Mathf.Acos(Vector3.Dot(l.direction, -p.normal));
-            float tanI = Mathf.Tan(I);
-            float R = Mathf.Atan(tanI - p.relPoint.magnitude / p.surface.focalLength(ref l));
-            Vector3 component = p.relPoint.normalized * Mathf.Sin(R);
-            l.direction = component - p.normal * Mathf.Sqrt(1 - component.sqrMagnitude);
+            //TODO:: find a more effient way to implement this without focalPlane
+
+            Surface focalPlane = new Surface()
+            {
+                surface = new Equation()
+                {
+                    o = 1f,
+                    p = focalLength
+                }
+            };
+            LightRayHit[] focalHit = new LightRayHit[2];
+            int hits = GetRelativeIntersection(Vector3.zero, p.relDir, focalPlane, focalHit, bounded: false);
+#if UNITY_EDITOR
+            if (hits == 0)
+            {
+                Debug.LogError("Unable to hit focal plane. This should never happen.");
+                return false;
+            }
+#endif
+            l.direction = p.surface.rotation * focalHit[0].point + p.surface.position - p.point;
 
             return true;
         }
@@ -125,7 +142,7 @@ namespace LightTK
 
         public static bool SolveRayRefraction(ref LightRay l, LightRayHit p)
         {
-            RefractionSettings refraction = p.surface.refractionSettings;
+            RefractionSettings refraction = p.surface.settings.refractionSettings;
 
             float sign = Vector3.Dot(p.normal, l.direction);
             float refractiveIndex = refraction.refractiveIndex(l.wavelength, sign);
@@ -208,6 +225,70 @@ namespace LightTK
                         success = true;
                         p = hit;
                         pdir = p.point - l.position;
+                    }
+                }
+            }
+            if (!success) return false;
+
+            return SolveRay(ref l, p);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool SimulateRay(ref LightRay l, List<LTKCollider> curves)
+        {
+            if (l.direction == Vector3.zero) return false;
+            LightRayHit[] hits = new LightRayHit[2];
+            LightRayHit p = new LightRayHit();
+            Vector3 pdir = Vector3.positiveInfinity;
+            bool success = false;
+            for (int i = 0; i < curves.Count; i++)
+            {
+                if (curves[i].enableCollision)
+                {
+                    int count = GetIntersection(l, curves[i]._surface, hits);
+                    for (int j = 0; j < count; j++)
+                    {
+                        ref LightRayHit hit = ref hits[j];
+                        Vector3 dir = hit.point - l.position;
+                        if (Vector3.Dot(dir, l.direction) <= 0) continue;
+                        if (hit.point != l.position && (!success || dir.sqrMagnitude < pdir.sqrMagnitude))
+                        {
+                            success = true;
+                            p = hit;
+                            pdir = p.point - l.position;
+                        }
+                    }
+                }
+            }
+            if (!success) return false;
+
+            return SolveRay(ref l, p);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool SimulateRay(ref LightRay l, LTKCollider[] curves)
+        {
+            if (l.direction == Vector3.zero) return false;
+            LightRayHit[] hits = new LightRayHit[2];
+            LightRayHit p = new LightRayHit();
+            Vector3 pdir = Vector3.positiveInfinity;
+            bool success = false;
+            for (int i = 0; i < curves.Length; i++)
+            {
+                if (curves[i].enableCollision)
+                {
+                    int count = GetIntersection(l, curves[i]._surface, hits);
+                    for (int j = 0; j < count; j++)
+                    {
+                        ref LightRayHit hit = ref hits[j];
+                        Vector3 dir = hit.point - l.position;
+                        if (Vector3.Dot(dir, l.direction) <= 0) continue;
+                        if (hit.point != l.position && (!success || dir.sqrMagnitude < pdir.sqrMagnitude))
+                        {
+                            success = true;
+                            p = hit;
+                            pdir = p.point - l.position;
+                        }
                     }
                 }
             }

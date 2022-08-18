@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LightTK
 {
     [System.Serializable]
-    [CreateAssetMenu(fileName = "Hyperboloid", menuName = "Scriptable Objects/Create Hyperboloid", order = 1)]
+    [CreateAssetMenu(fileName = "Hyperboloid", menuName = "LTK/Create Hyperboloid", order = 1)]
     public class Hyperboloid : AbstractSurface
     {
         public float minimum
@@ -45,17 +45,9 @@ namespace LightTK
 
         public Hyperboloid(float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, float offset = 0)
         {
-            Equation eq = new Equation()
-            {
-                j = 1f,
-                k = 1f,
-                l = -1f,
-                p = 1f
-            };
-
             surface = new Surface()
             {
-                surface = eq,
+                surface = Equation.Hyperboloid,
                 minimum = Vector3.negativeInfinity,
                 maximum = Vector3.positiveInfinity,
                 settings = RefractionEquation.crownGlass

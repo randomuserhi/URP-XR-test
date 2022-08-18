@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 138d6e8890bd53f47aaed7db74f69b82, type: 3}
-  m_Name: Paraboloid1
+  m_Name: Paraboloid3
   m_EditorClassIdentifier: Assembly-CSharp:LightTK:Paraboloid
-  eulerAngles: {x: 0, y: 0, z: 0}
+  eulerAngles: {x: 180, y: 0, z: 0}
   surfaceType: 2
   surface:
     settings:
       type: 2
       invR1: 0
       invR2: 0
-    position: {x: 0, y: 0, z: -0.01}
-    rotation: {x: 0, y: 0, z: 0, w: 1}
+    position: {x: 0, y: 0, z: -0.001}
+    rotation: {x: 1, y: 0, z: 0, w: -0.00000004371139}
     minimum: {x: -1e+12, y: -1e+12, z: -1e+12}
     maximum: {x: 1e+12, y: 1e+12, z: 1e+12}
     radial: 0.05
