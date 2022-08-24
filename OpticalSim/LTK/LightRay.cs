@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace LightTK
 {
-    public struct LightRay
+    public class LightRay
     {
         public Vector3 position;
         public Vector3 prevDirection;
@@ -13,10 +13,8 @@ namespace LightTK
         public Vector3 normal;
         public SurfaceSettings.SurfaceType surfaceType;
 
-        public float wavelength;
-        public float refractiveIndex;
-
-        public static LightRay visibleLight = new LightRay() { wavelength = 0.64f, refractiveIndex = RefractionEquation.air };
+        public float wavelength = 0.64f;
+        public float refractiveIndex = RefractionEquation.air;
     }
 
     public partial class LTK
@@ -41,7 +39,7 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SolveRay(ref LightRay l, LightRayHit p)
+        public static bool SolveRay(LightRay l, LightRayHit p)
         {
             l.direction.Normalize();
             l.prevDirection = l.direction;
@@ -52,13 +50,13 @@ namespace LightTK
             switch (p.surface.settings.type)
             {
                 case SurfaceSettings.SurfaceType.Reflective:
-                    success = SolveRayReflection(ref l, p);
+                    success = SolveRayReflection(l, p);
                     break;
                 case SurfaceSettings.SurfaceType.Refractive:
-                    success = SolveRayRefraction(ref l, p);
+                    success = SolveRayRefraction(l, p);
                     break;
                 case SurfaceSettings.SurfaceType.IdealLens:
-                    success = SolveRayIdealLens(ref l, p);
+                    success = SolveRayIdealLens(l, p);
                     break;
                 case SurfaceSettings.SurfaceType.Block:
                     success = false;
@@ -72,7 +70,7 @@ namespace LightTK
         }
 
         //NOTE:: Only works on Plane surfaces
-        public static bool SolveRayIdealLens(ref LightRay l, LightRayHit p)
+        public static bool SolveRayIdealLens(LightRay l, LightRayHit p)
         {
             RefractionSettings refraction = p.surface.settings.refractionSettings;
 
@@ -133,7 +131,7 @@ namespace LightTK
             return true;
         }
 
-        public static bool SolveRayReflection(ref LightRay l, LightRayHit p)
+        public static bool SolveRayReflection(LightRay l, LightRayHit p)
         {
             //Debug.Log(p.normal.x + ", " + p.normal.y + ", " + p.normal.z);
 
@@ -150,7 +148,7 @@ namespace LightTK
             return true;
         }
 
-        public static bool SolveRayRefraction(ref LightRay l, LightRayHit p)
+        public static bool SolveRayRefraction(LightRay l, LightRayHit p)
         {
             RefractionSettings refraction = p.surface.settings.refractionSettings;
 
@@ -170,7 +168,7 @@ namespace LightTK
             float sinT2 = ratio * ratio * (1f - cosI * cosI);
             if (sinT2 > 1.0f) // Total internal reflection
             {
-                SolveRayReflection(ref l, p);
+                SolveRayReflection(l, p);
             }
             else
             {
@@ -185,7 +183,7 @@ namespace LightTK
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SimulateRay(ref LightRay l, Surface[] curves)
+        public static bool SimulateRay(LightRay l, Surface[] curves)
         {
             if (l.direction == Vector3.zero) return false;
             LightRayHit[] hits = new LightRayHit[2];
@@ -211,11 +209,11 @@ namespace LightTK
             }
             if (!success) return false;
 
-            return SolveRay(ref l, p);
+            return SolveRay(l, p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SimulateRay(ref LightRay l, List<Surface> curves)
+        public static bool SimulateRay(LightRay l, List<Surface> curves)
         {
             if (l.direction == Vector3.zero) return false;
             LightRayHit[] hits = new LightRayHit[2];
@@ -240,11 +238,11 @@ namespace LightTK
             }
             if (!success) return false;
 
-            return SolveRay(ref l, p);
+            return SolveRay(l, p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SimulateRay(ref LightRay l, List<LTKCollider> curves)
+        public static bool SimulateRay(LightRay l, List<LTKCollider> curves)
         {
             if (l.direction == Vector3.zero) return false;
             LightRayHit[] hits = new LightRayHit[2];
@@ -272,11 +270,11 @@ namespace LightTK
             }
             if (!success) return false;
 
-            return SolveRay(ref l, p);
+            return SolveRay(l, p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SimulateRay(ref LightRay l, LTKCollider[] curves)
+        public static bool SimulateRay(LightRay l, LTKCollider[] curves)
         {
             if (l.direction == Vector3.zero) return false;
             LightRayHit[] hits = new LightRayHit[2];
@@ -304,14 +302,14 @@ namespace LightTK
             }
             if (!success) return false;
 
-            return SolveRay(ref l, p);
+            return SolveRay(l, p);
         }
 
         public static void SimulateRays(LightRay[] rays, Surface[] curves)
         {
             for (int i = 0; i < rays.Length; i++)
             {
-                SimulateRay(ref rays[i], curves);
+                SimulateRay(rays[i], curves);
             }
         }
 
@@ -319,7 +317,7 @@ namespace LightTK
         {
             for (int i = 0; i < rays.Length; i++)
             {
-                SimulateRay(ref rays[i], curves);
+                SimulateRay(rays[i], curves);
             }
         }
         public static void SimulateRays(List<LightRay> rays, Surface[] curves)
@@ -327,7 +325,7 @@ namespace LightTK
             for (int i = 0; i < rays.Count; i++)
             {
                 LightRay l = rays[i];
-                SimulateRay(ref l, curves);
+                SimulateRay(l, curves);
                 rays[i] = l;
             }
         }
@@ -337,7 +335,7 @@ namespace LightTK
             for (int i = 0; i < rays.Count; i++)
             {
                 LightRay l = rays[i];
-                SimulateRay(ref l, curves);
+                SimulateRay(l, curves);
                 rays[i] = l;
             }
         }

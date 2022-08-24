@@ -7,7 +7,6 @@ using static LightTK.LTK;
 public class LTKCollider : MonoBehaviour
 {
     public AbstractSurface surface;
-    [System.NonSerialized]
     public Surface _surface;
     public bool enableCollision = true;
 
@@ -17,7 +16,9 @@ public class LTKCollider : MonoBehaviour
 
     private void FixedUpdate()
     {
+        SurfaceSettings s = _surface.settings;
         _surface = surface; //TODO:: this copy is a bit unnecessary to do every frame, but might be easiest to implement like so
+        _surface.settings = s;
         _surface.position = surface.position + transform.position;
         _surface.rotation = transform.rotation * surface.rotation;
     }
