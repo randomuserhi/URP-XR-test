@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2869835234282623786}
   - component: {fileID: 2869835234282623787}
   - component: {fileID: 2869835234282623764}
+  - component: {fileID: 7414664778074249206}
   m_Layer: 0
   m_Name: PlaneReflective
   m_TagString: Untagged
@@ -61,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5c59ca89a0e38914a95af6e02e0885db, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -97,6 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   surfaces:
   - {fileID: 11400000, guid: 2316d7c91120691468598766c5044535, type: 2}
+  - {fileID: 11400000, guid: d63cf1c04d6e1a747bb6153c62cb9cae, type: 2}
   step: 0.005
   gridSize: 25
 --- !u!114 &2869835234282623764
@@ -115,6 +117,58 @@ MonoBehaviour:
   _surface:
     settings:
       type: 3
+      invR1: 0
+      invR2: 0
+      refractionSettings:
+        type: 0
+        single:
+          m: 0
+          c: 0
+          isFixed: 0
+          refractionIndex: 0
+        positive:
+          m: 0
+          c: 0
+          isFixed: 0
+          refractionIndex: 0
+        negative:
+          m: 0
+          c: 0
+          isFixed: 0
+          refractionIndex: 0
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    minimum: {x: 0, y: 0, z: 0}
+    maximum: {x: 0, y: 0, z: 0}
+    radial: 0
+    surface:
+      g: 0
+      h: 0
+      i: 0
+      j: 0
+      k: 0
+      l: 0
+      m: 0
+      n: 0
+      o: 0
+      p: 0
+  enableCollision: 1
+--- !u!114 &7414664778074249206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2869835234282623767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d29c49480b96fc4cae8a8ea94385f7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  surface: {fileID: 11400000, guid: d63cf1c04d6e1a747bb6153c62cb9cae, type: 2}
+  _surface:
+    settings:
+      type: 0
       invR1: 0
       invR2: 0
       refractionSettings:

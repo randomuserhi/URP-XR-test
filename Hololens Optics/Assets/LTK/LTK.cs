@@ -368,11 +368,11 @@ namespace LightTK
     {
         public enum SurfaceType
         {
-            None,
-            Block,
+            IdealLens,
             Refractive,
             Reflective,
-            IdealLens
+            Block,
+            None
         }
         public SurfaceType type;
 
@@ -390,9 +390,13 @@ namespace LightTK
                 invR2 = 1f;
             }
         }
-        public float focalLength(ref LightRay r)
+        public float focalLength(LightRay r)
         {
             return 1f / ((refractionSettings.refractiveIndex(r.wavelength) - r.refractiveIndex) * (invR1 - invR2));
+        }
+        public float focalLength()
+        {
+            return 1f / ((refractionSettings.refractiveIndex(0.64f) - RefractionEquation.air) * (invR1 - invR2));
         }
 
         public float invR1;
@@ -482,7 +486,7 @@ namespace LightTK
         };
     }
 
-    [System.Serializable]
+    [Serializable]
     public struct Surface
     {
         public SurfaceSettings settings;

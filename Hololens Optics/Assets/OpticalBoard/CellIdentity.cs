@@ -25,14 +25,23 @@ public class CellIdentity : MonoBehaviour
     private bool setPos = false;
     public Vector2Int gridPos;
 
+    private Canvas label;
+
     public void Start()
     {
         interaction = GetComponent<Interactable>();
+        label = GetComponentInChildren<Canvas>();
     }
 
     private void FixedUpdate()
     {
         transform.parent = parent;
+
+        label.enabled = interaction.hands.Count > 0;
+
+        //if (label.enabled) label.transform.rotation = Quaternion.Euler(0f, -90f, 0f) * Quaternion.LookRotation(new Vector3(label.transform.position.x - Camera.main.transform.position.x, Camera.main.transform.position.y, label.transform.position.z - Camera.main.transform.position.z));
+
+        if (label.enabled) { label.transform.LookAt(label.transform.position + Camera.main.transform.rotation * Vector3.left, Camera.main.transform.rotation * Vector3.up); label.transform.eulerAngles = new Vector3(0f, label.transform.eulerAngles.y, 0f); }
 
         if (interaction.isGrabbing)
         {

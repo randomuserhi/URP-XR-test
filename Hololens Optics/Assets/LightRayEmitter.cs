@@ -6,9 +6,11 @@ using static LightTK.LTK;
 
 public class LightRayEmitter : MonoBehaviour
 {
-    private LTKCollider[] colliders;
+    public static LTKCollider[] colliders;
     public LightRay[] rays;
     private LineRenderer[] renderers;
+
+    private Spawner spawner;
 
     [SerializeField]
     public GameObject rayPrefab;
@@ -21,27 +23,37 @@ public class LightRayEmitter : MonoBehaviour
         {
             renderers[i] = Instantiate(rayPrefab).GetComponent<LineRenderer>();
         }
+        spawner = transform.parent.GetComponentInParent<Spawner>();
     }
 
     void FixedUpdate()
     {
-        for (int j = 0; j < rays.Length; j++)
-        {
-            LightRay ray = new LightRay();
-            rays[j] = ray;
-            ray.position = transform.position + Quaternion.AngleAxis(360 * j / rays.Length, transform.forward) * Vector3.up * 0.01f;
-            ray.direction = transform.forward;
-
-            int i = 1;
-            renderers[j].positionCount = i;
-            renderers[j].SetPosition(0, ray.position);
-            for (int z = 0; z < 100 && SimulateRay(ray, colliders); z++, i++)
+        if (!spawner.enabled)
+            for (int j = 0; j < rays.Length; j++)
             {
+                LightRay ray = new LightRay();
+                rays[j] = ray;
+                ray.position = transform.position + Quaternion.AngleAxis(360 * j / rays.Length, transform.forward) * Vector3.up * 0.01f;
+                ray.direction = -transform.forward;
+
+                int i = 1;
+                renderers[j].positionCount = i;
+                renderers[j].SetPosition(0, ray.position);
+                for (int z = 0; z < 100 && SimulateRay(ray, colliders); z++, i++)
+                {
+                    renderers[j].positionCount = i + 1;
+                    renderers[j].SetPosition(i, ray.position);
+                }
                 renderers[j].positionCount = i + 1;
-                renderers[j].SetPosition(i, ray.position);
+                renderers[j].SetPosition(i, ray.position + ray.direction * 100f);
             }
-            renderers[j].positionCount = i + 1;
-            renderers[j].SetPosition(i, ray.position + ray.direction * 100f);
+    }
+
+    private void OnDestroy()
+    {
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null) Destroy(renderers[i].gameObject);
         }
     }
 }

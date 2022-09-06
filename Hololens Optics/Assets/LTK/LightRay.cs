@@ -87,7 +87,7 @@ namespace LightTK
                 Debug.LogError("Ideal lens surface can only have refractive type single.");
                 return false;
             }
-            else if (p.surface.settings.focalLength(ref l) == 0)
+            else if (p.surface.settings.focalLength(l) == 0)
             {
                 Debug.LogError("Focal length cannot be 0.");
                 return false;
@@ -120,11 +120,11 @@ namespace LightTK
 #endif
             l.direction = p.surface.rotation * focalHit[0].point + p.surface.position - p.point;*/
 
-            if (sign > 0) focalLength = p.surface.settings.focalLength(ref l);
-            else focalLength = -p.surface.settings.focalLength(ref l);
+            if (sign > 0) focalLength = p.surface.settings.focalLength(l);
+            else focalLength = -p.surface.settings.focalLength(l);
 
             Vector3 relDir = Quaternion.Inverse(p.surface.rotation) * l.direction;
-            Vector3 hit = new Vector3(focalLength / l.direction.z * l.direction.x, focalLength / l.direction.z * l.direction.y, focalLength);
+            Vector3 hit = new Vector3(focalLength / relDir.z * relDir.x, focalLength / relDir.z * relDir.y, focalLength);
 
             l.direction = p.surface.rotation * hit + p.surface.position - p.point;
 

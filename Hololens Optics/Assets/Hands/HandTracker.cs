@@ -307,8 +307,22 @@ public class HandTracker : MonoBehaviour
         for (int i = 0; i < h.rawTrackers.Length; i++)
         {
             h.rawTrackers[i].GetComponent<MeshRenderer>().material.color = h.isGrabbing ? Color.red : Color.white;
+            h.rawTrackers[i].GetComponent<MeshRenderer>().enabled = h.isTracked;
         }
 #endif
+
+        if (!h.isTracked)
+        {
+            if (h.current != null)
+            {
+                h.current.disposeHands.Add(h);
+            }
+
+            h.current = null;
+            h.lingering = false;
+
+            return;
+        }
 
         Interactable contact = null;
         InteractPoint interact = new InteractPoint();
