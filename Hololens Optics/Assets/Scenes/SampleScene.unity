@@ -144,11 +144,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4971474957903867255, guid: 0b526300f0fcc9647bd4576fe28929c9, type: 3}
       propertyPath: m_text
-      value: Concave Lens
+      value: Bi-Concave Lens
       objectReference: {fileID: 0}
     - target: {fileID: 6209205606072645439, guid: 0b526300f0fcc9647bd4576fe28929c9, type: 3}
       propertyPath: m_Name
-      value: Lens Frame Concave
+      value: Lens Frame Bi-Concave
       objectReference: {fileID: 0}
     - target: {fileID: 6728473729743105413, guid: 0b526300f0fcc9647bd4576fe28929c9, type: 3}
       propertyPath: m_RootOrder
@@ -2202,11 +2202,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4971474957903867255, guid: 0b526300f0fcc9647bd4576fe28929c9, type: 3}
       propertyPath: m_text
-      value: Convex Lens
+      value: Bi-Convex Lens
       objectReference: {fileID: 0}
     - target: {fileID: 6209205606072645439, guid: 0b526300f0fcc9647bd4576fe28929c9, type: 3}
       propertyPath: m_Name
-      value: Lens Frame Convex
+      value: Lens Frame Bi-Convex
       objectReference: {fileID: 0}
     - target: {fileID: 6728473729743105413, guid: 0b526300f0fcc9647bd4576fe28929c9, type: 3}
       propertyPath: m_RootOrder

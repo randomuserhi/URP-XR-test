@@ -146,3 +146,22 @@ Received Import Request.
   path: Assets/LTK/Mesh
   artifactKey: Guid(60d94c005491e9b46921061c386ef065) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
 Start importing Assets/LTK/Mesh using Guid(60d94c005491e9b46921061c386ef065) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c768520afbcef9e2f81e9fc6fb781095') in 0.012431 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 569.119822 seconds.
+  path: Assets/OpticalBoard/Prefabs/Lens Frame.prefab
+  artifactKey: Guid(0b526300f0fcc9647bd4576fe28929c9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/OpticalBoard/Prefabs/Lens Frame.prefab using Guid(0b526300f0fcc9647bd4576fe28929c9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4d4d50706bcb0675cd7fa6463429663a') in 0.469711 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 0.000250 seconds.
+  path: Assets/OpticalBoard/Prefabs/Slider.prefab
+  artifactKey: Guid(015a62d74e001b64e8f4bcf190af11f9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/OpticalBoard/Prefabs/Slider.prefab using Guid(015a62d74e001b64e8f4bcf190af11f9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '07aaa9fd4c209b6eae00a309c105d6b2') in 0.055412 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 0.000278 seconds.
+  path: Assets/OpticalBoard/Prefabs/Snappable Slider.prefab
+  artifactKey: Guid(e9760cc4d9e0f8f4a86626c92f754656) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/OpticalBoard/Prefabs/Snappable Slider.prefab using Guid(e9760cc4d9e0f8f4a86626c92f754656) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '757f32a6559979b718a2c16336211cf5') in 0.039673 seconds 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file
