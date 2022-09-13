@@ -212,7 +212,7 @@ public class HandTracker : MonoBehaviour
             //Only index finger
             Vector3 dir = (rawTrackers[2].transform.position - rawTrackers[6].transform.position);
             float dist = dir.sqrMagnitude;
-            if (dist < 0.04f * 0.04f)
+            if (dist < 0.03f * 0.03f)
             {
                 isGripping = true;
             }
@@ -287,8 +287,8 @@ public class HandTracker : MonoBehaviour
         }
     }
 
-    private Hand LHand;
-    private Hand RHand;
+    public static Hand LHand;
+    public static Hand RHand;
 
     private void Start()
     {
@@ -303,13 +303,11 @@ public class HandTracker : MonoBehaviour
 
     private void Interact(Hand h)
     {
-#if UNITY_EDITOR
         for (int i = 0; i < h.rawTrackers.Length; i++)
         {
             h.rawTrackers[i].GetComponent<MeshRenderer>().material.color = h.isGrabbing ? Color.red : Color.white;
             h.rawTrackers[i].GetComponent<MeshRenderer>().enabled = h.isTracked;
         }
-#endif
 
         if (!h.isTracked)
         {
@@ -329,6 +327,7 @@ public class HandTracker : MonoBehaviour
         float d = float.PositiveInfinity;
         for (int i = 0; i < objects.Count; i++)
         {
+            if (!objects[i].enabled) continue;
             InteractPoint temp = h.InRange(objects[i]);
             if (temp.distance < d)
             {
@@ -372,7 +371,9 @@ public class HandTracker : MonoBehaviour
         {
             h.current.disposeHands.Remove(h);
             if (!h.current.hands.ContainsKey(h))
+            {
                 h.current.hands.Add(h, interact);
+            }
             h.current.hands[h] = interact;
         }
 
@@ -423,5 +424,8 @@ public class HandTracker : MonoBehaviour
 
         Interact(LHand);
         Interact(RHand);
+
+        //LHand.Save(@"C:\Users\Bboy1\Desktop\LHand.txt");
+        //RHand.Save(@"C:\Users\Bboy1\Desktop\RHand.txt");
     }
 }

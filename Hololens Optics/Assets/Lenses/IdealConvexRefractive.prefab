@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5809078918941122294}
   - component: {fileID: 5809078918941122293}
   m_Layer: 0
-  m_Name: IdealRefractive
+  m_Name: IdealConvexRefractive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -116,7 +116,7 @@ MonoBehaviour:
   surface: {fileID: 11400000, guid: 687fcb4e4b7ac2f479a24d80051ca916, type: 2}
   _surface:
     settings:
-      type: 4
+      type: 0
       invR1: 4
       invR2: -4
       refractionSettings:

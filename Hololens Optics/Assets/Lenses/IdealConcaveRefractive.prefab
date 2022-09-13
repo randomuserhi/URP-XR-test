@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2869835234282623767
+--- !u!1 &125172026167350192
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,26 +8,25 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2869835234282623766}
-  - component: {fileID: 2869835234282623785}
-  - component: {fileID: 2869835234282623786}
-  - component: {fileID: 2869835234282623787}
-  - component: {fileID: 2869835234282623764}
-  - component: {fileID: 7414664778074249206}
+  - component: {fileID: 125172026167350193}
+  - component: {fileID: 125172026167350202}
+  - component: {fileID: 125172026167350197}
+  - component: {fileID: 125172026167350196}
+  - component: {fileID: 125172026167350199}
   m_Layer: 0
-  m_Name: PlaneReflective
+  m_Name: IdealConcaveRefractive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2869835234282623766
+--- !u!4 &125172026167350193
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2869835234282623767}
+  m_GameObject: {fileID: 125172026167350192}
   m_LocalRotation: {x: 0.7071068, y: 0.7071068, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -35,21 +34,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 90}
---- !u!33 &2869835234282623785
+--- !u!33 &125172026167350202
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2869835234282623767}
+  m_GameObject: {fileID: 125172026167350192}
   m_Mesh: {fileID: 0}
---- !u!23 &2869835234282623786
+--- !u!23 &125172026167350197
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2869835234282623767}
+  m_GameObject: {fileID: 125172026167350192}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -62,8 +61,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 6fb9b14869d733444aecc4ac7796634f, type: 2}
+  - {fileID: 2100000, guid: 6fb9b14869d733444aecc4ac7796634f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,110 +84,58 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &2869835234282623787
+--- !u!114 &125172026167350196
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2869835234282623767}
+  m_GameObject: {fileID: 125172026167350192}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 19ca7658c6cb1ad409d77fa85d0da43d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   surfaces:
-  - {fileID: 11400000, guid: 2316d7c91120691468598766c5044535, type: 2}
-  - {fileID: 11400000, guid: d63cf1c04d6e1a747bb6153c62cb9cae, type: 2}
+  - {fileID: 11400000, guid: e71ea9f3b436325418a3bd9a09671927, type: 2}
+  - {fileID: 11400000, guid: c7e60268aec8f3042bef39fce2618696, type: 2}
   step: 0.005
   gridSize: 25
---- !u!114 &2869835234282623764
+--- !u!114 &125172026167350199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2869835234282623767}
+  m_GameObject: {fileID: 125172026167350192}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3d29c49480b96fc4cae8a8ea94385f7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surface: {fileID: 11400000, guid: 2316d7c91120691468598766c5044535, type: 2}
+  surface: {fileID: 11400000, guid: 687fcb4e4b7ac2f479a24d80051ca916, type: 2}
   _surface:
     settings:
-      type: 2
-      invR1: 0
-      invR2: 0
+      type: 0
+      invR1: -4
+      invR2: 4
       refractionSettings:
         type: 0
         single:
           m: 0
           c: 0
-          isFixed: 0
-          refractionIndex: 0
+          isFixed: 1
+          refractionIndex: 1.523
         positive:
           m: 0
           c: 0
-          isFixed: 0
-          refractionIndex: 0
+          isFixed: 1
+          refractionIndex: 1
         negative:
           m: 0
           c: 0
-          isFixed: 0
-          refractionIndex: 0
-    position: {x: 0, y: 0, z: 0}
-    rotation: {x: 0, y: 0, z: 0, w: 0}
-    minimum: {x: 0, y: 0, z: 0}
-    maximum: {x: 0, y: 0, z: 0}
-    radial: 0
-    surface:
-      g: 0
-      h: 0
-      i: 0
-      j: 0
-      k: 0
-      l: 0
-      m: 0
-      n: 0
-      o: 0
-      p: 0
-  enableCollision: 1
---- !u!114 &7414664778074249206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2869835234282623767}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d29c49480b96fc4cae8a8ea94385f7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  surface: {fileID: 11400000, guid: d63cf1c04d6e1a747bb6153c62cb9cae, type: 2}
-  _surface:
-    settings:
-      type: 2
-      invR1: 0
-      invR2: 0
-      refractionSettings:
-        type: 0
-        single:
-          m: 0
-          c: 0
-          isFixed: 0
-          refractionIndex: 0
-        positive:
-          m: 0
-          c: 0
-          isFixed: 0
-          refractionIndex: 0
-        negative:
-          m: 0
-          c: 0
-          isFixed: 0
-          refractionIndex: 0
+          isFixed: 1
+          refractionIndex: 1.5
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0, w: 0}
     minimum: {x: 0, y: 0, z: 0}

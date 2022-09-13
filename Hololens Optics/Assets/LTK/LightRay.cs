@@ -127,6 +127,7 @@ namespace LightTK
             Vector3 hit = new Vector3(focalLength / relDir.z * relDir.x, focalLength / relDir.z * relDir.y, focalLength);
 
             l.direction = p.surface.rotation * hit + p.surface.position - p.point;
+            if (p.surface.settings.invR1 < 0 && p.surface.settings.invR2 > 0) l.direction *= -1;
 
             return true;
         }

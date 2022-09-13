@@ -5,30 +5,38 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     private Interactable interactable;
+    private Interactable temp;
+
+    protected GameObject newObject;
+    private CellIdentity[] newLensCellIdentities;
+
 
     void Start()
     {
         interactable = GetComponent<Interactable>();
     }
 
-    GameObject newLens;
     void FixedUpdate()
     {
-        if (newLens == null)
-        {
-            if (interactable.isGrabbing)
-            {
-                newLens = Instantiate(gameObject, transform.position, transform.rotation, transform.parent);
-                newLens.GetComponent<CellIdentity>().enabled = true;
-                newLens.GetComponent<Spawner>().enabled = false;
-                LightRayEmitter.colliders = FindObjectsOfType<LTKCollider>();
-            }
+        if (interactable.isGrabbing && newObject == null) {
+        newObject = Instantiate(gameObject, transform.position, transform.rotation);
+
+            newLensCellIdentities = newObject.GetComponentsInChildren<CellIdentity>();
+            newLensCellIdentities[0].enabled = true;
+            newLensCellIdentities[0].interactable = interactable;
+            for (int i = 0; i < newLensCellIdentities.Length; i++) newLensCellIdentities[i].enabled = true;
+            newObject.GetComponent<Spawner>().enabled = false;
+            LightRayEmitter.colliders = FindObjectsOfType<LTKCollider>();
+
+            Spawned();
         }
-        if (interactable.isGrabbing && newLens != null)
+        else if (!interactable.isGrabbing && newObject != null)
         {
-            newLens.transform.position = interactable.position;
-            newLens.transform.rotation = interactable.rotation;
+            newLensCellIdentities[0].interactable = newObject.GetComponent<Interactable>();
+            interactable.enabled = true;
+            newObject = null;
         }
-        else if (newLens != null) newLens = null;
     }
+
+    protected virtual void Spawned() { }
 }

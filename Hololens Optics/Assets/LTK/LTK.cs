@@ -376,10 +376,10 @@ namespace LightTK
         }
         public SurfaceType type;
 
-        public void setFocalLength(float focalLength, bool concave = true)
+        public void setFocalLength(float focalLength, bool convex = true)
         {
             refractionSettings = 1f / (2f * focalLength) + RefractionEquation.air;
-            if (concave)
+            if (convex)
             {
                 invR1 = 1f;
                 invR2 = -1f;

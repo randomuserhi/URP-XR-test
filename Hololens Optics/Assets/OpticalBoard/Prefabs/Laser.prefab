@@ -252,6 +252,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7748538260839131223}
+  - component: {fileID: 1970325622}
   m_Layer: 0
   m_Name: Laser
   m_TagString: Untagged
@@ -279,6 +280,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &1970325622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6972564885664609005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eb9c5fa33fcc1644ba044540ae8ff34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rayPrefab: {fileID: 1679515270873675372, guid: 9be0817102f128d4bbf79bdc1acaf5e3, type: 3}
 --- !u!1 &7735303825125150268
 GameObject:
   m_ObjectHideFlags: 0

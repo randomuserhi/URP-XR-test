@@ -116,7 +116,7 @@ MonoBehaviour:
   surface: {fileID: 11400000, guid: 214e543d12a288840b5fe1a684294f6a, type: 2}
   _surface:
     settings:
-      type: 2
+      type: 1
       invR1: 0
       invR2: 0
       refractionSettings:
@@ -125,7 +125,7 @@ MonoBehaviour:
           m: 0
           c: 0
           isFixed: 1
-          refractionIndex: 1.5
+          refractionIndex: 1.523
         positive:
           m: 0
           c: 0
