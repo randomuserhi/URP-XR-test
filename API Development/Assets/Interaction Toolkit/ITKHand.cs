@@ -16,57 +16,127 @@ using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
-    public static class HandUtils
+    public static partial class HandUtils
     {
-        public readonly static int Wrist = 0;
+        public const int Wrist = 0;
 
-        public readonly static int ThumbMetacarpal = 1;
-        public readonly static int IndexMetacarpal = 2;
-        public readonly static int MiddleMetacarpal = 3;
-        public readonly static int RingMetacarpal = 4;
-        public readonly static int PinkyMetacarpal = 5;
+        public const int ThumbMetacarpal = 1;
+        public const int IndexMetacarpal = 2;
+        public const int MiddleMetacarpal = 3;
+        public const int RingMetacarpal = 4;
+        public const int PinkyMetacarpal = 5;
 
-        public readonly static int ThumbProximal = 6;
-        public readonly static int IndexKnuckle = 7;
-        public readonly static int MiddleKnuckle = 8;
-        public readonly static int PinkyKnuckle = 9;
-        public readonly static int RingKnuckle = 10;
+        public const int ThumbProximal = 6;
+        public const int IndexKnuckle = 7;
+        public const int MiddleKnuckle = 8;
+        public const int PinkyKnuckle = 9;
+        public const int RingKnuckle = 10;
 
-        public readonly static int ThumbDistal = 11;
-        public readonly static int IndexMiddle = 12;
-        public readonly static int MiddleMiddle = 13;
-        public readonly static int RingMiddle = 14;
-        public readonly static int PinkyMiddle = 15;
+        public const int ThumbDistal = 11;
+        public const int IndexMiddle = 12;
+        public const int MiddleMiddle = 13;
+        public const int RingMiddle = 14;
+        public const int PinkyMiddle = 15;
 
-        public readonly static int ThumbTip = 16;
-        public readonly static int IndexDistal = 17;
-        public readonly static int MiddleDistal = 18;
-        public readonly static int RingDistal = 19;
-        public readonly static int PinkyDistal = 20;
+        public const int ThumbTip = 16;
+        public const int IndexDistal = 17;
+        public const int MiddleDistal = 18;
+        public const int RingDistal = 19;
+        public const int PinkyDistal = 20;
 
-        public readonly static int IndexTip = 21;
-        public readonly static int MiddleTip = 22;
-        public readonly static int RingTip = 23;
-        public readonly static int PinkyTip = 24;
+        public const int IndexTip = 21;
+        public const int MiddleTip = 22;
+        public const int RingTip = 23;
+        public const int PinkyTip = 24;
 
-        public readonly static int Palm = 25;
+        public const int Palm = 25;
 
-        public static int NumJoints = 26;
+        public const int NumJoints = 26;
 
-        public static int Metacarpals = 1;
-        public static int NumMetacarpals = 5;
+        public const int Metacarpals = 1;
+        public const int NumMetacarpals = 5;
 
-        public static int Knuckles = 6;
-        public static int NumKnuckles = 5;
+        public const int Knuckles = 6;
+        public const int NumKnuckles = 5;
 
-        public static int Middles = 10;
-        public static int NumMiddles = 5;
+        public const int Middles = 10;
+        public const int NumMiddles = 5;
 
-        public static int Distals = 15;
-        public static int NumDistals = 5;
+        public const int Distals = 15;
+        public const int NumDistals = 5;
 
-        public static int Tips = 20;
-        public static int NumTips = 4;
+        public const int Tips = 20;
+        public const int NumTips = 4;
+
+        public static TrackedHandJoint[] MRTKJoints = new TrackedHandJoint[] {
+            TrackedHandJoint.Wrist,
+            TrackedHandJoint.ThumbMetacarpalJoint,
+            TrackedHandJoint.IndexMetacarpal,
+            TrackedHandJoint.MiddleMetacarpal,
+            TrackedHandJoint.RingMetacarpal,
+            TrackedHandJoint.PinkyMetacarpal,
+
+            TrackedHandJoint.ThumbProximalJoint,
+            TrackedHandJoint.IndexKnuckle,
+            TrackedHandJoint.MiddleKnuckle,
+            TrackedHandJoint.PinkyKnuckle,
+            TrackedHandJoint.RingKnuckle,
+
+            TrackedHandJoint.ThumbDistalJoint,
+            TrackedHandJoint.IndexMiddleJoint,
+            TrackedHandJoint.MiddleMiddleJoint,
+            TrackedHandJoint.RingMiddleJoint,
+            TrackedHandJoint.PinkyMiddleJoint,
+
+            TrackedHandJoint.ThumbTip,
+            TrackedHandJoint.IndexDistalJoint,
+            TrackedHandJoint.MiddleDistalJoint,
+            TrackedHandJoint.RingDistalJoint,
+            TrackedHandJoint.PinkyDistalJoint,
+
+            TrackedHandJoint.IndexTip,
+            TrackedHandJoint.MiddleTip,
+            TrackedHandJoint.RingTip,
+            TrackedHandJoint.PinkyTip,
+
+            TrackedHandJoint.Palm
+        };
+        public static TrackedHandJoint[] ToMRTKJoint = MRTKJoints;
+        public static Joint[] FromMRTKJoint = new Joint[] {
+            Wrist, // MRTK doesn't have a value for 0
+            Wrist,
+            Palm,
+            ThumbMetacarpal,
+            ThumbProximal,
+            ThumbDistal,
+            ThumbTip,
+            IndexMetacarpal,
+            IndexKnuckle,
+            IndexMiddle,
+            IndexDistal,
+            IndexTip,
+            MiddleMetacarpal,
+            MiddleKnuckle,
+            MiddleMiddle,
+            MiddleDistal,
+            MiddleTip,
+            RingMetacarpal,
+            RingKnuckle,
+            RingMiddle,
+            RingDistal,
+            RingTip,
+            PinkyMetacarpal,
+            PinkyKnuckle,
+            PinkyMiddle,
+            PinkyDistal,
+            PinkyTip
+        };
+
+        public enum Handedness
+        {
+            Left,
+            Right
+        }
 
         public struct ArticulationDriveXYZ
         {
@@ -82,18 +152,15 @@ namespace InteractionTK.HandTracking
         public struct JointTransform
         {
             public Vector3 position;
-            public Quaternion rotation;
 
             public JointTransform(float x, float y, float z)
             {
                 position = new Vector3(x, y, z);
-                rotation = Quaternion.identity;
             }
 
             public JointTransform(float x, float y, float z, Vector3 fromDir)
             {
                 position = new Vector3(x, y, z);
-                rotation = Quaternion.FromToRotation(fromDir, position);
             }
         }
 
@@ -107,6 +174,12 @@ namespace InteractionTK.HandTracking
         {
             public Vector3[] positions;
             public Quaternion[] rotations;
+
+            public Pose(int NumJoints = NumJoints)
+            {
+                positions = new Vector3[NumJoints];
+                rotations = new Quaternion[NumJoints];
+            }
         }
 
         public struct Joint
@@ -117,38 +190,38 @@ namespace InteractionTK.HandTracking
                 this.joint = joint;
             }
 
-            public readonly static int Wrist = 0;
+            public const int Wrist = 0;
 
-            public readonly static int ThumbMetacarpal = 1;
-            public readonly static int IndexMetacarpal = 2;
-            public readonly static int MiddleMetacarpal = 3;
-            public readonly static int RingMetacarpal = 4;
-            public readonly static int PinkyMetacarpal = 5;
+            public const int ThumbMetacarpal = 1;
+            public const int IndexMetacarpal = 2;
+            public const int MiddleMetacarpal = 3;
+            public const int RingMetacarpal = 4;
+            public const int PinkyMetacarpal = 5;
 
-            public readonly static int ThumbProximal = 6;
-            public readonly static int IndexKnuckle = 7;
-            public readonly static int MiddleKnuckle = 8;
-            public readonly static int PinkyKnuckle = 9;
-            public readonly static int RingKnuckle = 10;
+            public const int ThumbProximal = 6;
+            public const int IndexKnuckle = 7;
+            public const int MiddleKnuckle = 8;
+            public const int PinkyKnuckle = 9;
+            public const int RingKnuckle = 10;
 
-            public readonly static int ThumbDistal = 11;
-            public readonly static int IndexMiddle = 12;
-            public readonly static int MiddleMiddle = 13;
-            public readonly static int RingMiddle = 14;
-            public readonly static int PinkyMiddle = 15;
+            public const int ThumbDistal = 11;
+            public const int IndexMiddle = 12;
+            public const int MiddleMiddle = 13;
+            public const int RingMiddle = 14;
+            public const int PinkyMiddle = 15;
 
-            public readonly static int ThumbTip = 16;
-            public readonly static int IndexDistal = 17;
-            public readonly static int MiddleDistal = 18;
-            public readonly static int RingDistal = 19;
-            public readonly static int PinkyDistal = 20;
+            public const int ThumbTip = 16;
+            public const int IndexDistal = 17;
+            public const int MiddleDistal = 18;
+            public const int RingDistal = 19;
+            public const int PinkyDistal = 20;
 
-            public readonly static int IndexTip = 21;
-            public readonly static int MiddleTip = 22;
-            public readonly static int RingTip = 23;
-            public readonly static int PinkyTip = 24;
+            public const int IndexTip = 21;
+            public const int MiddleTip = 22;
+            public const int RingTip = 23;
+            public const int PinkyTip = 24;
 
-            public readonly static int Palm = 25;
+            public const int Palm = 25;
 
             public static implicit operator int(Joint value)
             {
@@ -201,9 +274,10 @@ namespace InteractionTK.HandTracking
             }
         }
 
-        public static float stiffness = 100000f;
-        public static float damping = 10;
-        public static float forceLimit = float.MaxValue;
+        // TODO:: package these values in a single struct for hand setup and throw into a JSON
+        public const float stiffness = 100000f;
+        public const float damping = 10;
+        public const float forceLimit = float.MaxValue;
         public static int[] StructureCount = new int[] { 4, 5, 5, 5, 5 };
         public static Joint[][] Structure = new Joint[][]
         {
@@ -468,43 +542,43 @@ namespace InteractionTK.HandTracking
         public static ColliderJoint[][] ColliderStructure = new ColliderJoint[][]
         {
             new ColliderJoint[] {
-                new ColliderJoint() { height = 0.02f, radius = 0.005f },
-                new ColliderJoint() { height = 0.045f, radius = 0.005f },
-                new ColliderJoint() { height = 0.03f, radius = 0.005f },
+                new ColliderJoint() { height = 0.02f, radius = 0.007f },
+                new ColliderJoint() { height = 0.045f, radius = 0.007f },
+                new ColliderJoint() { height = 0.04f, radius = 0.006f },
                 new ColliderJoint() { height = 0.02f, radius = 0.005f }
             },
             new ColliderJoint[] {
-                new ColliderJoint() { height = 0.01f, radius = 0.005f },
-                new ColliderJoint() { height = 0.06f, radius = 0.005f },
-                new ColliderJoint() { height = 0.045f, radius = 0.005f },
-                new ColliderJoint() { height = 0.025f, radius = 0.005f },
-                new ColliderJoint() { height = 0.015f, radius = 0.005f }
+                new ColliderJoint() { height = 0.01f, radius = 0.007f },
+                new ColliderJoint() { height = 0.068f, radius = 0.008f },
+                new ColliderJoint() { height = 0.045f, radius = 0.007f },
+                new ColliderJoint() { height = 0.025f, radius = 0.006f },
+                new ColliderJoint() { height = 0.02f, radius = 0.005f }
             },
             new ColliderJoint[] {
-                new ColliderJoint() { height = 0.015f, radius = 0.005f },
-                new ColliderJoint() { height = 0.065f, radius = 0.005f },
-                new ColliderJoint() { height = 0.05f, radius = 0.005f },
-                new ColliderJoint() { height = 0.025f, radius = 0.005f },
-                new ColliderJoint() { height = 0.015f, radius = 0.005f }
+                new ColliderJoint() { height = 0.015f, radius = 0.007f },
+                new ColliderJoint() { height = 0.068f, radius = 0.008f },
+                new ColliderJoint() { height = 0.05f, radius = 0.007f },
+                new ColliderJoint() { height = 0.025f, radius = 0.006f },
+                new ColliderJoint() { height = 0.02f, radius = 0.005f }
             },
             new ColliderJoint[] {
-                new ColliderJoint() { height = 0.01f, radius = 0.005f },
-                new ColliderJoint() { height = 0.06f, radius = 0.005f },
-                new ColliderJoint() { height = 0.045f, radius = 0.005f },
-                new ColliderJoint() { height = 0.025f, radius = 0.005f },
-                new ColliderJoint() { height = 0.015f, radius = 0.005f }
+                new ColliderJoint() { height = 0.01f, radius = 0.007f },
+                new ColliderJoint() { height = 0.068f, radius = 0.008f },
+                new ColliderJoint() { height = 0.045f, radius = 0.007f },
+                new ColliderJoint() { height = 0.025f, radius = 0.006f },
+                new ColliderJoint() { height = 0.02f, radius = 0.005f }
             },
             new ColliderJoint[] {
-                new ColliderJoint() { height = 0.02f, radius = 0.005f },
-                new ColliderJoint() { height = 0.05f, radius = 0.005f },
-                new ColliderJoint() { height = 0.035f, radius = 0.005f },
-                new ColliderJoint() { height = 0.02f, radius = 0.005f },
-                new ColliderJoint() { height = 0.015f, radius = 0.005f }
+                new ColliderJoint() { height = 0.02f, radius = 0.007f },
+                new ColliderJoint() { height = 0.068f, radius = 0.008f },
+                new ColliderJoint() { height = 0.035f, radius = 0.007f },
+                new ColliderJoint() { height = 0.02f, radius = 0.006f },
+                new ColliderJoint() { height = 0.02f, radius = 0.005f }
             }
         };
     }
 
-    public class ITKSkeleton
+    public class ITKSkeletonNode
     {
         public struct Joint //TODO:: make it such that rotation order can change, xyz => zyx etc.... (Currently only xyz)
         {
@@ -652,18 +726,8 @@ namespace InteractionTK.HandTracking
             public static implicit operator ArticulationBody(Joint j) => j.x;
         }
 
-        public enum Type
-        {
-            Left,
-            Right
-        }
-
-        public ITKSkeleton[] children;
-        public ITKSkeleton[][] tree;
+        public ITKSkeletonNode[] children;
         public Joint joint;
-
-        public CapsuleCollider[] colliders;
-        public ArticulationBody[] bodies;
 
         private static GameObject CreateBody(Transform parent, out ArticulationBody body)
         {
@@ -689,16 +753,16 @@ namespace InteractionTK.HandTracking
             return o;
         }
 
-        public static ITKSkeleton HandSkeleton(Transform parent, Type type, out ArticulationBody[] bodies, out CapsuleCollider[] capsuleColliders)
+        public static ITKSkeletonNode HandSkeleton(Transform parent, HandUtils.Handedness type, out ITKSkeletonNode[][] skeleton, out ArticulationBody[] bodies, out CapsuleCollider[] capsuleColliders)
         {
-            Vector3 scale = new Vector3(type == Type.Left ? 1 : -1, 1, 1);
+            Vector3 scale = new Vector3(type == HandUtils.Handedness.Left ? 1 : -1, 1, 1);
 
             List<CapsuleCollider> colliders = new List<CapsuleCollider>();
             List<ArticulationBody> articulationBodies = new List<ArticulationBody>();
-            ITKSkeleton wrist = new ITKSkeleton();
+            ITKSkeletonNode wrist = new ITKSkeletonNode();
             CreateBody(parent, out wrist.joint.x);
             wrist.joint.name = "Wrist";
-            wrist.children = new ITKSkeleton[HandUtils.StructureCount.Length];
+            wrist.children = new ITKSkeletonNode[HandUtils.StructureCount.Length];
             wrist.children.InitializeArray();
             wrist.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             wrist.joint.solverIterations = 60;
@@ -706,12 +770,12 @@ namespace InteractionTK.HandTracking
             wrist.joint.mass = 100;
             wrist.joint.jointFriction = 10;
 
-            wrist.tree = new ITKSkeleton[HandUtils.StructureCount.Length][];
+            skeleton = new ITKSkeletonNode[HandUtils.StructureCount.Length][];
             for (int i = 0; i < HandUtils.StructureCount.Length; ++i)
             {
-                wrist.tree[i] = new ITKSkeleton[HandUtils.StructureCount[i]];
+                skeleton[i] = new ITKSkeletonNode[HandUtils.StructureCount[i]];
                 Transform p = wrist.joint.last.transform;
-                ITKSkeleton node = wrist.children[i];
+                ITKSkeletonNode node = wrist.children[i];
                 float mass = 50;
                 for (int j = 0; j < HandUtils.StructureCount[i]; ++j, mass /= 2f)
                 {
@@ -726,7 +790,6 @@ namespace InteractionTK.HandTracking
 
                         node.joint.name = HandUtils.Structure[i][j].ToString();
                         node.joint.localPosition = Vector3.Scale(HandUtils.LocalTransformStructure[i][j].position, scale);
-                        node.joint.localRotation = HandUtils.LocalTransformStructure[i][j].rotation;
                         node.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                         node.joint.mass = mass;
                         node.joint.jointFriction = 10;
@@ -779,7 +842,6 @@ namespace InteractionTK.HandTracking
                         node.joint.name = HandUtils.Structure[i][j].ToString();
                         Quaternion offset = count > 1 ? q.rotation : Quaternion.identity;
                         node.joint.last.transform.localPosition = offset * Vector3.Scale(HandUtils.LocalTransformStructure[i][j].position, scale);
-                        node.joint.last.transform.localRotation = offset * HandUtils.LocalTransformStructure[i][j].rotation;
                         node.joint.last.anchorPosition = node.joint.last.transform.InverseTransformPoint(q.transform.position);
                         node.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                         node.joint.mass = mass;
@@ -802,8 +864,8 @@ namespace InteractionTK.HandTracking
                     }
 
                     p = node.joint.last.transform;
-                    wrist.tree[i][j] = node;
-                    node.children = new ITKSkeleton[1];
+                    skeleton[i][j] = node;
+                    node.children = new ITKSkeletonNode[1];
                     node.children.InitializeArray();
                     node = node.children[0];
                 }
@@ -821,9 +883,56 @@ namespace InteractionTK.HandTracking
 
     public class ITKHand : MonoBehaviour
     {
-        ITKSkeleton wrist;
-        public ITKSkeleton.Type type;
-        public GameObject obj_wrist;
+        ITKSkeletonNode wrist;
+        ITKSkeletonNode[][] skeleton;
+        public HandUtils.Handedness type;
+        public ITKHandModel model;
+
+        private bool _active = true;
+        public bool active 
+        { 
+            get => _active;
+            set
+            {
+                _active = value;
+                if (_active) Enable();
+                else Disable();
+            }
+        }
+
+        public bool hideModelOnDisable = true;
+
+        public void Enable()
+        {
+            if (_active) return;
+
+            wrist.joint.last.immovable = false;
+            foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = true;
+
+            if (hideModelOnDisable) model.Enable();
+
+            _active = true;
+        }
+
+        public void Disable()
+        {
+            if (!_active) return;
+
+            wrist.joint.last.immovable = true;
+            wrist.joint.velocity = Vector3.zero;
+            wrist.joint.angularVelocity = Vector3.zero;
+            foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = false;
+            for (int i = 0; i < articulationBodies.Length; i++)
+            {
+                articulationBodies[i].velocity = Vector3.zero;
+                articulationBodies[i].angularVelocity = Vector3.zero;
+                articulationBodies[i].jointPosition = new ArticulationReducedSpace(0f, 0f, 0f);
+            }
+
+            if (hideModelOnDisable) model.Disable();
+
+            _active = false;
+        }
 
         private void Start()
         {
@@ -832,7 +941,7 @@ namespace InteractionTK.HandTracking
 
         private void GenerateBody()
         {
-            wrist = ITKSkeleton.HandSkeleton(transform, type, out articulationBodies, out capsuleColliders);
+            wrist = ITKSkeletonNode.HandSkeleton(transform, type, out skeleton, out articulationBodies, out capsuleColliders);
         }
 
         private CapsuleCollider[] capsuleColliders;
@@ -842,8 +951,9 @@ namespace InteractionTK.HandTracking
 
         public void Track(HandUtils.Pose pose)
         {
-            obj_wrist.transform.position = wrist.joint.position;
-            obj_wrist.transform.rotation = wrist.joint.rotation;
+            if (!active) return;
+
+            model?.Track(wrist, skeleton);
 
             // Counter Gravity; force = mass * acceleration
             wrist.joint.AddForce(-Physics.gravity * wrist.joint.mass);
@@ -852,12 +962,13 @@ namespace InteractionTK.HandTracking
                 body.AddForce(-Physics.gravity * body.mass);
             }
 
-            // TODO smoothe out movement
+            // Solve position constraint
             wrist.joint.velocity *= 0.05f;
             Vector3 velocity = (pose.positions[HandUtils.Wrist] - wrist.joint.position) * 0.95f / Time.fixedDeltaTime;
-            wrist.joint.velocity += Vector3.ClampMagnitude(velocity, 0.5f); //TODO:: make the velocity clamp only when hand is in contact with an object
+            //TODO:: make the velocity clamp only when hand is in contact with an object => clamp is to prevent joints from breaking when high velocities are applied against an object
+            wrist.joint.velocity += Vector3.ClampMagnitude(velocity, 0.5f);
 
-            // TODO smoothe out rotation
+            // Solve rotation constraint
             Quaternion rotation = pose.rotations[HandUtils.Wrist] * Quaternion.Inverse(wrist.joint.rotation);
             Vector3 rot;
             float speed;
@@ -875,16 +986,16 @@ namespace InteractionTK.HandTracking
                     if (i != 0 && j > 2)
                     {
                         HandUtils.Joint prevPrevJoint = HandUtils.Structure[i][j - 2];
-                        if (wrist.tree[i][j].joint.x)
+                        if (skeleton[i][j].joint.x)
                         {
-                            ArticulationDrive drive = wrist.tree[i][j].joint.xDrive;
+                            ArticulationDrive drive = skeleton[i][j].joint.xDrive;
                             float angle = Vector3.SignedAngle(
                                 pose.rotations[prevPrevJoint] * Vector3.forward,
                                 pose.positions[currJoint] - pose.positions[prevJoint],
                                 pose.rotations[prevPrevJoint] * Vector3.right
                                 );
                             drive.target = angle > 180 ? angle - 360 : angle;
-                            wrist.tree[i][j].joint.xDrive = drive;
+                            skeleton[i][j].joint.xDrive = drive;
                         }
                     }
                     else
@@ -902,26 +1013,26 @@ namespace InteractionTK.HandTracking
                             currentRotation *= localRotation;
                         }
 
-                        if (wrist.tree[i][j].joint.y)
+                        if (skeleton[i][j].joint.y)
                         {
-                            ArticulationDrive drive = wrist.tree[i][j].joint.yDrive;
+                            ArticulationDrive drive = skeleton[i][j].joint.yDrive;
                             float angle = localRotation.eulerAngles.y;
                             drive.target = angle > 180 ? angle - 360 : angle;
-                            wrist.tree[i][j].joint.yDrive = drive;
+                            skeleton[i][j].joint.yDrive = drive;
                         }
-                        if (wrist.tree[i][j].joint.x)
+                        if (skeleton[i][j].joint.x)
                         {
-                            ArticulationDrive drive = wrist.tree[i][j].joint.xDrive;
+                            ArticulationDrive drive = skeleton[i][j].joint.xDrive;
                             float angle = localRotation.eulerAngles.x;
                             drive.target = angle > 180 ? angle - 360 : angle;
-                            wrist.tree[i][j].joint.xDrive = drive;
+                            skeleton[i][j].joint.xDrive = drive;
                         }
-                        if (wrist.tree[i][j].joint.z)
+                        if (skeleton[i][j].joint.z)
                         {
-                            ArticulationDrive drive = wrist.tree[i][j].joint.zDrive;
+                            ArticulationDrive drive = skeleton[i][j].joint.zDrive;
                             float angle = localRotation.eulerAngles.z;
                             drive.target = angle > 180 ? angle - 360 : angle;
-                            wrist.tree[i][j].joint.zDrive = drive;
+                            skeleton[i][j].joint.zDrive = drive;
                         }
                     }
 
@@ -930,6 +1041,7 @@ namespace InteractionTK.HandTracking
             }
 
             // Fix the hand if it gets into a bad situation by teleporting and holding in place until its bad velocities disappear
+            // TODO:: dont just check the wrist if it goes out of wack, check all joints
             if (Vector3.Distance(wrist.joint.position, pose.positions[HandUtils.Joint.Wrist]) > 0.2f)
             {
                 wrist.joint.last.immovable = true;
@@ -942,6 +1054,7 @@ namespace InteractionTK.HandTracking
                 {
                     articulationBodies[i].velocity = Vector3.zero;
                     articulationBodies[i].angularVelocity = Vector3.zero;
+                    // Reset joint position in case they got fucked up
                     articulationBodies[i].jointPosition = new ArticulationReducedSpace(0f, 0f, 0f);
                 }
                 ghosted = true;
@@ -951,7 +1064,7 @@ namespace InteractionTK.HandTracking
                 wrist.joint.last.immovable = false;
             }
             if (Time.frameCount - lastFrameTeleport >= 2 && ghosted
-                //&& !Physics.CheckSphere(skeleton.body.worldCenterOfMass, 0.1f, _layerMask) // => Re - enable when I add an ignore layer for hands - This prevents hands from teleporting inside something
+                && !Physics.CheckSphere(wrist.joint.last.worldCenterOfMass, 0.1f) // Check that hand isn't being teleported inside of something
                 )
             {
                 foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = true;
