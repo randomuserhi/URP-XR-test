@@ -13,9 +13,9 @@ namespace InteractionTK.HandTracking
 {
     public class ITKHandTracker : MonoBehaviour
     {
-        public HandUtils.Handedness handedness;
+        public ITKHandUtils.Handedness handedness;
         private MixedRealityPose MRTKPose;
-        private HandUtils.Pose pose = new HandUtils.Pose(HandUtils.NumJoints);
+        private ITKHandUtils.Pose pose = new ITKHandUtils.Pose(ITKHandUtils.NumJoints);
 
         public bool Tracking;
         public ITKHand hand;
@@ -23,10 +23,10 @@ namespace InteractionTK.HandTracking
         private void FixedUpdate()
         {
             Tracking = true;
-            for (int i = 0; i < HandUtils.MRTKJoints.Length; i++)
+            for (int i = 0; i < ITKHandUtils.MRTKJoints.Length; i++)
             {
-                Handedness handedness = this.handedness == HandUtils.Handedness.Left ? Handedness.Left : Handedness.Right;
-                if (HandJointUtils.TryGetJointPose(HandUtils.MRTKJoints[i], handedness, out MRTKPose))
+                Handedness handedness = this.handedness == ITKHandUtils.Handedness.Left ? Handedness.Left : Handedness.Right;
+                if (HandJointUtils.TryGetJointPose(ITKHandUtils.MRTKJoints[i], handedness, out MRTKPose))
                 {
                     pose.positions[i] = MRTKPose.Position;
                     pose.rotations[i] = MRTKPose.Rotation;

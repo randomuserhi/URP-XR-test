@@ -2,17 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MTK : MonoBehaviour
+namespace InteractionTK.Menus
 {
-    // Start is called before the first frame update
-    void Start()
+    public static partial class MTK
     {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

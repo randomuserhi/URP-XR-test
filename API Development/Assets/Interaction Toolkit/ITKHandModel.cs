@@ -2,11 +2,11 @@ using Microsoft.MixedReality.OpenXR;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static InteractionTK.HandTracking.HandUtils;
+using static InteractionTK.HandTracking.ITKHandUtils;
 
 namespace InteractionTK.HandTracking
 {
-    public static partial class HandUtils
+    public static partial class ITKHandUtils
     {
         public struct HandModelPoseOffsets
         { 
@@ -73,7 +73,7 @@ namespace InteractionTK.HandTracking
 
     public class ITKHandModel : MonoBehaviour
     {
-        public HandUtils.Handedness type;
+        public ITKHandUtils.Handedness type;
 
         private SkinnedMeshRenderer meshRenderer;
 
@@ -139,7 +139,7 @@ namespace InteractionTK.HandTracking
 
         public void Track(ITKSkeletonNode wrist, ITKSkeletonNode[][] skeleton)
         {
-            HandModelPoseOffsets pose = type == HandUtils.Handedness.Left ? HandUtils.leftModelOffsets : HandUtils.rightModelOffsets;
+            HandModelPoseOffsets pose = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;
 
             // Move geometry to position
             transform.position = wrist.joint.position;
@@ -150,73 +150,73 @@ namespace InteractionTK.HandTracking
             this.wrist.rotation = wrist.joint.rotation;
             this.wrist.localRotation *= pose.wristRotationOffset;
 
-            for (int i = 0; i < HandUtils.StructureCount.Length; i++)
+            for (int i = 0; i < ITKHandUtils.StructureCount.Length; i++)
             {
-                for (int j = 0; j < HandUtils.StructureCount[i]; j++)
+                for (int j = 0; j < ITKHandUtils.StructureCount[i]; j++)
                 {
-                    switch (HandUtils.Structure[i][j])
+                    switch (ITKHandUtils.Structure[i][j])
                     {
-                        case HandUtils.ThumbProximal:
+                        case ITKHandUtils.ThumbProximal:
                             ThumbProximal.transform.rotation = skeleton[i][j].joint.rotation;
                             ThumbProximal.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.ThumbDistal:
+                        case ITKHandUtils.ThumbDistal:
                             ThumbDistal.transform.rotation = skeleton[i][j].joint.rotation;
                             ThumbDistal.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.ThumbTip:
+                        case ITKHandUtils.ThumbTip:
                             ThumbTip.transform.rotation = skeleton[i][j].joint.rotation;
                             ThumbTip.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
 
-                        case HandUtils.IndexMiddle:
+                        case ITKHandUtils.IndexMiddle:
                             IndexMiddle.transform.rotation = skeleton[i][j].joint.rotation;
                             IndexMiddle.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.IndexDistal:
+                        case ITKHandUtils.IndexDistal:
                             IndexDistal.transform.rotation = skeleton[i][j].joint.rotation;
                             IndexDistal.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.IndexTip:
+                        case ITKHandUtils.IndexTip:
                             IndexTip.transform.rotation = skeleton[i][j].joint.rotation;
                             IndexTip.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
 
-                        case HandUtils.MiddleMiddle:
+                        case ITKHandUtils.MiddleMiddle:
                             MiddleMiddle.transform.rotation = skeleton[i][j].joint.rotation;
                             MiddleMiddle.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.MiddleDistal:
+                        case ITKHandUtils.MiddleDistal:
                             MiddleDistal.transform.rotation = skeleton[i][j].joint.rotation;
                             MiddleDistal.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.MiddleTip:
+                        case ITKHandUtils.MiddleTip:
                             MiddleTip.transform.rotation = skeleton[i][j].joint.rotation;
                             MiddleTip.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
 
-                        case HandUtils.RingMiddle:
+                        case ITKHandUtils.RingMiddle:
                             RingMiddle.transform.rotation = skeleton[i][j].joint.rotation;
                             RingMiddle.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.RingDistal:
+                        case ITKHandUtils.RingDistal:
                             RingDistal.transform.rotation = skeleton[i][j].joint.rotation;
                             RingDistal.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.RingTip:
+                        case ITKHandUtils.RingTip:
                             RingTip.transform.rotation = skeleton[i][j].joint.rotation;
                             RingTip.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
 
-                        case HandUtils.PinkyMiddle:
+                        case ITKHandUtils.PinkyMiddle:
                             PinkyMiddle.transform.rotation = skeleton[i][j].joint.rotation;
                             PinkyMiddle.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.PinkyDistal:
+                        case ITKHandUtils.PinkyDistal:
                             PinkyDistal.transform.rotation = skeleton[i][j].joint.rotation;
                             PinkyDistal.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;
-                        case HandUtils.PinkyTip:
+                        case ITKHandUtils.PinkyTip:
                             PinkyTip.transform.rotation = skeleton[i][j].joint.rotation;
                             PinkyTip.transform.localRotation *= pose.rotationOffsets[i][j];
                             break;

@@ -6,17 +6,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.LowLevel;
-using UnityEngine.PlayerLoop;
 
 using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
-    public static partial class HandUtils
+    public static partial class ITKHandUtils
     {
         public const int Wrist = 0;
 
@@ -738,7 +734,7 @@ namespace InteractionTK.HandTracking
 
             return o;
         }
-        private static GameObject CreateBody(Transform parent, HandUtils.ColliderJoint joint, out ArticulationBody body, out CapsuleCollider collider)
+        private static GameObject CreateBody(Transform parent, ITKHandUtils.ColliderJoint joint, out ArticulationBody body, out CapsuleCollider collider)
         {
             GameObject o = new GameObject();
             o.transform.parent = parent;
@@ -753,16 +749,16 @@ namespace InteractionTK.HandTracking
             return o;
         }
 
-        public static ITKSkeletonNode HandSkeleton(Transform parent, HandUtils.Handedness type, out ITKSkeletonNode[][] skeleton, out ArticulationBody[] bodies, out CapsuleCollider[] capsuleColliders)
+        public static ITKSkeletonNode HandSkeleton(Transform parent, ITKHandUtils.Handedness type, out ITKSkeletonNode[][] skeleton, out ArticulationBody[] bodies, out CapsuleCollider[] capsuleColliders)
         {
-            Vector3 scale = new Vector3(type == HandUtils.Handedness.Left ? 1 : -1, 1, 1);
+            Vector3 scale = new Vector3(type == ITKHandUtils.Handedness.Left ? 1 : -1, 1, 1);
 
             List<CapsuleCollider> colliders = new List<CapsuleCollider>();
             List<ArticulationBody> articulationBodies = new List<ArticulationBody>();
             ITKSkeletonNode wrist = new ITKSkeletonNode();
             CreateBody(parent, out wrist.joint.x);
             wrist.joint.name = "Wrist";
-            wrist.children = new ITKSkeletonNode[HandUtils.StructureCount.Length];
+            wrist.children = new ITKSkeletonNode[ITKHandUtils.StructureCount.Length];
             wrist.children.InitializeArray();
             wrist.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             wrist.joint.solverIterations = 60;
@@ -770,17 +766,17 @@ namespace InteractionTK.HandTracking
             wrist.joint.mass = 100;
             wrist.joint.jointFriction = 10;
 
-            skeleton = new ITKSkeletonNode[HandUtils.StructureCount.Length][];
-            for (int i = 0; i < HandUtils.StructureCount.Length; ++i)
+            skeleton = new ITKSkeletonNode[ITKHandUtils.StructureCount.Length][];
+            for (int i = 0; i < ITKHandUtils.StructureCount.Length; ++i)
             {
-                skeleton[i] = new ITKSkeletonNode[HandUtils.StructureCount[i]];
+                skeleton[i] = new ITKSkeletonNode[ITKHandUtils.StructureCount[i]];
                 Transform p = wrist.joint.last.transform;
                 ITKSkeletonNode node = wrist.children[i];
                 float mass = 50;
-                for (int j = 0; j < HandUtils.StructureCount[i]; ++j, mass /= 2f)
+                for (int j = 0; j < ITKHandUtils.StructureCount[i]; ++j, mass /= 2f)
                 {
-                    HandUtils.ArticulationDriveXYZ drive = HandUtils.DriveStructure[i][j];
-                    HandUtils.ColliderJoint col = HandUtils.ColliderStructure[i][j];
+                    ITKHandUtils.ArticulationDriveXYZ drive = ITKHandUtils.DriveStructure[i][j];
+                    ITKHandUtils.ColliderJoint col = ITKHandUtils.ColliderStructure[i][j];
                     if (drive.type == ArticulationJointType.FixedJoint)
                     {
                         CapsuleCollider collider;
@@ -788,8 +784,8 @@ namespace InteractionTK.HandTracking
                         colliders.Add(collider);
                         articulationBodies.Add(node.joint);
 
-                        node.joint.name = HandUtils.Structure[i][j].ToString();
-                        node.joint.localPosition = Vector3.Scale(HandUtils.LocalTransformStructure[i][j].position, scale);
+                        node.joint.name = ITKHandUtils.Structure[i][j].ToString();
+                        node.joint.localPosition = Vector3.Scale(ITKHandUtils.LocalTransformStructure[i][j].position, scale);
                         node.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                         node.joint.mass = mass;
                         node.joint.jointFriction = 10;
@@ -839,9 +835,9 @@ namespace InteractionTK.HandTracking
                             articulationBodies.Add(node.joint.z);
                         }
 
-                        node.joint.name = HandUtils.Structure[i][j].ToString();
+                        node.joint.name = ITKHandUtils.Structure[i][j].ToString();
                         Quaternion offset = count > 1 ? q.rotation : Quaternion.identity;
-                        node.joint.last.transform.localPosition = offset * Vector3.Scale(HandUtils.LocalTransformStructure[i][j].position, scale);
+                        node.joint.last.transform.localPosition = offset * Vector3.Scale(ITKHandUtils.LocalTransformStructure[i][j].position, scale);
                         node.joint.last.anchorPosition = node.joint.last.transform.InverseTransformPoint(q.transform.position);
                         node.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                         node.joint.mass = mass;
@@ -885,7 +881,7 @@ namespace InteractionTK.HandTracking
     {
         ITKSkeletonNode wrist;
         ITKSkeletonNode[][] skeleton;
-        public HandUtils.Handedness type;
+        public ITKHandUtils.Handedness type;
         public ITKHandModel model;
 
         private bool _active = true;
@@ -949,7 +945,7 @@ namespace InteractionTK.HandTracking
         private int lastFrameTeleport;
         private bool ghosted = false;
 
-        public void Track(HandUtils.Pose pose)
+        public void Track(ITKHandUtils.Pose pose)
         {
             if (!active) return;
 
@@ -964,28 +960,29 @@ namespace InteractionTK.HandTracking
 
             // Solve position constraint
             wrist.joint.velocity *= 0.05f;
-            Vector3 velocity = (pose.positions[HandUtils.Wrist] - wrist.joint.position) * 0.95f / Time.fixedDeltaTime;
+            Vector3 velocity = (pose.positions[ITKHandUtils.Wrist] - wrist.joint.position) * 0.95f / Time.fixedDeltaTime;
             //TODO:: make the velocity clamp only when hand is in contact with an object => clamp is to prevent joints from breaking when high velocities are applied against an object
             wrist.joint.velocity += Vector3.ClampMagnitude(velocity, 0.5f);
 
             // Solve rotation constraint
-            Quaternion rotation = pose.rotations[HandUtils.Wrist] * Quaternion.Inverse(wrist.joint.rotation);
+            Quaternion rotation = VRTKUtils.ShortestRotation(pose.rotations[ITKHandUtils.Wrist], wrist.joint.rotation);
             Vector3 rot;
             float speed;
             rotation.ToAngleAxis(out speed, out rot);
-            wrist.joint.angularVelocity = rot * speed * Mathf.Deg2Rad / Time.fixedDeltaTime;
+            rot *= speed;
+            wrist.joint.angularVelocity = rot * Mathf.Deg2Rad / Time.fixedDeltaTime;
 
             // Rotate joints
-            for (int i = 0; i < HandUtils.StructureCount.Length; ++i)
+            for (int i = 0; i < ITKHandUtils.StructureCount.Length; ++i)
             {
-                HandUtils.Joint prevJoint = HandUtils.Wrist;
+                ITKHandUtils.Joint prevJoint = ITKHandUtils.Wrist;
                 Quaternion currentRotation = Quaternion.identity;
-                for (int j = 0; j < HandUtils.StructureCount[i]; ++j)
+                for (int j = 0; j < ITKHandUtils.StructureCount[i]; ++j)
                 {
-                    HandUtils.Joint currJoint = HandUtils.Structure[i][j];
+                    ITKHandUtils.Joint currJoint = ITKHandUtils.Structure[i][j];
                     if (i != 0 && j > 2)
                     {
-                        HandUtils.Joint prevPrevJoint = HandUtils.Structure[i][j - 2];
+                        ITKHandUtils.Joint prevPrevJoint = ITKHandUtils.Structure[i][j - 2];
                         if (skeleton[i][j].joint.x)
                         {
                             ArticulationDrive drive = skeleton[i][j].joint.xDrive;
@@ -1042,10 +1039,10 @@ namespace InteractionTK.HandTracking
 
             // Fix the hand if it gets into a bad situation by teleporting and holding in place until its bad velocities disappear
             // TODO:: dont just check the wrist if it goes out of wack, check all joints
-            if (Vector3.Distance(wrist.joint.position, pose.positions[HandUtils.Joint.Wrist]) > 0.2f)
+            if (Vector3.Distance(wrist.joint.position, pose.positions[ITKHandUtils.Joint.Wrist]) > 0.5f)
             {
                 wrist.joint.last.immovable = true;
-                wrist.joint.last.TeleportRoot(pose.positions[HandUtils.Joint.Wrist], pose.rotations[HandUtils.Joint.Wrist]);
+                wrist.joint.last.TeleportRoot(pose.positions[ITKHandUtils.Joint.Wrist], pose.rotations[ITKHandUtils.Joint.Wrist]);
                 wrist.joint.velocity = Vector3.zero;
                 wrist.joint.angularVelocity = Vector3.zero;
                 lastFrameTeleport = Time.frameCount;
@@ -1054,7 +1051,8 @@ namespace InteractionTK.HandTracking
                 {
                     articulationBodies[i].velocity = Vector3.zero;
                     articulationBodies[i].angularVelocity = Vector3.zero;
-                    // Reset joint position in case they got fucked up
+                    // Reset joint position in case they got fucked up => Only call this when joints are misrotated
+                    // Because if joints are not misrotated, can cause funky forces as the joint positions are wrong for a frame
                     articulationBodies[i].jointPosition = new ArticulationReducedSpace(0f, 0f, 0f);
                 }
                 ghosted = true;

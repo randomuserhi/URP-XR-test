@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace InteractionTK
 {
-    public static class ITKUtils
+    public static partial class ITKUtils
     {
 
     }
