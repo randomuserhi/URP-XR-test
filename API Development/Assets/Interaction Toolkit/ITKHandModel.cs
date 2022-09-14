@@ -3,6 +3,7 @@ using Microsoft.MixedReality.OpenXR;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace InteractionTK.HandTracking
 {
@@ -10,6 +11,7 @@ namespace InteractionTK.HandTracking
     {
         public struct HandModelPoseOffsets
         {
+            public Vector3 poseWristPositionOffset; // Offset when handling pose
             public Vector3 wristPositionOffset;
             public Quaternion wristRotationOffset;
             public Quaternion[] rotationOffsets;
@@ -19,6 +21,7 @@ namespace InteractionTK.HandTracking
         public static HandModelPoseOffsets leftModelOffsets = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
+            poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 180),
             rotationOffsets = new Quaternion[]
             {
@@ -48,6 +51,7 @@ namespace InteractionTK.HandTracking
         public static HandModelPoseOffsets rightModelOffsets = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
+            poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 0),
             rotationOffsets = new Quaternion[]
             {
@@ -146,6 +150,33 @@ namespace InteractionTK.HandTracking
         public Quaternion testRot = Quaternion.identity;
         public Vector3 testPos;
 
+        public void Track(ITKHandUtils.Pose pose)
+        {
+            ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;
+
+            transform.rotation = pose.rotations[ITKHandUtils.Wrist] * offsets.wristRotationOffset;
+            transform.position = pose.positions[ITKHandUtils.Wrist] + transform.rotation *  offsets.poseWristPositionOffset;
+
+            Vector3 dir = pose.positions[ITKHandUtils.ThumbMetacarpal] - pose.positions[ITKHandUtils.Root];
+            ThumbWristToMetacarpal.rotation = Quaternion.LookRotation(dir, Vector3.up) * offsets.rotationOffsets[ITKHandUtils.Wrist];
+
+            ThumbMetacarpal.rotation = pose.rotations[ITKHandUtils.ThumbMetacarpal] * offsets.rotationOffsets[ITKHandUtils.ThumbMetacarpal];
+            ThumbProximal.rotation = pose.rotations[ITKHandUtils.ThumbProximal] * offsets.rotationOffsets[ITKHandUtils.ThumbProximal];
+            ThumbDistal.rotation = pose.rotations[ITKHandUtils.ThumbDistal] * offsets.rotationOffsets[ITKHandUtils.ThumbProximal];
+            IndexKnuckle.rotation = pose.rotations[ITKHandUtils.IndexKnuckle] * offsets.rotationOffsets[ITKHandUtils.IndexKnuckle];
+            IndexMiddle.rotation = pose.rotations[ITKHandUtils.IndexMiddle] * offsets.rotationOffsets[ITKHandUtils.IndexMiddle];
+            IndexDistal.rotation = pose.rotations[ITKHandUtils.IndexDistal] * offsets.rotationOffsets[ITKHandUtils.IndexDistal];
+            MiddleKnuckle.rotation = pose.rotations[ITKHandUtils.MiddleKnuckle] * offsets.rotationOffsets[ITKHandUtils.MiddleKnuckle];
+            MiddleMiddle.rotation = pose.rotations[ITKHandUtils.MiddleMiddle] * offsets.rotationOffsets[ITKHandUtils.MiddleMiddle];
+            MiddleDistal.rotation = pose.rotations[ITKHandUtils.MiddleDistal] * offsets.rotationOffsets[ITKHandUtils.MiddleDistal];
+            RingKnuckle.rotation = pose.rotations[ITKHandUtils.RingKnuckle] * offsets.rotationOffsets[ITKHandUtils.RingKnuckle];
+            RingMiddle.rotation = pose.rotations[ITKHandUtils.RingMiddle] * offsets.rotationOffsets[ITKHandUtils.RingMiddle];
+            RingDistal.rotation = pose.rotations[ITKHandUtils.RingDistal] * offsets.rotationOffsets[ITKHandUtils.RingDistal];
+            PinkyMetacarpal.rotation = pose.rotations[ITKHandUtils.PinkyMetacarpal] * offsets.rotationOffsets[ITKHandUtils.PinkyMetacarpal];
+            PinkyKnuckle.rotation = pose.rotations[ITKHandUtils.PinkyKnuckle] * offsets.rotationOffsets[ITKHandUtils.PinkyKnuckle];
+            PinkyMiddle.rotation = pose.rotations[ITKHandUtils.PinkyMiddle] * offsets.rotationOffsets[ITKHandUtils.PinkyMiddle];
+            PinkyDistal.rotation = pose.rotations[ITKHandUtils.PinkyDistal] * offsets.rotationOffsets[ITKHandUtils.PinkyDistal];
+        }
         public void Track(ITKSkeleton skeleton)
         {
             if (skeleton.type != type)

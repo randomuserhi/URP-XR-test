@@ -416,7 +416,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rawTracker: {fileID: 1584679769164687092, guid: ace226c326ff5804f86777c448233e9d, type: 3}
   file: D:\AR VR Internship\Data\RHand.txt
-  play: 0
+  play: 1
   hand: {fileID: 1980609084}
 --- !u!4 &136550664
 Transform:
@@ -1211,7 +1211,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 0
-  model: {fileID: 1879635647}
+  physicsModel: {fileID: 1879635647}
+  realModel: {fileID: 0}
 --- !u!1 &915282300
 GameObject:
   m_ObjectHideFlags: 0
@@ -2793,7 +2794,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 1
-  model: {fileID: 1111021832}
+  physicsModel: {fileID: 1111021832}
+  realModel: {fileID: 0}
 --- !u!4 &1980609085
 Transform:
   m_ObjectHideFlags: 0

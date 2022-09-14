@@ -2,6 +2,7 @@ using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using Microsoft.MixedReality.Toolkit.Utilities.Gltf.Serialization;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +56,9 @@ namespace InteractionTK.HandTracking
                     Sphere
                 }
 
+                public Quaternion rightDefaultRotation; // right hand rotation of the joint upon instantiation - in local space
+                public Quaternion leftDefaultRotation; // left hand rotation of the joint upon instantiation - in local space
+
                 public float mass;
                 public Vector3 centerOfMass;
 
@@ -91,7 +95,7 @@ namespace InteractionTK.HandTracking
                 maxDepenetrationVelocity = 1,
                 maxError = 0.5f
             },
-            nodeTree = new HandSkeletonDescription.Node() 
+            nodeTree = new HandSkeletonDescription.Node()
             {
                 // Root node does not need a drive specified
                 mass = 0.255f,
@@ -106,6 +110,8 @@ namespace InteractionTK.HandTracking
                     // THUMB
                     new HandSkeletonDescription.Node()
                     {
+                        leftDefaultRotation = Quaternion.Euler(0, 90, 0),
+                        rightDefaultRotation = Quaternion.Euler(0, -90, 0),
                         mass = 0.015f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.Wrist,
@@ -462,6 +468,8 @@ namespace InteractionTK.HandTracking
 
             public Node[] children;
 
+            private Quaternion defaultRotation;
+
             public Node(ITKHandUtils.Handedness type, ITKHandUtils.HandSettings settings, ITKHandUtils.HandSkeletonDescription.Node node, Node root = null, Node parentNode = null, Transform parent = null, Rigidbody body = null, PhysicMaterial material = null, bool isRoot = false)
             {
                 if (root == null) root = this; this.root = root;
@@ -469,7 +477,10 @@ namespace InteractionTK.HandTracking
                 joint = node.joint;
                 toJoint = node.toJoint;
 
-                GameObject container = new GameObject(node.joint.ToString());
+                defaultRotation = type == ITKHandUtils.Handedness.Left ? node.leftDefaultRotation : node.rightDefaultRotation;
+
+                GameObject container = new GameObject();
+                container.name = (root != null && node.joint == ITKHandUtils.Root) ? node.toJoint.ToString() : node.joint.ToString();
                 int layer = LayerMask.NameToLayer("ITKHand");
                 if (layer > -1) container.layer = layer;
                 else Debug.LogError("Could not find ITKHand layer, please create it in the editor.");
@@ -572,6 +583,11 @@ namespace InteractionTK.HandTracking
                 }
             }
 
+            public void Reset()
+            {
+                rb.transform.localRotation = defaultRotation;
+            }
+
             public void FixedUpdate(ITKHandUtils.HandSettings settings)
             {
                 if (settings.safeMode)
@@ -599,7 +615,9 @@ namespace InteractionTK.HandTracking
                 {
                     if (toJoint != 0)
                     {
-                        Quaternion localRotation = Quaternion.LookRotation(pose.positions[toJoint] - pose.positions[ITKHandUtils.Root], pose.rotations[ITKHandUtils.Root] * Vector3.up);
+                        Vector3 dir = pose.positions[toJoint] - pose.positions[ITKHandUtils.Root];
+                        if (dir == Vector3.zero) dir = Vector3.forward;
+                        Quaternion localRotation = Quaternion.LookRotation(dir, pose.rotations[ITKHandUtils.Root] * Vector3.up);
                         localRotation = Quaternion.Inverse(pose.rotations[ITKHandUtils.Root]) * localRotation;
                         j.targetRotation = Quaternion.Inverse(localRotation);
                         currentRotation *= localRotation;
@@ -660,10 +678,12 @@ namespace InteractionTK.HandTracking
 
         public ITKHandUtils.Handedness type;
 
-        public ITKHandModel model;
+        public ITKHandModel physicsModel;
+        public ITKHandModel realModel;
 
         private ITKSkeleton skeleton;
 
+        private bool safeEnable = true;
         private bool _active = true;
         public bool active
         {
@@ -679,11 +699,13 @@ namespace InteractionTK.HandTracking
         private void Start()
         {
             skeleton = new ITKSkeleton(type, transform, ITKHandUtils.handSkeleton, material);
+            Disable();
         }
 
         public void Enable()
         {
             if (_active) return;
+            _active = true;
 
             for (int i = 0; i < skeleton.nodes.Length; i++)
             {
@@ -694,6 +716,7 @@ namespace InteractionTK.HandTracking
         public void Disable()
         {
             if (!_active) return;
+            _active = false;
 
             for (int i = 0; i < skeleton.nodes.Length; i++)
             {
@@ -716,7 +739,19 @@ namespace InteractionTK.HandTracking
 
             // TODO:: teleport and set joints velocity to zero if unstable (check distance from target)
 
-            model?.Track(skeleton);
+            // safely enable when we are tracked properly
+            if (safeEnable && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
+            {
+                safeEnable = false;
+                for (int i = 0; i < skeleton.nodes.Length; ++i)
+                {
+                    skeleton.nodes[i].Reset();
+                }
+                Enable();
+            }
+
+            physicsModel?.Track(skeleton);
+            realModel?.Track(pose);
         }
     }
 }
