@@ -137,7 +137,7 @@ namespace InteractionTK.HandTracking
 
         // TODO:: Implement Track function that uses HandUtils.Pose
 
-        public void Track(ITKSkeletonNode wrist, ITKSkeletonNode[][] skeleton)
+        /*public void Track(ITKSkeletonNode wrist, ITKSkeletonNode[][] skeleton)
         {
             HandModelPoseOffsets pose = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;
 
@@ -223,6 +223,6 @@ namespace InteractionTK.HandTracking
                     }
                 }
             }
-        }
+        }*/
     }
 }

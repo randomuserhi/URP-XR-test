@@ -13,7 +13,7 @@ namespace InteractionTK.HandTracking
 {
     public class ITKHandTracker : MonoBehaviour
     {
-        public ITKHandUtils.Handedness handedness;
+        public ITKHandUtils.Handedness type;
         private MixedRealityPose MRTKPose;
         private ITKHandUtils.Pose pose = new ITKHandUtils.Pose(ITKHandUtils.NumJoints);
 
@@ -22,10 +22,11 @@ namespace InteractionTK.HandTracking
 
         private void FixedUpdate()
         {
+
             Tracking = true;
             for (int i = 0; i < ITKHandUtils.MRTKJoints.Length; i++)
             {
-                Handedness handedness = this.handedness == ITKHandUtils.Handedness.Left ? Handedness.Left : Handedness.Right;
+                Handedness handedness = type == ITKHandUtils.Handedness.Left ? Handedness.Left : Handedness.Right;
                 if (HandJointUtils.TryGetJointPose(ITKHandUtils.MRTKJoints[i], handedness, out MRTKPose))
                 {
                     pose.positions[i] = MRTKPose.Position;
@@ -34,14 +35,20 @@ namespace InteractionTK.HandTracking
                 else Tracking = false;
             }
 
+            if (hand.type != type)
+            {
+                Debug.LogError("Tracked hand type does not match the type of the ITKHand.");
+                return;
+            }
+
             if (Tracking)
             {
-                hand.Enable();
+                //hand.Enable();
                 hand.Track(pose);
             }
             else
             {
-                hand.Disable();
+                //hand.Disable();
             }
         }
     }

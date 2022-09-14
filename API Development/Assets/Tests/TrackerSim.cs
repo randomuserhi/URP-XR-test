@@ -91,6 +91,15 @@ public class TrackerSim : MonoBehaviour
             trackers[i].transform.localRotation = rotations[frame * 25 + i];
         }
 
+        if (timer >= 0.02f && play)
+        {
+            frame = (frame + 1) % numFrames;
+            timer = 0;
+        }
+        else timer += Time.fixedDeltaTime;
+
+        if (hand == null) return;
+
         Vector3[] pos = new Vector3[ITKHandUtils.NumJoints];
         Quaternion[] rot = new Quaternion[ITKHandUtils.NumJoints];
         int index = 0;
@@ -154,12 +163,5 @@ public class TrackerSim : MonoBehaviour
             positions = pos,
             rotations = rot
         });
-
-        if (timer >= 0.02f && play)
-        {
-            frame = (frame + 1) % numFrames;
-            timer = 0;
-        }
-        else timer += Time.fixedDeltaTime;
     }
 }

@@ -1,1073 +1,716 @@
-using JetBrains.Annotations;
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.Utilities.Gltf.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-
+using UnityEngine.InputSystem.LowLevel;
 using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
     public static partial class ITKHandUtils
     {
-        public const int Wrist = 0;
-
-        public const int ThumbMetacarpal = 1;
-        public const int IndexMetacarpal = 2;
-        public const int MiddleMetacarpal = 3;
-        public const int RingMetacarpal = 4;
-        public const int PinkyMetacarpal = 5;
-
-        public const int ThumbProximal = 6;
-        public const int IndexKnuckle = 7;
-        public const int MiddleKnuckle = 8;
-        public const int PinkyKnuckle = 9;
-        public const int RingKnuckle = 10;
-
-        public const int ThumbDistal = 11;
-        public const int IndexMiddle = 12;
-        public const int MiddleMiddle = 13;
-        public const int RingMiddle = 14;
-        public const int PinkyMiddle = 15;
-
-        public const int ThumbTip = 16;
-        public const int IndexDistal = 17;
-        public const int MiddleDistal = 18;
-        public const int RingDistal = 19;
-        public const int PinkyDistal = 20;
-
-        public const int IndexTip = 21;
-        public const int MiddleTip = 22;
-        public const int RingTip = 23;
-        public const int PinkyTip = 24;
-
-        public const int Palm = 25;
-
-        public const int NumJoints = 26;
-
-        public const int Metacarpals = 1;
-        public const int NumMetacarpals = 5;
-
-        public const int Knuckles = 6;
-        public const int NumKnuckles = 5;
-
-        public const int Middles = 10;
-        public const int NumMiddles = 5;
-
-        public const int Distals = 15;
-        public const int NumDistals = 5;
-
-        public const int Tips = 20;
-        public const int NumTips = 4;
-
-        public static TrackedHandJoint[] MRTKJoints = new TrackedHandJoint[] {
-            TrackedHandJoint.Wrist,
-            TrackedHandJoint.ThumbMetacarpalJoint,
-            TrackedHandJoint.IndexMetacarpal,
-            TrackedHandJoint.MiddleMetacarpal,
-            TrackedHandJoint.RingMetacarpal,
-            TrackedHandJoint.PinkyMetacarpal,
-
-            TrackedHandJoint.ThumbProximalJoint,
-            TrackedHandJoint.IndexKnuckle,
-            TrackedHandJoint.MiddleKnuckle,
-            TrackedHandJoint.PinkyKnuckle,
-            TrackedHandJoint.RingKnuckle,
-
-            TrackedHandJoint.ThumbDistalJoint,
-            TrackedHandJoint.IndexMiddleJoint,
-            TrackedHandJoint.MiddleMiddleJoint,
-            TrackedHandJoint.RingMiddleJoint,
-            TrackedHandJoint.PinkyMiddleJoint,
-
-            TrackedHandJoint.ThumbTip,
-            TrackedHandJoint.IndexDistalJoint,
-            TrackedHandJoint.MiddleDistalJoint,
-            TrackedHandJoint.RingDistalJoint,
-            TrackedHandJoint.PinkyDistalJoint,
-
-            TrackedHandJoint.IndexTip,
-            TrackedHandJoint.MiddleTip,
-            TrackedHandJoint.RingTip,
-            TrackedHandJoint.PinkyTip,
-
-            TrackedHandJoint.Palm
-        };
-        public static TrackedHandJoint[] ToMRTKJoint = MRTKJoints;
-        public static Joint[] FromMRTKJoint = new Joint[] {
-            Wrist, // MRTK doesn't have a value for 0
-            Wrist,
-            Palm,
-            ThumbMetacarpal,
-            ThumbProximal,
-            ThumbDistal,
-            ThumbTip,
-            IndexMetacarpal,
-            IndexKnuckle,
-            IndexMiddle,
-            IndexDistal,
-            IndexTip,
-            MiddleMetacarpal,
-            MiddleKnuckle,
-            MiddleMiddle,
-            MiddleDistal,
-            MiddleTip,
-            RingMetacarpal,
-            RingKnuckle,
-            RingMiddle,
-            RingDistal,
-            RingTip,
-            PinkyMetacarpal,
-            PinkyKnuckle,
-            PinkyMiddle,
-            PinkyDistal,
-            PinkyTip
-        };
-
-        public enum Handedness
+        public struct HandSettings
         {
-            Left,
-            Right
+            public Handedness defaultHandedness;
+            public Vector3 handednessScale;
+
+            public bool safeMode;
+
+            public float maxVelocity;
+            public float maxAngularVelocity;
+            public float maxDepenetrationVelocity;
+
+            public float maxError;
         }
 
-        public struct ArticulationDriveXYZ
+        // TODO:: support mesh and compound colliders
+        public struct HandSkeletonDescription
         {
-            public ArticulationJointType type;
-            public ArticulationDrive zDrive;
-            public ArticulationDrive yDrive;
-            public ArticulationDrive xDrive;
-            public ArticulationDofLock swingZ;
-            public ArticulationDofLock swingY;
-            public ArticulationDofLock swingX;
-        }
-
-        public struct JointTransform
-        {
-            public Vector3 position;
-
-            public JointTransform(float x, float y, float z)
+            public static readonly JointDrive rootRotationDrive = new JointDrive()
             {
-                position = new Vector3(x, y, z);
-            }
-
-            public JointTransform(float x, float y, float z, Vector3 fromDir)
-            {
-                position = new Vector3(x, y, z);
-            }
-        }
-
-        public struct ColliderJoint
-        {
-            public float height;
-            public float radius;
-        }
-
-        public struct Pose
-        {
-            public Vector3[] positions;
-            public Quaternion[] rotations;
-
-            public Pose(int NumJoints = NumJoints)
-            {
-                positions = new Vector3[NumJoints];
-                rotations = new Quaternion[NumJoints];
-            }
-        }
-
-        public struct Joint
-        {
-            readonly int joint;
-            public Joint(int joint)
-            {
-                this.joint = joint;
-            }
-
-            public const int Wrist = 0;
-
-            public const int ThumbMetacarpal = 1;
-            public const int IndexMetacarpal = 2;
-            public const int MiddleMetacarpal = 3;
-            public const int RingMetacarpal = 4;
-            public const int PinkyMetacarpal = 5;
-
-            public const int ThumbProximal = 6;
-            public const int IndexKnuckle = 7;
-            public const int MiddleKnuckle = 8;
-            public const int PinkyKnuckle = 9;
-            public const int RingKnuckle = 10;
-
-            public const int ThumbDistal = 11;
-            public const int IndexMiddle = 12;
-            public const int MiddleMiddle = 13;
-            public const int RingMiddle = 14;
-            public const int PinkyMiddle = 15;
-
-            public const int ThumbTip = 16;
-            public const int IndexDistal = 17;
-            public const int MiddleDistal = 18;
-            public const int RingDistal = 19;
-            public const int PinkyDistal = 20;
-
-            public const int IndexTip = 21;
-            public const int MiddleTip = 22;
-            public const int RingTip = 23;
-            public const int PinkyTip = 24;
-
-            public const int Palm = 25;
-
-            public static implicit operator int(Joint value)
-            {
-                return value.joint;
-            }
-
-            public static implicit operator Joint(int value)
-            {
-                return new Joint(value);
-            }
-
-            private static string[] names =
-            {
-                "Wrist",
-
-                "ThumbMetacarpal",
-                "IndexMetacarpal",
-                "MiddleMetacarpal",
-                "RingMetacarpal",
-                "PinkyMetacarpal",
-
-                "ThumbProximal",
-                "IndexKnuckle",
-                "MiddleKnuckle",
-                "PinkyKnuckle",
-                "RingKnuckle",
-
-                "ThumbDistal",
-                "IndexMiddle",
-                "MiddleMiddle",
-                "RingMiddle",
-                "PinkyMiddle",
-
-                "ThumbTip",
-                "IndexDistal",
-                "MiddleDistal",
-                "RingDistal",
-                "PinkyDistal",
-
-                "IndexTip",
-                "MiddleTip",
-                "RingTip",
-                "PinkyTip",
-
-                "Palm"
+                positionSpring = 1e+20f,
+                positionDamper = 1e+18f,
+                maximumForce = 5f
             };
-            public override string ToString()
+            public static readonly JointDrive rootPositionDrive = new JointDrive()
             {
-                return names[joint];
+                positionSpring = 1e+20f,
+                positionDamper = 5e+18f,
+                maximumForce = 12.5f
+            };
+
+            public struct Node
+            {
+                public enum Type
+                {
+                    Capsule,
+                    Box,
+                    Sphere
+                }
+
+                public float mass;
+                public Vector3 centerOfMass;
+
+                public Joint joint;
+                public Joint toJoint; // Used when joint is the root, so there will be no rotation
+
+                public Type type;
+                public Vector3 size;
+                public float radius;
+                public float height;
+
+                public Vector3 anchor;
+                public Vector3 connectedAnchor;
+
+                public JointDrive rotationDrive;
+
+                public int[][] ignore; // index coordinate to node that collision should be ignored for
+                public Node[] children;
             }
+
+            public HandSettings settings;
+            public Node nodeTree;
         }
 
-        // TODO:: package these values in a single struct for hand setup and throw into a JSON
-        public const float stiffness = 100000f;
-        public const float damping = 10;
-        public const float forceLimit = float.MaxValue;
-        public static int[] StructureCount = new int[] { 4, 5, 5, 5, 5 };
-        public static Joint[][] Structure = new Joint[][]
+        public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
         {
-            new Joint[] { Joint.ThumbMetacarpal, Joint.ThumbProximal, Joint.ThumbDistal, Joint.ThumbTip },
-            new Joint[] { Joint.IndexMetacarpal, Joint.IndexKnuckle, Joint.IndexMiddle, Joint.IndexDistal, Joint.IndexTip },
-            new Joint[] { Joint.MiddleMetacarpal, Joint.MiddleKnuckle, Joint.MiddleMiddle, Joint.MiddleDistal, Joint.MiddleTip },
-            new Joint[] { Joint.RingMetacarpal, Joint.RingKnuckle, Joint.RingMiddle, Joint.RingDistal, Joint.RingTip },
-            new Joint[] { Joint.PinkyMetacarpal, Joint.PinkyKnuckle, Joint.PinkyMiddle, Joint.PinkyDistal, Joint.PinkyTip }
-        };
-        public static ArticulationDriveXYZ[][] DriveStructure = new ArticulationDriveXYZ[][]
-        {
-            new ArticulationDriveXYZ[] {
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -180f, upperLimit = 180f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -180f, upperLimit = 180f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -180f, upperLimit = 180f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -180f, upperLimit = 180f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -10f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
+            settings = new HandSettings()
+            {
+                defaultHandedness = Handedness.Left,
+                handednessScale = new Vector3(-1, 1, 1),
+                safeMode = true,
+                maxVelocity = 5,
+                maxAngularVelocity = 2,
+                maxDepenetrationVelocity = 1,
+                maxError = 0.5f
+            },
+            nodeTree = new HandSkeletonDescription.Node() 
+            {
+                // Root node does not need a drive specified
+                mass = 0.255f,
+                centerOfMass = Vector3.zero,
+                joint = Joint.Wrist,
+                type = HandSkeletonDescription.Node.Type.Box,
+                size = new Vector3(0.06f, 0.02f, 0.07f),
+                anchor = new Vector3(0.002f, -0.001f, -0.045f),
+                connectedAnchor = Vector3.zero,
+                children = new HandSkeletonDescription.Node[]
+                {
+                    // THUMB
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.015f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.Wrist,
+                        toJoint = Joint.ThumbMetacarpal,
+                        type = HandSkeletonDescription.Node.Type.Capsule,
+                        radius = 0.009f,
+                        height = 0.03f,
+                        anchor = new Vector3(0, 0f, -0.015f),
+                        connectedAnchor = new Vector3(0.002f, -0.001f, -0.045f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 12.5f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.015f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.ThumbMetacarpal,
+                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                radius = 0.009f,
+                                height = 0.05f,
+                                anchor = new Vector3(0, 0f, -0.025f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.015f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 12.5f
+                                },
+                                ignore = new int[][] 
+                                {
+                                    new int[0] // Ignore root collider
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.015f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.ThumbProximal,
+                                        type = HandSkeletonDescription.Node.Type.Capsule,
+                                        radius = 0.009f,
+                                        height = 0.04f,
+                                        anchor = new Vector3(0, 0f, -0.017f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.02f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 12.5f
+                                        },
+                                        children = new HandSkeletonDescription.Node[]
+                                        {
+                                            new HandSkeletonDescription.Node()
+                                            {
+                                                mass = 0.015f,
+                                                centerOfMass = Vector3.zero,
+                                                joint = Joint.ThumbDistal,
+                                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                                radius = 0.008f,
+                                                height = 0.03f,
+                                                anchor = new Vector3(0, 0f, -0.007f),
+                                                connectedAnchor = new Vector3(0f, 0f, 0.02f),
+                                                rotationDrive = new JointDrive()
+                                                {
+                                                    positionSpring = 10f,
+                                                    positionDamper = 0.1f,
+                                                    maximumForce = 12.5f
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // INDEX
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.015f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.IndexKnuckle,
+                        type = HandSkeletonDescription.Node.Type.Capsule,
+                        radius = 0.009f,
+                        height = 0.055f,
+                        anchor = new Vector3(0, 0f, -0.0275f),
+                        connectedAnchor = new Vector3(0.022f, -0.003f, 0.03f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 1f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.015f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.IndexMiddle,
+                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                radius = 0.008f,
+                                height = 0.04f,
+                                anchor = new Vector3(0, 0f, -0.012f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.0275f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 1f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.015f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.IndexDistal,
+                                        type = HandSkeletonDescription.Node.Type.Capsule,
+                                        radius = 0.0075f,
+                                        height = 0.03f,
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.012f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 1f
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // MIDDLE
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.015f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.MiddleKnuckle,
+                        type = HandSkeletonDescription.Node.Type.Capsule,
+                        radius = 0.009f,
+                        height = 0.06f,
+                        anchor = new Vector3(0, 0f, -0.03f),
+                        connectedAnchor = new Vector3(0f, -0.003f, 0.03f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 1f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.015f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.MiddleMiddle,
+                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                radius = 0.008f,
+                                height = 0.04f,
+                                anchor = new Vector3(0, 0f, -0.012f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.03f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 1f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.015f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.MiddleDistal,
+                                        type = HandSkeletonDescription.Node.Type.Capsule,
+                                        radius = 0.0075f,
+                                        height = 0.03f,
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.012f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 1f
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // RING
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.015f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.RingKnuckle,
+                        type = HandSkeletonDescription.Node.Type.Capsule,
+                        radius = 0.009f,
+                        height = 0.055f,
+                        anchor = new Vector3(0, 0f, -0.0275f),
+                        connectedAnchor = new Vector3(-0.022f, -0.003f, 0.03f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 1f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.015f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.RingMiddle,
+                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                radius = 0.008f,
+                                height = 0.04f,
+                                anchor = new Vector3(0, 0f, -0.012f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.0275f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 1f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.015f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.RingDistal,
+                                        type = HandSkeletonDescription.Node.Type.Capsule,
+                                        radius = 0.0075f,
+                                        height = 0.03f,
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.012f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 1f
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // PINKY
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.015f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.PinkyMetacarpal,
+                        type = HandSkeletonDescription.Node.Type.Capsule,
+                        radius = 0.008f,
+                        height = 0.06f,
+                        anchor = new Vector3(0f, 0f, -0.03f),
+                        connectedAnchor = new Vector3(-0.02f, -0.005f, -0.035f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 12.5f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.015f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.PinkyKnuckle,
+                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                radius = 0.007f,
+                                height = 0.05f,
+                                anchor = new Vector3(0, 0f, -0.025f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.02f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 12.5f
+                                },
+                                ignore = new int[][]
+                                {
+                                    new int[0] // Ignore root collider
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.015f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.PinkyMiddle,
+                                        type = HandSkeletonDescription.Node.Type.Capsule,
+                                        radius = 0.007f,
+                                        height = 0.03f,
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.018f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 12.5f
+                                        },
+                                        children = new HandSkeletonDescription.Node[]
+                                        {
+                                            new HandSkeletonDescription.Node()
+                                            {
+                                                mass = 0.015f,
+                                                centerOfMass = Vector3.zero,
+                                                joint = Joint.PinkyDistal,
+                                                type = HandSkeletonDescription.Node.Type.Capsule,
+                                                radius = 0.007f,
+                                                height = 0.03f,
+                                                anchor = new Vector3(0, 0f, -0.01f),
+                                                connectedAnchor = new Vector3(0f, 0f, 0.013f),
+                                                rotationDrive = new JointDrive()
+                                                {
+                                                    positionSpring = 10f,
+                                                    positionDamper = 0.1f,
+                                                    maximumForce = 12.5f
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            },
-            new ArticulationDriveXYZ[] {
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -80, upperLimit = 80, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -90, upperLimit = 90, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -60f, upperLimit = 60f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -40f, upperLimit = 40f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 120f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -10f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                }
-            },
-            new ArticulationDriveXYZ[] {
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -80, upperLimit = 80, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -90, upperLimit = 90, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -60f, upperLimit = 60f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -40f, upperLimit = 40f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 120f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -10f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                }
-            },
-            new ArticulationDriveXYZ[] {
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -80, upperLimit = 80, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -90, upperLimit = 90, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -60f, upperLimit = 60f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -40f, upperLimit = 40f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 120f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -10f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                }
-            },
-            new ArticulationDriveXYZ[] {
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -80, upperLimit = 80, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -70, upperLimit = 70, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -90, upperLimit = 90, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -40, upperLimit = 40, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -60f, upperLimit = 60f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -40f, upperLimit = 40f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 50f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -50f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LimitedMotion,
-                    swingY = ArticulationDofLock.LimitedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 120f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                },
-                new ArticulationDriveXYZ() {
-                    type = ArticulationJointType.SphericalJoint,
-                    zDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    yDrive = new ArticulationDrive() { lowerLimit = 0f, upperLimit = 0f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    xDrive = new ArticulationDrive() { lowerLimit = -10f, upperLimit = 90f, stiffness = stiffness, damping = damping, forceLimit = forceLimit },
-                    swingZ = ArticulationDofLock.LockedMotion,
-                    swingY = ArticulationDofLock.LockedMotion,
-                    swingX = ArticulationDofLock.LimitedMotion
-                }
-            }
-        }; //TODO:: fix limits (mostly Y and Z limits are wrong)
-        public static JointTransform[][] LocalTransformStructure = new JointTransform[][]
-        {
-            new JointTransform[] {
-                new JointTransform(0, 0, 0.025f),
-                new JointTransform(0, 0, 0.045f), new JointTransform(0, 0, 0.04f), new JointTransform(0, 0, 0.02f)
-            },
-            new JointTransform[] {
-                new JointTransform(0, 0, 0.018f),
-                new JointTransform(0, 0, 0.07f), new JointTransform(0, 0, 0.045f), new JointTransform(0, 0, 0.025f), new JointTransform(0, 0, 0.02f)
-            },
-            new JointTransform[] {
-                new JointTransform(0, 0, 0.015f),
-                new JointTransform(0, 0, 0.07f), new JointTransform(0, 0, 0.055f), new JointTransform(0, 0, 0.025f), new JointTransform(0, 0, 0.02f)
-            },
-            new JointTransform[] {
-                new JointTransform(0, 0, 0.016f),
-                new JointTransform(0, 0, 0.07f), new JointTransform(0, 0, 0.045f), new JointTransform(0, 0, 0.025f), new JointTransform(0, 0, 0.02f)
-            },
-            new JointTransform[] {
-                new JointTransform(0, 0, 0.02f),
-                new JointTransform(0, 0, 0.065f), new JointTransform(0, 0, 0.035f), new JointTransform(0, 0, 0.02f), new JointTransform(0, 0, 0.02f)
-            }
-        };
-        public static ColliderJoint[][] ColliderStructure = new ColliderJoint[][]
-        {
-            new ColliderJoint[] {
-                new ColliderJoint() { height = 0.02f, radius = 0.007f },
-                new ColliderJoint() { height = 0.045f, radius = 0.007f },
-                new ColliderJoint() { height = 0.04f, radius = 0.006f },
-                new ColliderJoint() { height = 0.02f, radius = 0.005f }
-            },
-            new ColliderJoint[] {
-                new ColliderJoint() { height = 0.01f, radius = 0.007f },
-                new ColliderJoint() { height = 0.068f, radius = 0.008f },
-                new ColliderJoint() { height = 0.045f, radius = 0.007f },
-                new ColliderJoint() { height = 0.025f, radius = 0.006f },
-                new ColliderJoint() { height = 0.02f, radius = 0.005f }
-            },
-            new ColliderJoint[] {
-                new ColliderJoint() { height = 0.015f, radius = 0.007f },
-                new ColliderJoint() { height = 0.068f, radius = 0.008f },
-                new ColliderJoint() { height = 0.05f, radius = 0.007f },
-                new ColliderJoint() { height = 0.025f, radius = 0.006f },
-                new ColliderJoint() { height = 0.02f, radius = 0.005f }
-            },
-            new ColliderJoint[] {
-                new ColliderJoint() { height = 0.01f, radius = 0.007f },
-                new ColliderJoint() { height = 0.068f, radius = 0.008f },
-                new ColliderJoint() { height = 0.045f, radius = 0.007f },
-                new ColliderJoint() { height = 0.025f, radius = 0.006f },
-                new ColliderJoint() { height = 0.02f, radius = 0.005f }
-            },
-            new ColliderJoint[] {
-                new ColliderJoint() { height = 0.02f, radius = 0.007f },
-                new ColliderJoint() { height = 0.068f, radius = 0.008f },
-                new ColliderJoint() { height = 0.035f, radius = 0.007f },
-                new ColliderJoint() { height = 0.02f, radius = 0.006f },
-                new ColliderJoint() { height = 0.02f, radius = 0.005f }
             }
         };
     }
 
-    public class ITKSkeletonNode
+    public class ITKSkeleton
     {
-        public struct Joint //TODO:: make it such that rotation order can change, xyz => zyx etc.... (Currently only xyz)
+        public class Node
         {
-            public ArticulationBody x;
-            public ArticulationBody y;
-            public ArticulationBody z;
+            public Node parent;
+            public Node root;
+            public ITKHandUtils.Joint joint;
+            public ITKHandUtils.Joint toJoint;
 
-            public ArticulationBody last
-            {
-                get
-                {
-                    if (z != null) return z;
-                    if (x != null) return x;
-                    return y;
-                }
-            }
+            public Rigidbody rb;
+            public ConfigurableJoint j;
+            public Collider collider;
 
-            public ArticulationDrive xDrive
-            {
-                get => x.xDrive;
-                set => x.xDrive = value;
-            }
-            public ArticulationDrive yDrive
-            {
-                get => y.xDrive;
-                set => y.xDrive = value;
-            }
-            public ArticulationDrive zDrive
-            {
-                get => z.xDrive;
-                set => z.xDrive = value;
-            }
+            public Node[] children;
 
-            public string name 
-            { 
-                set
-                {
-                    if (x) x.name = "x-" + value;
-                    if (y) y.name = "y-" + value;
-                    if (z) z.name = "z-" + value;
-                } 
-            }
-            public CollisionDetectionMode collisionDetectionMode
+            public Node(ITKHandUtils.Handedness type, ITKHandUtils.HandSettings settings, ITKHandUtils.HandSkeletonDescription.Node node, Node root = null, Node parentNode = null, Transform parent = null, Rigidbody body = null, PhysicMaterial material = null, bool isRoot = false)
             {
-                set
+                if (root == null) root = this; this.root = root;
+                this.parent = parentNode;
+                joint = node.joint;
+                toJoint = node.toJoint;
+
+                GameObject container = new GameObject(node.joint.ToString());
+                int layer = LayerMask.NameToLayer("ITKHand");
+                if (layer > -1) container.layer = layer;
+                else Debug.LogError("Could not find ITKHand layer, please create it in the editor.");
+                container.transform.parent = parent;
+
+                rb = container.AddComponent<Rigidbody>();
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                rb.maxDepenetrationVelocity = settings.maxDepenetrationVelocity;
+                rb.mass = node.mass;
+                rb.centerOfMass = node.centerOfMass;
+                rb.useGravity = false;
+                rb.drag = 0;
+                rb.angularDrag = 0;
+
+                j = container.AddComponent<ConfigurableJoint>();
+
+                if (isRoot)
                 {
-                    if (x) x.collisionDetectionMode = value;
-                    if (y) y.collisionDetectionMode = value;
-                    if (z) z.collisionDetectionMode = value;
+                    j.xDrive = ITKHandUtils.HandSkeletonDescription.rootPositionDrive;
+                    j.yDrive = ITKHandUtils.HandSkeletonDescription.rootPositionDrive;
+                    j.zDrive = ITKHandUtils.HandSkeletonDescription.rootPositionDrive;
+
+                    j.slerpDrive = ITKHandUtils.HandSkeletonDescription.rootRotationDrive;
                 }
-            }
-            public int solverIterations
-            {
-                set
+                else
                 {
-                    if (x) x.solverIterations = value;
-                    if (y) y.solverIterations = value;
-                    if (z) z.solverIterations = value;
+                    j.connectedBody = body;
+
+                    j.xMotion = ConfigurableJointMotion.Locked;
+                    j.yMotion = ConfigurableJointMotion.Locked;
+                    j.zMotion = ConfigurableJointMotion.Locked;
+
+                    j.xDrive = new JointDrive() { positionDamper = 0, positionSpring = 0, maximumForce = 0 };
+                    j.yDrive = new JointDrive() { positionDamper = 0, positionSpring = 0, maximumForce = 0 };
+                    j.zDrive = new JointDrive() { positionDamper = 0, positionSpring = 0, maximumForce = 0 };
+
+                    j.slerpDrive = node.rotationDrive;
                 }
-            }
-            public int solverVelocityIterations
-            {
-                set
+
+                j.rotationDriveMode = RotationDriveMode.Slerp;
+
+                j.autoConfigureConnectedAnchor = false;
+
+                Vector3 scale = Vector3.one;
+                if (type != settings.defaultHandedness) scale = settings.handednessScale;
+                j.anchor = Vector3.Scale(node.anchor, scale);
+                j.connectedAnchor = Vector3.Scale(node.connectedAnchor, scale);
+
+                collider = null;
+                switch (node.type)
                 {
-                    if (x) x.solverVelocityIterations = value;
-                    if (y) y.solverVelocityIterations = value;
-                    if (z) z.solverVelocityIterations = value;
+                    case ITKHandUtils.HandSkeletonDescription.Node.Type.Sphere:
+                        {
+                            SphereCollider c = container.AddComponent<SphereCollider>();
+                            c.radius = node.radius;
+                            collider = c;
+                        }
+                        break;
+                    case ITKHandUtils.HandSkeletonDescription.Node.Type.Capsule:
+                        {
+                            CapsuleCollider c = container.AddComponent<CapsuleCollider>();
+                            c.direction = 2;
+                            c.radius = node.radius;
+                            c.height = node.height;
+                            collider = c;
+                        }
+                        break;
+                    case ITKHandUtils.HandSkeletonDescription.Node.Type.Box:
+                        {
+                            BoxCollider c = container.AddComponent<BoxCollider>();
+                            c.size = node.size;
+                            collider = c;
+                        }
+                        break;
                 }
-            }
-            private float _mass;
-            public float mass
-            {
-                set
+                if (collider)
                 {
-                    _mass = value;
-                    if (x) x.mass = value;
-                    if (y) y.mass = value;
-                    if (z) z.mass = value;
-                }
-                get => _mass;
-            }
-            public float jointFriction
-            {
-                set
-                {
-                    if (x) x.jointFriction = value;
-                    if (y) y.jointFriction = value;
-                    if (z) z.jointFriction = value;
-                }
-            }
-            public Vector3 localPosition
-            {
-                set
-                {
-                    if (x) x.transform.localPosition = value;
-                    if (y) y.transform.localPosition = value;
-                    if (z) z.transform.localPosition = value;
-                }
-            }
-            public Quaternion localRotation
-            {
-                set
-                {
-                    if (x) x.transform.localRotation = value;
-                    if (y) y.transform.localRotation = value;
-                    if (z) z.transform.localRotation = value;
-                }
-            }
-            public Vector3 position
-            {
-                get => last.transform.position;
-            }
-            public Quaternion rotation
-            {
-                get => last.transform.rotation;
-            }
-            public Vector3 velocity
-            {
-                get => last.velocity;
-                set
-                {
-                    if (x) x.velocity = value;
-                    if (y) y.velocity = value;
-                    if (z) z.velocity = value;
-                }
-            }
-            public Vector3 angularVelocity
-            {
-                get => last.angularVelocity;
-                set
-                {
-                    if (x) x.angularVelocity = value;
-                    if (y) y.angularVelocity = value;
-                    if (z) z.angularVelocity = value;
+                    collider.material = material;
+
+                    if (node.ignore != null) 
+                        for (int i = 0; i < node.ignore.Length; ++i)
+                        {
+                            // TODO:: check if node.ignore[i] == null
+
+                            // Ignore root
+                            if (node.ignore[i].Length == 0)
+                            {
+                                Physics.IgnoreCollision(collider, root.collider);
+                                continue;
+                            }
+
+                            // TODO:: error checking here (just simple bound checks)
+                            Node curr = root;
+                            for (int j = 0; j < node.ignore[i].Length; ++j)
+                            {
+                                curr = curr.children[node.ignore[i][j]];
+                            }
+                            Physics.IgnoreCollision(collider, curr.collider);
+                        }
                 }
             }
 
-            public void AddForce(Vector3 force)
+            public void FixedUpdate(ITKHandUtils.HandSettings settings)
             {
-                if (x) x.AddForce(force);
-                if (y) y.AddForce(force);
-                if (z) z.AddForce(force);
+                if (settings.safeMode)
+                {
+                    rb.velocity = Vector3.ClampMagnitude(rb.velocity, settings.maxVelocity);
+                    rb.angularVelocity = Vector3.ClampMagnitude(rb.velocity, settings.maxAngularVelocity);
+                    rb.maxDepenetrationVelocity = settings.maxDepenetrationVelocity;
+
+                    if (Vector3.Distance(rb.position, j.targetPosition) > settings.maxError)
+                    {
+                        rb.velocity = Vector3.zero;
+                        rb.angularVelocity = Vector3.zero;
+                    }
+                }
             }
 
-            public static implicit operator ArticulationBody(Joint j) => j.x;
+            public void Track(ITKHandUtils.Pose pose, Quaternion currentRotation)
+            {
+                Quaternion worldSpaceTarget = pose.rotations[joint];
+                
+                if (parent == null) // We are the root
+                    j.connectedAnchor = pose.positions[joint];
+
+                if (parent != null && joint == ITKHandUtils.Root)
+                {
+                    if (toJoint != 0)
+                    {
+                        Quaternion localRotation = Quaternion.LookRotation(pose.positions[toJoint] - pose.positions[ITKHandUtils.Root], pose.rotations[ITKHandUtils.Root] * Vector3.up);
+                        localRotation = Quaternion.Inverse(pose.rotations[ITKHandUtils.Root]) * localRotation;
+                        j.targetRotation = Quaternion.Inverse(localRotation);
+                        currentRotation *= localRotation;
+                    }
+                    else // toJoint has not been set yet
+                    {
+                        Debug.LogWarning("toJoint was not set.");
+                    }
+                }
+                else
+                {
+                    Quaternion localRotation = Quaternion.Inverse(currentRotation) * worldSpaceTarget;
+                    j.targetRotation = Quaternion.Inverse(localRotation);
+                    currentRotation *= localRotation;
+                }
+
+                if (children != null) for (int i = 0; i < children.Length; ++i) children[i].Track(pose, currentRotation);
+            }
         }
 
-        public ITKSkeletonNode[] children;
-        public Joint joint;
+        public ITKHandUtils.HandSettings settings;
+        public Node root;
+        public PhysicMaterial material;
 
-        private static GameObject CreateBody(Transform parent, out ArticulationBody body)
+        public ITKSkeleton(ITKHandUtils.Handedness type, Transform parent, ITKHandUtils.HandSkeletonDescription descriptor, PhysicMaterial material, out Node[] nodes)
         {
-            GameObject o = new GameObject();
-            o.transform.parent = parent;
-            o.transform.localPosition = Vector3.zero;
-            body = o.AddComponent<ArticulationBody>();
+            List<Node> temp = new List<Node>();
 
-            return o;
-        }
-        private static GameObject CreateBody(Transform parent, ITKHandUtils.ColliderJoint joint, out ArticulationBody body, out CapsuleCollider collider)
-        {
-            GameObject o = new GameObject();
-            o.transform.parent = parent;
-            o.transform.localPosition = Vector3.zero;
-            body = o.AddComponent<ArticulationBody>();
-            collider = o.AddComponent<CapsuleCollider>();
-            collider.radius = joint.radius;
-            collider.height = joint.height;
-            collider.direction = 2;
-            collider.center = new Vector3(0, 0, -joint.height / 2f);
+            this.material = material;
+            settings = descriptor.settings;
 
-            return o;
+            root = new Node(type, descriptor.settings, descriptor.nodeTree, parent: parent, isRoot: true);
+            RecursiveGenerateNodes(temp, type, descriptor.settings, root, root, descriptor.nodeTree.children);
+
+            nodes = temp.ToArray();
         }
 
-        public static ITKSkeletonNode HandSkeleton(Transform parent, ITKHandUtils.Handedness type, out ITKSkeletonNode[][] skeleton, out ArticulationBody[] bodies, out CapsuleCollider[] capsuleColliders)
+        private void RecursiveGenerateNodes(List<Node> nodes, ITKHandUtils.Handedness type, ITKHandUtils.HandSettings settings, Node root, Node current, ITKHandUtils.HandSkeletonDescription.Node[] children)
         {
-            Vector3 scale = new Vector3(type == ITKHandUtils.Handedness.Left ? 1 : -1, 1, 1);
+            nodes.Add(current);
+            if (children == null) return;
 
-            List<CapsuleCollider> colliders = new List<CapsuleCollider>();
-            List<ArticulationBody> articulationBodies = new List<ArticulationBody>();
-            ITKSkeletonNode wrist = new ITKSkeletonNode();
-            CreateBody(parent, out wrist.joint.x);
-            wrist.joint.name = "Wrist";
-            wrist.children = new ITKSkeletonNode[ITKHandUtils.StructureCount.Length];
-            wrist.children.InitializeArray();
-            wrist.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            wrist.joint.solverIterations = 60;
-            wrist.joint.solverVelocityIterations = 20;
-            wrist.joint.mass = 100;
-            wrist.joint.jointFriction = 10;
-
-            skeleton = new ITKSkeletonNode[ITKHandUtils.StructureCount.Length][];
-            for (int i = 0; i < ITKHandUtils.StructureCount.Length; ++i)
+            current.children = new Node[children.Length];
+            for (int i = 0; i < children.Length; ++i)
             {
-                skeleton[i] = new ITKSkeletonNode[ITKHandUtils.StructureCount[i]];
-                Transform p = wrist.joint.last.transform;
-                ITKSkeletonNode node = wrist.children[i];
-                float mass = 50;
-                for (int j = 0; j < ITKHandUtils.StructureCount[i]; ++j, mass /= 2f)
-                {
-                    ITKHandUtils.ArticulationDriveXYZ drive = ITKHandUtils.DriveStructure[i][j];
-                    ITKHandUtils.ColliderJoint col = ITKHandUtils.ColliderStructure[i][j];
-                    if (drive.type == ArticulationJointType.FixedJoint)
-                    {
-                        CapsuleCollider collider;
-                        CreateBody(p, col, out node.joint.x, out collider);
-                        colliders.Add(collider);
-                        articulationBodies.Add(node.joint);
-
-                        node.joint.name = ITKHandUtils.Structure[i][j].ToString();
-                        node.joint.localPosition = Vector3.Scale(ITKHandUtils.LocalTransformStructure[i][j].position, scale);
-                        node.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-                        node.joint.mass = mass;
-                        node.joint.jointFriction = 10;
-                        node.joint.last.anchorPosition = node.joint.last.transform.InverseTransformPoint(p.transform.position);
-                    }
-                    else if (drive.type == ArticulationJointType.SphericalJoint)
-                    {
-                        Transform q = p;
-                        int count = 0;
-                        if (drive.swingY != ArticulationDofLock.LockedMotion)
-                        {
-                            ++count;
-                            CreateBody(p, out node.joint.y);
-                            node.joint.y.jointType = ArticulationJointType.RevoluteJoint;
-                            node.joint.y.anchorRotation = q.rotation * Quaternion.LookRotation(Vector3.forward, Vector3.up) * Quaternion.Euler(new Vector3(0, 0, 90));
-
-                            node.joint.y.twistLock = drive.swingY;
-                            node.joint.y.xDrive = drive.yDrive;
-
-                            p = node.joint.y.transform;
-                            articulationBodies.Add(node.joint.y);
-                        }
-                        if (drive.swingX != ArticulationDofLock.LockedMotion)
-                        {
-                            ++count;
-                            CreateBody(p, out node.joint.x);
-                            node.joint.x.jointType = ArticulationJointType.RevoluteJoint;
-                            node.joint.x.anchorRotation = q.rotation * Quaternion.LookRotation(Vector3.forward, Vector3.up);
-
-                            node.joint.x.twistLock = drive.swingX;
-                            node.joint.x.xDrive = drive.xDrive;
-
-                            p = node.joint.x.transform;
-                            articulationBodies.Add(node.joint.x);
-                        }
-                        if (drive.swingZ != ArticulationDofLock.LockedMotion)
-                        {
-                            ++count;
-                            CreateBody(p, out node.joint.z);
-                            node.joint.z.jointType = ArticulationJointType.RevoluteJoint;
-                            node.joint.z.anchorRotation = q.rotation * Quaternion.LookRotation(Vector3.left, Vector3.up);
-
-                            node.joint.z.twistLock = drive.swingZ;
-                            node.joint.z.xDrive = drive.zDrive;
-
-                            p = node.joint.z.transform;
-                            articulationBodies.Add(node.joint.z);
-                        }
-
-                        node.joint.name = ITKHandUtils.Structure[i][j].ToString();
-                        Quaternion offset = count > 1 ? q.rotation : Quaternion.identity;
-                        node.joint.last.transform.localPosition = offset * Vector3.Scale(ITKHandUtils.LocalTransformStructure[i][j].position, scale);
-                        node.joint.last.anchorPosition = node.joint.last.transform.InverseTransformPoint(q.transform.position);
-                        node.joint.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-                        node.joint.mass = mass;
-                        node.joint.jointFriction = 10;
-
-                        CapsuleCollider collider;
-                        collider = node.joint.last.gameObject.AddComponent<CapsuleCollider>();
-                        collider.radius = col.radius;
-                        collider.height = col.height;
-                        collider.direction = 2;
-                        collider.center = new Vector3(0, 0, -col.height / 2f);
-                        colliders.Add(collider);
-                    }
-                    else
-                    {
-                        Debug.LogError("Joint type not supported, please use FixedJoint or SphericalJoint");
-                        bodies = null;
-                        capsuleColliders = null;
-                        return null;
-                    }
-
-                    p = node.joint.last.transform;
-                    skeleton[i][j] = node;
-                    node.children = new ITKSkeletonNode[1];
-                    node.children.InitializeArray();
-                    node = node.children[0];
-                }
+                current.children[i] = new Node(type, settings, children[i], root, current, current.j.transform, current.rb, material);
+                RecursiveGenerateNodes(nodes, type, settings, root,  current.children[i], children[i].children);
             }
-
-            for (int i = 0; i < colliders.Count; ++i)
-                for (int j = 0; j < colliders.Count; ++j)
-                    if (i != j) Physics.IgnoreCollision(colliders[i], colliders[j], true);
-
-            capsuleColliders = colliders.ToArray();
-            bodies = articulationBodies.ToArray();
-            return wrist;
         }
     }
 
     public class ITKHand : MonoBehaviour
     {
-        ITKSkeletonNode wrist;
-        ITKSkeletonNode[][] skeleton;
+        public PhysicMaterial material;
+
         public ITKHandUtils.Handedness type;
-        public ITKHandModel model;
+
+        ITKSkeleton skeleton;
+        ITKSkeleton.Node[] nodes;
 
         private bool _active = true;
-        public bool active 
-        { 
-            get => _active;
+        public bool active
+        {
             set
             {
                 _active = value;
                 if (_active) Enable();
                 else Disable();
             }
+            get => _active;
         }
 
-        public bool hideModelOnDisable = true;
+        private void Start()
+        {
+            skeleton = new ITKSkeleton(type, transform, ITKHandUtils.handSkeleton, material, out nodes);
+        }
 
         public void Enable()
         {
             if (_active) return;
 
-            wrist.joint.last.immovable = false;
-            foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = true;
-
-            if (hideModelOnDisable) model.Enable();
-
-            _active = true;
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                nodes[i].collider.enabled = true;
+            }
         }
 
         public void Disable()
         {
             if (!_active) return;
 
-            wrist.joint.last.immovable = true;
-            wrist.joint.velocity = Vector3.zero;
-            wrist.joint.angularVelocity = Vector3.zero;
-            foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = false;
-            for (int i = 0; i < articulationBodies.Length; i++)
+            for (int i = 0; i < nodes.Length; i++)
             {
-                articulationBodies[i].velocity = Vector3.zero;
-                articulationBodies[i].angularVelocity = Vector3.zero;
-                articulationBodies[i].jointPosition = new ArticulationReducedSpace(0f, 0f, 0f);
+                nodes[i].collider.enabled = false;
             }
-
-            if (hideModelOnDisable) model.Disable();
-
-            _active = false;
         }
-
-        private void Start()
-        {
-            GenerateBody();
-        }
-
-        private void GenerateBody()
-        {
-            wrist = ITKSkeletonNode.HandSkeleton(transform, type, out skeleton, out articulationBodies, out capsuleColliders);
-        }
-
-        private CapsuleCollider[] capsuleColliders;
-        private ArticulationBody[] articulationBodies;
-        private int lastFrameTeleport;
-        private bool ghosted = false;
 
         public void Track(ITKHandUtils.Pose pose)
         {
-            if (!active) return;
+            ITKSkeleton.Node root = skeleton.root;
+            
+            // Track joints
+            root.Track(pose, Quaternion.identity);
 
-            model?.Track(wrist, skeleton);
-
-            // Counter Gravity; force = mass * acceleration
-            wrist.joint.AddForce(-Physics.gravity * wrist.joint.mass);
-            foreach (ArticulationBody body in articulationBodies)
+            // Update nodes
+            for (int i = 0; i < nodes.Length; ++i)
             {
-                body.AddForce(-Physics.gravity * body.mass);
+                nodes[i].FixedUpdate(skeleton.settings);
             }
 
-            // Solve position constraint
-            wrist.joint.velocity *= 0.05f;
-            Vector3 velocity = (pose.positions[ITKHandUtils.Wrist] - wrist.joint.position) * 0.95f / Time.fixedDeltaTime;
-            //TODO:: make the velocity clamp only when hand is in contact with an object => clamp is to prevent joints from breaking when high velocities are applied against an object
-            wrist.joint.velocity += Vector3.ClampMagnitude(velocity, 0.5f);
-
-            // Solve rotation constraint
-            Quaternion rotation = VRTKUtils.ShortestRotation(pose.rotations[ITKHandUtils.Wrist], wrist.joint.rotation);
-            Vector3 rot;
-            float speed;
-            rotation.ToAngleAxis(out speed, out rot);
-            rot *= speed;
-            wrist.joint.angularVelocity = rot * Mathf.Deg2Rad / Time.fixedDeltaTime;
-
-            // Rotate joints
-            for (int i = 0; i < ITKHandUtils.StructureCount.Length; ++i)
-            {
-                ITKHandUtils.Joint prevJoint = ITKHandUtils.Wrist;
-                Quaternion currentRotation = Quaternion.identity;
-                for (int j = 0; j < ITKHandUtils.StructureCount[i]; ++j)
-                {
-                    ITKHandUtils.Joint currJoint = ITKHandUtils.Structure[i][j];
-                    if (i != 0 && j > 2)
-                    {
-                        ITKHandUtils.Joint prevPrevJoint = ITKHandUtils.Structure[i][j - 2];
-                        if (skeleton[i][j].joint.x)
-                        {
-                            ArticulationDrive drive = skeleton[i][j].joint.xDrive;
-                            float angle = Vector3.SignedAngle(
-                                pose.rotations[prevPrevJoint] * Vector3.forward,
-                                pose.positions[currJoint] - pose.positions[prevJoint],
-                                pose.rotations[prevPrevJoint] * Vector3.right
-                                );
-                            drive.target = angle > 180 ? angle - 360 : angle;
-                            skeleton[i][j].joint.xDrive = drive;
-                        }
-                    }
-                    else
-                    {
-                        Quaternion localRotation;
-                        if (j == 0)
-                        {
-                            Quaternion r = Quaternion.LookRotation(pose.positions[currJoint] - pose.positions[prevJoint], pose.rotations[prevJoint] * Vector3.up);
-                            localRotation = Quaternion.Inverse(pose.rotations[prevJoint]) * r;
-                            currentRotation = r;
-                        }
-                        else
-                        {
-                            localRotation = Quaternion.Inverse(currentRotation) * pose.rotations[prevJoint];
-                            currentRotation *= localRotation;
-                        }
-
-                        if (skeleton[i][j].joint.y)
-                        {
-                            ArticulationDrive drive = skeleton[i][j].joint.yDrive;
-                            float angle = localRotation.eulerAngles.y;
-                            drive.target = angle > 180 ? angle - 360 : angle;
-                            skeleton[i][j].joint.yDrive = drive;
-                        }
-                        if (skeleton[i][j].joint.x)
-                        {
-                            ArticulationDrive drive = skeleton[i][j].joint.xDrive;
-                            float angle = localRotation.eulerAngles.x;
-                            drive.target = angle > 180 ? angle - 360 : angle;
-                            skeleton[i][j].joint.xDrive = drive;
-                        }
-                        if (skeleton[i][j].joint.z)
-                        {
-                            ArticulationDrive drive = skeleton[i][j].joint.zDrive;
-                            float angle = localRotation.eulerAngles.z;
-                            drive.target = angle > 180 ? angle - 360 : angle;
-                            skeleton[i][j].joint.zDrive = drive;
-                        }
-                    }
-
-                    prevJoint = currJoint;
-                }
-            }
-
-            // Fix the hand if it gets into a bad situation by teleporting and holding in place until its bad velocities disappear
-            // TODO:: dont just check the wrist if it goes out of wack, check all joints
-            if (Vector3.Distance(wrist.joint.position, pose.positions[ITKHandUtils.Joint.Wrist]) > 0.5f)
-            {
-                wrist.joint.last.immovable = true;
-                wrist.joint.last.TeleportRoot(pose.positions[ITKHandUtils.Joint.Wrist], pose.rotations[ITKHandUtils.Joint.Wrist]);
-                wrist.joint.velocity = Vector3.zero;
-                wrist.joint.angularVelocity = Vector3.zero;
-                lastFrameTeleport = Time.frameCount;
-                foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = false;
-                for (int i = 0; i < articulationBodies.Length; i++)
-                {
-                    articulationBodies[i].velocity = Vector3.zero;
-                    articulationBodies[i].angularVelocity = Vector3.zero;
-                    // Reset joint position in case they got fucked up => Only call this when joints are misrotated
-                    // Because if joints are not misrotated, can cause funky forces as the joint positions are wrong for a frame
-                    articulationBodies[i].jointPosition = new ArticulationReducedSpace(0f, 0f, 0f);
-                }
-                ghosted = true;
-            }
-            if (Time.frameCount - lastFrameTeleport >= 1)
-            {
-                wrist.joint.last.immovable = false;
-            }
-            if (Time.frameCount - lastFrameTeleport >= 2 && ghosted
-                && !Physics.CheckSphere(wrist.joint.last.worldCenterOfMass, 0.1f) // Check that hand isn't being teleported inside of something
-                )
-            {
-                foreach (CapsuleCollider collider in capsuleColliders) collider.enabled = true;
-                ghosted = false;
-            }
+            // TODO:: teleport and set joints velocity to zero if unstable (check distance from target)
         }
     }
 }
