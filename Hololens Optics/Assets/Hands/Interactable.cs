@@ -25,6 +25,13 @@ public class Interactable : MonoBehaviour
         public Vector3 objectOffset;
     }
 
+    public bool isHovering { 
+        get
+        {
+            return hands.Count > 0;
+        } 
+    }
+
     private bool setOffset = true;
     private float offset = 0;
     public Vector3 position
@@ -117,19 +124,6 @@ public class Interactable : MonoBehaviour
 
     private void FixedUpdate()
     {
-#if UNITY_EDITOR
-        if (GetComponent<MeshRenderer>() != null)
-        {
-            if (hands.Count > 0)
-            {
-                GetComponent<MeshRenderer>().material.color = Color.red;
-            }
-            else
-            {
-                GetComponent<MeshRenderer>().material.color = Color.white;
-            }
-        }
-#endif
         isGrabbing = false;
 
         HandTracker.Hand[] list = hands.Keys.ToArray();

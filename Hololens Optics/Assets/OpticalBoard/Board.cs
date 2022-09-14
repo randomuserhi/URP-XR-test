@@ -27,12 +27,23 @@ public class Board : MonoBehaviour
     private List<Cell> activeCells = new List<Cell>();
     private Stack<Cell> objectPool = new Stack<Cell>();
     public Dictionary<Vector2Int, CellIdentity> grid = new Dictionary<Vector2Int, CellIdentity>();
+    public Dictionary<CellIdentity, Vector2Int> reverseGrid = new Dictionary<CellIdentity, Vector2Int>();
     public Dictionary<Vector2Int, Cell> cells = new Dictionary<Vector2Int, Cell>();
+    public HashSet<Cell> sliderCells = new HashSet<Cell>();
 
     private Vector3 topLeft = new Vector3(-1, 0, 1);
     private Vector3 bottomRight = new Vector3(1, 0, -1);
 
     private const float halfCellSize = 0.03f; // 0.06 / 2
+
+    public static Board instance;
+
+    private void Awake()
+    {
+        #region Singleton
+        if (!instance) instance = this;
+        #endregion
+    }
 
     public void Start()
     {
@@ -155,7 +166,9 @@ public class Board : MonoBehaviour
             else
             {
                 GameObject g = Instantiate(cell, container.transform);
-                activeCells.Add(g.GetComponent<Cell>());
+                Cell c = g.GetComponent<Cell>();
+                c.onBoard = true;
+                activeCells.Add(c);
             }
         }
         while (activeCells.Count > volume)
@@ -165,7 +178,7 @@ public class Board : MonoBehaviour
             if (activeCells[last].identity != null) //TODO:: move this code to cellIdentity
             {
                 activeCells[last].identity.parent = null;
-                activeCells[last].identity.transform.parent = null;
+                //activeCells[last].identity.transform.parent = null;
                 activeCells[last].identity.owner = null;
                 activeCells[last].identity.destroy = true;
                 activeCells[last].identity = null;
@@ -178,7 +191,7 @@ public class Board : MonoBehaviour
             if (activeCells[i].identity != null) //TODO:: move this code to cellIdentity
             {
                 activeCells[i].identity.parent = null;
-                activeCells[i].identity.transform.parent = null;
+                //activeCells[i].identity.transform.parent = null;
                 activeCells[i].identity.owner = null;
                 activeCells[i].identity.destroy = true;
                 activeCells[i].identity = null;

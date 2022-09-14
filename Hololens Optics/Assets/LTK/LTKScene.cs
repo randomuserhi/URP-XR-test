@@ -10,10 +10,10 @@ public class LTKScene : MonoBehaviour
 {
     private static LTKScene scene;
     
-    [System.NonSerialized]
+    [HideInInspector]
     public List<LTKCollider> colliders;
 
-    [System.NonSerialized]
+    [HideInInspector]
     public List<LightRay> rays;
 
     // Start is called before the first frame update

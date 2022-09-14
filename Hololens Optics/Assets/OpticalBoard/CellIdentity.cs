@@ -4,101 +4,206 @@ using UnityEngine;
 
 public class CellIdentity : MonoBehaviour
 {
-    public Board board;
-
-    [System.NonSerialized]
+    [HideInInspector]
     public Transform parent;
-    [System.NonSerialized]
+    [HideInInspector]
     public Cell owner;
-    [System.NonSerialized]
-    public bool occupied;
-    [System.NonSerialized]
-    public Vector2Int position;
 
-    [System.NonSerialized]
+    [HideInInspector]
     public bool destroy = false;
-    [System.NonSerialized]
+    [HideInInspector]
     public float destroyTimer = 0;
 
-    private Interactable interaction;
+    [HideInInspector]
+    public Interactable interactable;
+
+    [HideInInspector]
+    public CellIdentity linkedIdentity;
+
+    public int gridSnapAngle = 30;
+    public int sliderSnapAngle = 90;
 
     private bool setPos = false;
+    private bool useBoard = true;
+    [HideInInspector]
     public Vector2Int gridPos;
 
     private Canvas label;
+    private Collider c;
+
+    Quaternion rotOffset = Quaternion.identity;
+
+    private void OnEnable()
+    {
+        interactable = GetComponent<Interactable>();
+    }
 
     public void Start()
     {
-        interaction = GetComponent<Interactable>();
         label = GetComponentInChildren<Canvas>();
+        c = GetComponent<Collider>();
     }
 
     private void FixedUpdate()
     {
-        transform.parent = parent;
+        //if (!interaction && !destroy) interaction = GetComponent<Interactable>();
 
-        label.enabled = interaction.hands.Count > 0;
+        //if (parent) transform.parent = parent;
 
-        //if (label.enabled) label.transform.rotation = Quaternion.Euler(0f, -90f, 0f) * Quaternion.LookRotation(new Vector3(label.transform.position.x - Camera.main.transform.position.x, Camera.main.transform.position.y, label.transform.position.z - Camera.main.transform.position.z));
-
+        label.enabled = interactable.isHovering;
         if (label.enabled) { label.transform.LookAt(label.transform.position + Camera.main.transform.rotation * Vector3.left, Camera.main.transform.rotation * Vector3.up); label.transform.eulerAngles = new Vector3(0f, label.transform.eulerAngles.y, 0f); }
 
-        if (interaction.isGrabbing)
+        if (interactable.isGrabbing)
         {
-            if (board.grid.ContainsKey(gridPos) && board.grid[gridPos] == this) board.grid.Remove(gridPos);
+            if (Board.instance.grid.ContainsKey(gridPos) && Board.instance.grid[gridPos] == this || Board.instance.reverseGrid.ContainsKey(this) && Board.instance.reverseGrid[this] == gridPos)
+            {
+                Board.instance.grid.Remove(gridPos);
+                Board.instance.reverseGrid.Remove(this);
+            }
+
+            if (Board.instance.sliderCells.Contains(owner))
+            {
+                useBoard = true;
+                owner.identity = null;
+                parent = transform;
+                owner = null;
+            }
 
             destroy = false;
+            if (linkedIdentity) linkedIdentity.destroy = false;
             parent = transform;
 
-            transform.position = interaction.position;
-            transform.rotation = interaction.rotation;
+            transform.position = interactable.position;
+            transform.rotation = interactable.rotation;
+
+            //IMPORTANT
+            if (linkedIdentity)
+            {
+                if (Board.instance.reverseGrid.ContainsKey(linkedIdentity))
+                {
+                    transform.parent = null;
+                    linkedIdentity.transform.parent = null;
+                    transform.parent = linkedIdentity.transform;
+                }
+            }
 
             setPos = true;
 
-            if (board != null) //TODO:: assign board based on closest board in world
+            if (Board.instance != null) //TODO:: assign Board.instance based on closest Board.instance in world
             {
-                Vector3 localPos = board.transform.InverseTransformPoint(transform.position);
-                gridPos = board.PositionToGrid(localPos);
+                Vector3 localPos = Board.instance.transform.InverseTransformPoint(transform.position);
+                gridPos = Board.instance.PositionToGrid(localPos);
             }
         }
-        else if (setPos)
+        else
+        {
+            foreach (Cell c in Board.instance.sliderCells)
+            {
+                if (c.enabled && !owner && !linkedIdentity && (c.col.bounds.center - transform.position).sqrMagnitude < 0.1f * 0.1f)
+                {
+                    if (!c.identity)
+                    {
+                        useBoard = false;
+                        parent = c.transform;
+                        owner = c;
+                        owner.identity = this;
+                        destroy = false;
+                    }
+                    rotOffset = Quaternion.Inverse(transform.rotation) * c.transform.rotation;
+                }
+            }
+        }
+        if (!interactable.isGrabbing && setPos && useBoard)
         {
             setPos = false;
-            if (board.cells.ContainsKey(gridPos) && !board.grid.ContainsKey(gridPos)) board.grid.Add(gridPos, this);
+            if (Board.instance.cells.ContainsKey(gridPos) && !Board.instance.grid.ContainsKey(gridPos))
+            {
+                Board.instance.grid.Add(gridPos, this);
+                Board.instance.reverseGrid.Add(this, gridPos);
+
+                rotOffset = Quaternion.Inverse(transform.rotation) * Board.instance.transform.rotation;
+            }
+            else
+            {
+                if (linkedIdentity)
+                {
+                    // IMPORTANT
+                    bool isParent = !transform.parent;
+                    if (!isParent)
+                    {
+                        transform.parent = null;
+                        linkedIdentity.transform.parent = null;
+                        transform.parent = linkedIdentity.transform;
+
+                        transform.localPosition = Vector3.up * 0.08f;
+                        transform.localRotation = Quaternion.identity;
+                        //label.transform.position = linkedIdentity.transform.TransformPoint(linkedIdentity.label.transform.position);
+                        //Vector3 l = label.transform.position;
+                        //label.transform.position = linkedIdentity.label.transform.localPosition;
+
+                        //enabled = false;
+                    }
+                }
+
+                if (Bin.instance.colliders.Contains(c))
+                {
+                    Bin.instance.colliders.Remove(c);
+                    InvokeDestroy();
+                }
+            }
         }
 
         if (parent == null && destroy)
         {
-            if (destroyTimer <= 0)
-            {
-                Destroy();
-                if (board != null) board.grid.Remove(position);
-            }
+            if (destroyTimer <= 0) InvokeDestroy();
             else destroyTimer -= Time.fixedDeltaTime;
         }
 
         if (!destroy) destroyTimer = 2f;
     }
 
-    public void CellUpdate(Vector3 localSnapPoint)
+    public void CellUpdate(Vector3 localSnapPoint, Cell c)
     {
         transform.position = localSnapPoint;
-        Quaternion rot = transform.rotation;
-        rot.eulerAngles = new Vector3(0, rot.eulerAngles.y, 0);
+        int snapAngle = useBoard ? gridSnapAngle : sliderSnapAngle;
+        rotOffset.eulerAngles = snapAngle * (rotOffset.eulerAngles / snapAngle).RoundToInt();
+        Quaternion multiplier = useBoard ? Board.instance.transform.rotation : c.transform.rotation;
+        Quaternion rot = multiplier * Quaternion.Inverse(rotOffset);
+        float xRot = useBoard ? 0f : 180f;
+        rot.eulerAngles = new Vector3(xRot, rot.eulerAngles.y - xRot, 0);
         transform.rotation = rot;
     }
 
     private bool isDead = false;
-    public void Destroy()
+
+    public void InvokeDestroy()
+    {
+        Destroy();
+        if (linkedIdentity) linkedIdentity.Destroy();
+    }
+
+    private void Destroy()
     {
         if (isDead) return;
         isDead = true;
 
-        Destroy(interaction);
+        if (TryGetComponent(out SliderSpawner spawner))
+            if (spawner.lensSlider) Destroy(spawner.lensSlider.gameObject);
+
+        if (Board.instance != null)
+        {
+            Board.instance.grid.Remove(gridPos);
+            Board.instance.reverseGrid.Remove(this);
+        }
+
+        interactable.hands.Clear();
+        interactable.isGrabbing = false;
+        interactable.enabled = false;
 
         foreach (Transform T in transform)
         {
-            Rigidbody rb = T.gameObject.AddComponent<Rigidbody>();
+            if (!T.TryGetComponent(out Rigidbody rb))
+                rb = T.gameObject.AddComponent<Rigidbody>();
             rb.AddForceAtPosition(new Vector3(Random.Range(-1f, 1f), 1f, Random.Range(-1f, 1f)), new Vector3(0, 20, 0), ForceMode.Impulse);
             rb.angularDrag = 0;
         }
