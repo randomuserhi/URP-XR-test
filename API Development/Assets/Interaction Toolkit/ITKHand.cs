@@ -698,6 +698,12 @@ namespace InteractionTK.HandTracking
 
         private void Start()
         {
+            // Check if ignore layer exists
+            if (LayerMask.NameToLayer("ITKHandIgnore") < 0)
+            {
+                Debug.LogError("Could not find ITKHandIgnore layer, please create it in the editor.");
+            }
+
             skeleton = new ITKSkeleton(type, transform, ITKHandUtils.handSkeleton, material);
             Disable();
         }
@@ -719,7 +725,7 @@ namespace InteractionTK.HandTracking
         public void Enable(ITKHandUtils.Pose pose, bool forceEnable = false)
         {
             // Only enable if hand is not inside an object or forceEnable is set to true
-            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHandUtils.Root], 0.1f, ~LayerMask.GetMask("ITKHand")))
+            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHandUtils.Root], 0.15f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
             {
                 if (!_active) Teleport(pose.positions[ITKHandUtils.Root]);
                 Enable();
@@ -783,7 +789,7 @@ namespace InteractionTK.HandTracking
             }
 
             // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
-            if (safeEnable && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHand")) && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
+            if (safeEnable && !Physics.CheckSphere(root.rb.position, 0.15f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
             {
                 safeEnable = false;
                 for (int i = 0; i < skeleton.nodes.Length; ++i)
