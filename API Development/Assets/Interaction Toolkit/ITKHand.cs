@@ -23,6 +23,9 @@ namespace InteractionTK.HandTracking
             public Handedness defaultHandedness;
             public Vector3 handednessScale;
 
+            public int solverIterations;
+            public int solverVelocityIterations;
+
             public bool safeMode;
 
             public float maxVelocity;
@@ -91,6 +94,8 @@ namespace InteractionTK.HandTracking
                 defaultHandedness = Handedness.Left,
                 handednessScale = new Vector3(-1, 1, 1),
                 safeMode = true,
+                solverIterations = 25,
+                solverVelocityIterations = 15,
                 maxVelocity = 5,
                 maxAngularVelocity = 2,
                 maxDepenetrationVelocity = 1,
@@ -488,6 +493,8 @@ namespace InteractionTK.HandTracking
                 container.transform.parent = parent;
 
                 rb = container.AddComponent<Rigidbody>();
+                rb.solverIterations = settings.solverIterations;
+                rb.solverVelocityIterations = settings.solverVelocityIterations;
                 rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 rb.maxDepenetrationVelocity = settings.maxDepenetrationVelocity;
                 rb.mass = node.mass;
@@ -725,7 +732,7 @@ namespace InteractionTK.HandTracking
         public void Enable(ITKHandUtils.Pose pose, bool forceEnable = false)
         {
             // Only enable if hand is not inside an object or forceEnable is set to true
-            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHandUtils.Root], 0.15f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
+            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHandUtils.Root], 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
             {
                 if (!_active) Teleport(pose.positions[ITKHandUtils.Root]);
                 Enable();
@@ -789,7 +796,7 @@ namespace InteractionTK.HandTracking
             }
 
             // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
-            if (safeEnable && !Physics.CheckSphere(root.rb.position, 0.15f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
+            if (safeEnable && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
             {
                 safeEnable = false;
                 for (int i = 0; i < skeleton.nodes.Length; ++i)
