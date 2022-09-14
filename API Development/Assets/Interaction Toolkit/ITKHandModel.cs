@@ -143,6 +143,7 @@ namespace InteractionTK.HandTracking
         private void Start()
         {
             meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+            Disable();
         }
 
         public void Track(ITKHandUtils.Pose pose)
