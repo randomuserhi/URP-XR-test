@@ -22,7 +22,6 @@ namespace InteractionTK.HandTracking
 
         private void FixedUpdate()
         {
-
             Tracking = true;
             for (int i = 0; i < ITKHandUtils.MRTKJoints.Length; i++)
             {

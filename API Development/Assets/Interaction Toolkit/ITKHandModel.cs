@@ -145,11 +145,6 @@ namespace InteractionTK.HandTracking
             meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         }
 
-        // TODO:: Implement Track function that uses HandUtils.Pose
-
-        public Quaternion testRot = Quaternion.identity;
-        public Vector3 testPos;
-
         public void Track(ITKHandUtils.Pose pose)
         {
             ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;

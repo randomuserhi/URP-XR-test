@@ -739,8 +739,8 @@ namespace InteractionTK.HandTracking
 
             // TODO:: teleport and set joints velocity to zero if unstable (check distance from target)
 
-            // safely enable when we are tracked properly
-            if (safeEnable && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
+            // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
+            if (safeEnable && Physics.CheckSphere(root.rb.position, 0.1f) && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
             {
                 safeEnable = false;
                 for (int i = 0; i < skeleton.nodes.Length; ++i)
