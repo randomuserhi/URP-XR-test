@@ -620,6 +620,7 @@ namespace InteractionTK.HandTracking
             }
         }
 
+        public ITKHandUtils.Handedness type;
         public ITKHandUtils.HandSettings settings;
         public Node root;
         public Node[] nodes;
@@ -628,7 +629,8 @@ namespace InteractionTK.HandTracking
         public ITKSkeleton(ITKHandUtils.Handedness type, Transform parent, ITKHandUtils.HandSkeletonDescription descriptor, PhysicMaterial material)
         {
             List<Node> temp = new List<Node>();
-
+            
+            this.type = type;
             this.material = material;
             settings = descriptor.settings;
 

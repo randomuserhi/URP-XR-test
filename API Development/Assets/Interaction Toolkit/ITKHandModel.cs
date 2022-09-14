@@ -148,6 +148,12 @@ namespace InteractionTK.HandTracking
 
         public void Track(ITKSkeleton skeleton)
         {
+            if (skeleton.type != type)
+            {
+                Debug.LogError("ITKSkeleton hand type does not match the type of the ITKHandModel.");
+                return;
+            }
+
             ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;
 
             ITKSkeleton.Node root = skeleton.root;
