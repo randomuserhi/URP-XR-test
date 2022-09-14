@@ -98,7 +98,7 @@ namespace InteractionTK.HandTracking
                 centerOfMass = Vector3.zero,
                 joint = Joint.Wrist,
                 type = HandSkeletonDescription.Node.Type.Box,
-                size = new Vector3(0.06f, 0.02f, 0.07f),
+                size = new Vector3(0.06f, 0.025f, 0.07f),
                 anchor = new Vector3(0.002f, -0.001f, -0.045f),
                 connectedAnchor = Vector3.zero,
                 children = new HandSkeletonDescription.Node[]
@@ -622,9 +622,10 @@ namespace InteractionTK.HandTracking
 
         public ITKHandUtils.HandSettings settings;
         public Node root;
+        public Node[] nodes;
         public PhysicMaterial material;
 
-        public ITKSkeleton(ITKHandUtils.Handedness type, Transform parent, ITKHandUtils.HandSkeletonDescription descriptor, PhysicMaterial material, out Node[] nodes)
+        public ITKSkeleton(ITKHandUtils.Handedness type, Transform parent, ITKHandUtils.HandSkeletonDescription descriptor, PhysicMaterial material)
         {
             List<Node> temp = new List<Node>();
 
@@ -657,8 +658,9 @@ namespace InteractionTK.HandTracking
 
         public ITKHandUtils.Handedness type;
 
-        ITKSkeleton skeleton;
-        ITKSkeleton.Node[] nodes;
+        public ITKHandModel model;
+
+        private ITKSkeleton skeleton;
 
         private bool _active = true;
         public bool active
@@ -674,16 +676,16 @@ namespace InteractionTK.HandTracking
 
         private void Start()
         {
-            skeleton = new ITKSkeleton(type, transform, ITKHandUtils.handSkeleton, material, out nodes);
+            skeleton = new ITKSkeleton(type, transform, ITKHandUtils.handSkeleton, material);
         }
 
         public void Enable()
         {
             if (_active) return;
 
-            for (int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < skeleton.nodes.Length; i++)
             {
-                nodes[i].collider.enabled = true;
+                skeleton.nodes[i].collider.enabled = true;
             }
         }
 
@@ -691,9 +693,9 @@ namespace InteractionTK.HandTracking
         {
             if (!_active) return;
 
-            for (int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < skeleton.nodes.Length; i++)
             {
-                nodes[i].collider.enabled = false;
+                skeleton.nodes[i].collider.enabled = false;
             }
         }
 
@@ -705,12 +707,14 @@ namespace InteractionTK.HandTracking
             root.Track(pose, Quaternion.identity);
 
             // Update nodes
-            for (int i = 0; i < nodes.Length; ++i)
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
-                nodes[i].FixedUpdate(skeleton.settings);
+                skeleton.nodes[i].FixedUpdate(skeleton.settings);
             }
 
             // TODO:: teleport and set joints velocity to zero if unstable (check distance from target)
+
+            model?.Track(skeleton);
         }
     }
 }
