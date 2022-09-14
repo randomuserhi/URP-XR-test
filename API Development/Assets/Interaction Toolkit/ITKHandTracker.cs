@@ -42,7 +42,7 @@ namespace InteractionTK.HandTracking
 
             if (Tracking)
             {
-                hand.Enable();
+                hand.Enable(pose);
                 hand.Track(pose);
             }
             else

@@ -5,10 +5,9 @@ using Microsoft.MixedReality.Toolkit.Utilities.Gltf.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Text;
-using System.Xml;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 using VirtualRealityTK;
@@ -17,6 +16,8 @@ namespace InteractionTK.HandTracking
 {
     public static partial class ITKHandUtils
     {
+        //TODO:: add a far max velocity where if the hand is far away it can move faster
+        // (maybe increase maxforce as well, may need a far max force variable then??)
         public struct HandSettings
         {
             public Handedness defaultHandedness;
@@ -93,7 +94,7 @@ namespace InteractionTK.HandTracking
                 maxVelocity = 5,
                 maxAngularVelocity = 2,
                 maxDepenetrationVelocity = 1,
-                maxError = 0.5f
+                maxError = 1f
             },
             nodeTree = new HandSkeletonDescription.Node()
             {
@@ -595,12 +596,6 @@ namespace InteractionTK.HandTracking
                     rb.velocity = Vector3.ClampMagnitude(rb.velocity, settings.maxVelocity);
                     rb.angularVelocity = Vector3.ClampMagnitude(rb.velocity, settings.maxAngularVelocity);
                     rb.maxDepenetrationVelocity = settings.maxDepenetrationVelocity;
-
-                    if (Vector3.Distance(rb.position, j.targetPosition) > settings.maxError)
-                    {
-                        rb.velocity = Vector3.zero;
-                        rb.angularVelocity = Vector3.zero;
-                    }
                 }
             }
 
@@ -635,6 +630,11 @@ namespace InteractionTK.HandTracking
                 }
 
                 if (children != null) for (int i = 0; i < children.Length; ++i) children[i].Track(pose, currentRotation);
+            }
+
+            public void Teleport(Vector3 position)
+            {
+                rb.transform.position = position;
             }
         }
 
@@ -707,10 +707,16 @@ namespace InteractionTK.HandTracking
             if (_active) return;
             _active = true;
 
-            for (int i = 0; i < skeleton.nodes.Length; i++)
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
                 skeleton.nodes[i].collider.enabled = true;
             }
+        }
+
+        public void Enable(ITKHandUtils.Pose pose)
+        {
+            if (!_active) Teleport(pose.positions[ITKHandUtils.Root]);
+            Enable();
         }
 
         public void Disable()
@@ -718,9 +724,20 @@ namespace InteractionTK.HandTracking
             if (!_active) return;
             _active = false;
 
-            for (int i = 0; i < skeleton.nodes.Length; i++)
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
                 skeleton.nodes[i].collider.enabled = false;
+            }
+        }
+
+        public void Teleport(Vector3 position)
+        {
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
+            {
+                ITKSkeleton.Node n = skeleton.nodes[i];
+                n.rb.velocity = Vector3.zero;
+                n.rb.angularVelocity = Vector3.zero;
+                n.Teleport(position);
             }
         }
 
@@ -731,13 +748,29 @@ namespace InteractionTK.HandTracking
             // Track joints
             root.Track(pose, Quaternion.identity);
 
+            // Make sure the root doesn't overshoot
+            Vector3 anchor = root.rb.position + root.rb.rotation * root.j.anchor;
+            Vector3 dir = pose.positions[ITKHandUtils.Root] - anchor;
+            if (root.rb.velocity.magnitude > 0.1f && Vector3.Dot(root.rb.velocity, dir) < 0)
+            {
+                for (int i = 0; i < skeleton.nodes.Length; ++i)
+                {
+                    skeleton.nodes[i].rb.velocity *= 0.5f;
+                    skeleton.nodes[i].rb.angularVelocity *= 0.5f;
+                }
+            }
+
             // Update nodes
             for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
                 skeleton.nodes[i].FixedUpdate(skeleton.settings);
             }
 
-            // TODO:: teleport and set joints velocity to zero if unstable (check distance from target)
+            // teleport and set joints velocity to zero if unstable (far from target)
+            if (Vector3.Distance(root.rb.position + root.rb.rotation * root.j.anchor, root.j.connectedAnchor) > skeleton.settings.maxError)
+            {
+                Teleport(pose.positions[ITKHandUtils.Root]);
+            }
 
             // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
             if (safeEnable && Physics.CheckSphere(root.rb.position, 0.1f) && Vector3.Distance(root.rb.position, pose.positions[ITKHandUtils.Root]) < 0.01f)
