@@ -3,7 +3,7 @@ using Microsoft.MixedReality.OpenXR;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI.Table;
+using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
@@ -18,7 +18,7 @@ namespace InteractionTK.HandTracking
         }
 
         // TODO:: package these values in a single struct for hand setup and throw into a JSON
-        public static HandModelPoseOffsets leftModelOffsets = new HandModelPoseOffsets()
+        public static HandModelPoseOffsets leftModelOffsetsHololens = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
             poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
@@ -48,7 +48,7 @@ namespace InteractionTK.HandTracking
                 Quaternion.Euler(0, 268, 176)
             }
         };
-        public static HandModelPoseOffsets rightModelOffsets = new HandModelPoseOffsets()
+        public static HandModelPoseOffsets rightModelOffsetsHololens = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
             poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
@@ -76,6 +76,69 @@ namespace InteractionTK.HandTracking
                 Quaternion.Euler(0, 267, -9),
                 Quaternion.Euler(0, 267, -4),
                 Quaternion.Euler(0, 268, -4)
+            }
+        };
+
+        public static HandModelPoseOffsets leftModelOffsetsOculus = new HandModelPoseOffsets()
+        {
+            wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
+            poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
+            wristRotationOffset = Quaternion.Euler(355, 272, 180),
+            rotationOffsets = new Quaternion[]
+            {
+                Quaternion.Euler(312, 274, 186),
+                Quaternion.Euler(255, 278, 173),
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.Euler(12, 276, 182),
+                Quaternion.Euler(265, 267, 180),
+                Quaternion.Euler(0, 268, 171),
+                Quaternion.Euler(356, 264, 165),
+                Quaternion.Euler(4, 269, 167),
+                Quaternion.Euler(356, 264, 170),
+                Quaternion.Euler(-87.7f, 275, 185),
+                Quaternion.Euler(-1, 273, 183),
+                Quaternion.Euler(0, 274, 181),
+                Quaternion.Euler(0, 274, 186),
+                Quaternion.Euler(0, 268, 171),
+                Quaternion.identity,
+                Quaternion.Euler(359, 267, 167),
+                Quaternion.Euler(0, 267, 171),
+                Quaternion.Euler(0, 267, 176),
+                Quaternion.Euler(0, 268, 176),
+                Quaternion.identity,
+                Quaternion.identity,
+            }
+        };
+        public static HandModelPoseOffsets rightModelOffsetsOculus = new HandModelPoseOffsets()
+        {
+            wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
+            poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
+            wristRotationOffset = Quaternion.Euler(355, 272, 0),
+            rotationOffsets = new Quaternion[]
+            {
+                Quaternion.Euler(0, 81, 164.3f),
+                Quaternion.Euler(80, 258, 0),
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.Euler(350, 269, 359),
+                Quaternion.Euler(85, 267, 0),
+                Quaternion.Euler(0, 268, -9),
+                Quaternion.Euler(356, 264, -15),
+                Quaternion.Euler(4, 269, -13),
+                Quaternion.Euler(356, 264, -10),
+                Quaternion.Euler(97.7f, 275, 5),
+                Quaternion.Euler(-1, 273, 3),
+                Quaternion.Euler(0, 274, 1),
+                Quaternion.Euler(0, 274, 6),
+                Quaternion.Euler(0, 268, -9),
+                Quaternion.identity,
+                Quaternion.Euler(359, 267, -13),
+                Quaternion.Euler(0, 267, -9),
+                Quaternion.Euler(0, 267, -4),
+                Quaternion.Euler(0, 268, -4),
             }
         };
     }
@@ -148,7 +211,7 @@ namespace InteractionTK.HandTracking
 
         public void Track(ITKHandUtils.Pose pose)
         {
-            ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;
+            ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsetsHololens : ITKHandUtils.rightModelOffsetsHololens;
 
             transform.rotation = pose.rotations[ITKHandUtils.Wrist] * offsets.wristRotationOffset;
             transform.position = pose.positions[ITKHandUtils.Wrist] + transform.rotation *  offsets.poseWristPositionOffset;
@@ -173,6 +236,7 @@ namespace InteractionTK.HandTracking
             PinkyMiddle.rotation = pose.rotations[ITKHandUtils.PinkyMiddle] * offsets.rotationOffsets[ITKHandUtils.PinkyMiddle];
             PinkyDistal.rotation = pose.rotations[ITKHandUtils.PinkyDistal] * offsets.rotationOffsets[ITKHandUtils.PinkyDistal];
         }
+
         public void Track(ITKSkeleton skeleton)
         {
             if (skeleton.type != type)
@@ -181,7 +245,18 @@ namespace InteractionTK.HandTracking
                 return;
             }
 
-            ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsets : ITKHandUtils.rightModelOffsets;
+            ITKHandUtils.HandModelPoseOffsets offsets;
+
+            switch (VRTK.device)
+            {
+                case VRTK.Device.Oculus:
+                    offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsetsOculus : ITKHandUtils.rightModelOffsetsOculus;
+                    break;
+                case VRTK.Device.Hololens2:
+                default:
+                    offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsetsHololens : ITKHandUtils.rightModelOffsetsHololens;
+                    break;
+            }
 
             ITKSkeleton.Node root = skeleton.root;
             transform.rotation = root.rb.rotation * offsets.wristRotationOffset;
