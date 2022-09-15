@@ -16,8 +16,10 @@ namespace InteractionTK.HandTracking
 {
     public static partial class ITKHandUtils
     {
-        //TODO:: add a far max velocity where if the hand is far away it can move faster
+        // TODO:: add a far max velocity where if the hand is far away it can move faster
         // (maybe increase maxforce as well, may need a far max force variable then??)
+        //
+        // TODO:: a lot of features use a "scale" variable with handedness, add this to ITKHandUtils and refactor
         public struct HandSettings
         {
             public Handedness defaultHandedness;
@@ -48,7 +50,7 @@ namespace InteractionTK.HandTracking
             {
                 positionSpring = 1e+20f,
                 positionDamper = 5e+18f,
-                maximumForce = 12.5f
+                maximumForce = 20f
             };
 
             public struct Node
@@ -87,6 +89,7 @@ namespace InteractionTK.HandTracking
             public Node nodeTree;
         }
 
+        //TODO:: tweak drives and forces until thumb stops getting mad pushed when two hand holding a rod
         public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
         {
             settings = new HandSettings()
@@ -131,7 +134,7 @@ namespace InteractionTK.HandTracking
                         {
                             positionSpring = 10f,
                             positionDamper = 0.1f,
-                            maximumForce = 12.5f
+                            maximumForce = 20f
                         },
                         children = new HandSkeletonDescription.Node[]
                         {
@@ -149,7 +152,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     positionSpring = 10f,
                                     positionDamper = 0.1f,
-                                    maximumForce = 12.5f
+                                    maximumForce = 20f
                                 },
                                 ignore = new int[][] 
                                 {
@@ -171,7 +174,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             positionSpring = 10f,
                                             positionDamper = 0.1f,
-                                            maximumForce = 12.5f
+                                            maximumForce = 20f
                                         },
                                         children = new HandSkeletonDescription.Node[]
                                         {
@@ -189,7 +192,7 @@ namespace InteractionTK.HandTracking
                                                 {
                                                     positionSpring = 10f,
                                                     positionDamper = 0.1f,
-                                                    maximumForce = 12.5f
+                                                    maximumForce = 20f
                                                 }
                                             }
                                         }
@@ -213,7 +216,7 @@ namespace InteractionTK.HandTracking
                         {
                             positionSpring = 10f,
                             positionDamper = 0.1f,
-                            maximumForce = 1f
+                            maximumForce = 3f
                         },
                         children = new HandSkeletonDescription.Node[]
                         {
@@ -231,7 +234,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     positionSpring = 10f,
                                     positionDamper = 0.1f,
-                                    maximumForce = 1f
+                                    maximumForce = 3f
                                 },
                                 children = new HandSkeletonDescription.Node[]
                                 {
@@ -249,7 +252,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             positionSpring = 10f,
                                             positionDamper = 0.1f,
-                                            maximumForce = 1f
+                                            maximumForce = 3f
                                         }
                                     }
                                 }
@@ -271,7 +274,7 @@ namespace InteractionTK.HandTracking
                         {
                             positionSpring = 10f,
                             positionDamper = 0.1f,
-                            maximumForce = 1f
+                            maximumForce = 3f
                         },
                         children = new HandSkeletonDescription.Node[]
                         {
@@ -289,7 +292,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     positionSpring = 10f,
                                     positionDamper = 0.1f,
-                                    maximumForce = 1f
+                                    maximumForce = 3f
                                 },
                                 children = new HandSkeletonDescription.Node[]
                                 {
@@ -307,7 +310,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             positionSpring = 10f,
                                             positionDamper = 0.1f,
-                                            maximumForce = 1f
+                                            maximumForce = 3f
                                         }
                                     }
                                 }
@@ -329,7 +332,7 @@ namespace InteractionTK.HandTracking
                         {
                             positionSpring = 10f,
                             positionDamper = 0.1f,
-                            maximumForce = 1f
+                            maximumForce = 3f
                         },
                         children = new HandSkeletonDescription.Node[]
                         {
@@ -347,7 +350,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     positionSpring = 10f,
                                     positionDamper = 0.1f,
-                                    maximumForce = 1f
+                                    maximumForce = 3f
                                 },
                                 children = new HandSkeletonDescription.Node[]
                                 {
@@ -365,7 +368,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             positionSpring = 10f,
                                             positionDamper = 0.1f,
-                                            maximumForce = 1f
+                                            maximumForce = 3f
                                         }
                                     }
                                 }
@@ -387,7 +390,7 @@ namespace InteractionTK.HandTracking
                         {
                             positionSpring = 10f,
                             positionDamper = 0.1f,
-                            maximumForce = 12.5f
+                            maximumForce = 20f
                         },
                         children = new HandSkeletonDescription.Node[]
                         {
@@ -405,7 +408,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     positionSpring = 10f,
                                     positionDamper = 0.1f,
-                                    maximumForce = 12.5f
+                                    maximumForce = 20f
                                 },
                                 ignore = new int[][]
                                 {
@@ -427,7 +430,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             positionSpring = 10f,
                                             positionDamper = 0.1f,
-                                            maximumForce = 12.5f
+                                            maximumForce = 20f
                                         },
                                         children = new HandSkeletonDescription.Node[]
                                         {
@@ -445,7 +448,7 @@ namespace InteractionTK.HandTracking
                                                 {
                                                     positionSpring = 10f,
                                                     positionDamper = 0.1f,
-                                                    maximumForce = 12.5f
+                                                    maximumForce = 20f
                                                 }
                                             }
                                         }
@@ -734,7 +737,10 @@ namespace InteractionTK.HandTracking
             // Only enable if hand is not inside an object or forceEnable is set to true
             if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHandUtils.Root], 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
             {
-                if (!_active) Teleport(pose.positions[ITKHandUtils.Root]);
+                if (!_active)
+                    // Check if a teleport is actually needed
+                    if (Vector3.Distance(skeleton.root.rb.position, pose.positions[ITKHandUtils.Root]) > 1f)
+                        Teleport(pose.positions[ITKHandUtils.Root]);
                 Enable();
             }
         }

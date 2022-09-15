@@ -158,6 +158,7 @@ public class TrackerSim : MonoBehaviour
         rot[ITKHandUtils.PinkyKnuckle] = trackers[index++].transform.rotation;
         rot[ITKHandUtils.PinkyMetacarpal] = trackers[index++].transform.rotation;
 
+        hand.Enable();
         hand.Track(new ITKHandUtils.Pose()
         {
             positions = pos,
