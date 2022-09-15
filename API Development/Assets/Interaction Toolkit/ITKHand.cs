@@ -59,6 +59,15 @@ namespace InteractionTK.HandTracking
 
         public const int Root = Wrist;
 
+        public static Joint[] fingerTips = new Joint[]
+        {
+            ThumbTip,
+            IndexTip,
+            MiddleTip,
+            RingTip,
+            PinkyTip
+        };
+
         public static TrackedHandJoint[] MRTKJoints = new TrackedHandJoint[] {
             TrackedHandJoint.Wrist,
             TrackedHandJoint.ThumbMetacarpalJoint,

@@ -211,6 +211,8 @@ namespace InteractionTK.HandTracking
 
         public void Track(ITKHand.Pose pose)
         {
+            TransparencyEffect(pose);
+
             ITKHand.HandModelPoseOffsets offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsHololens : ITKHand.rightModelOffsetsHololens;
 
             transform.rotation = pose.rotations[ITKHand.Wrist] * offsets.wristRotationOffset;
@@ -237,13 +239,37 @@ namespace InteractionTK.HandTracking
             PinkyDistal.rotation = pose.rotations[ITKHand.PinkyDistal] * offsets.rotationOffsets[ITKHand.PinkyDistal];
         }
 
-        public void Track(ITKSkeleton skeleton)
+        private void TransparencyEffect(ITKHand.Pose pose)
+        {
+            if (!meshRenderer) return;
+
+            float closestDistanceFromPalm = float.PositiveInfinity;
+            for (int i = 0; i < ITKHand.fingerTips.Length; i++)
+            {
+                ITKHand.Joint joint = ITKHand.fingerTips[i];
+                if (joint != ITKHand.Palm)
+                {
+                    float d = Vector3.Distance(pose.positions[joint], pose.positions[ITKHand.Palm]);
+                    if (d < closestDistanceFromPalm) closestDistanceFromPalm = d;
+                }
+            }
+            float thumbIndexDistance = Vector3.Distance(pose.positions[ITKHand.IndexTip], pose.positions[ITKHand.ThumbTip]);
+            float distance = Mathf.Clamp(Mathf.Min(thumbIndexDistance, closestDistanceFromPalm) - 0.015f, 0, float.MaxValue);
+            float t = Mathf.Clamp(1 - (distance / 0.08f), 0f, 1f);
+
+            float alpha = Mathf.Lerp(0.085f, 0.5f, t);
+            meshRenderer.materials[1].SetFloat("_Transparency", alpha);
+        }
+
+        public void Track(ITKHand.Pose pose, ITKSkeleton skeleton)
         {
             if (skeleton.type != type)
             {
                 Debug.LogError("ITKSkeleton hand type does not match the type of the ITKHandModel.");
                 return;
             }
+
+            TransparencyEffect(pose);
 
             ITKHand.HandModelPoseOffsets offsets;
 

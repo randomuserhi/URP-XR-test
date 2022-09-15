@@ -785,7 +785,7 @@ namespace InteractionTK.HandTracking
             }
             else if (safeEnableFrame > 0) --safeEnableFrame;
 
-            model?.Track(skeleton);
+            model?.Track(pose, skeleton);
         }
     }
 }
