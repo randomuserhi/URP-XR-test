@@ -91,6 +91,7 @@ namespace InteractionTK.HandTracking
 
         // TODO:: tweak drives, forces and mass of thumb until thumb stops getting mad pushed when two hand holding a rod
         //        -> Found out that its the mass that determines stability, increase mass of each joint down the line and test the stability
+        //        -> instability might be because the join isn't offset from the root => This is *partially the reason*, mass seems to be the main contributor
         public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
         {
             settings = new HandSettings()
@@ -128,9 +129,9 @@ namespace InteractionTK.HandTracking
                         toJoint = Joint.ThumbMetacarpal,
                         type = HandSkeletonDescription.Node.Type.Capsule,
                         radius = 0.009f,
-                        height = 0.03f,
-                        anchor = new Vector3(0, 0f, -0.015f),
-                        connectedAnchor = new Vector3(0.002f, -0.001f, -0.045f),
+                        height = 0.01f,
+                        anchor = new Vector3(0, 0f, -0.005f),
+                        connectedAnchor = new Vector3(0.016f, -0.003f, -0.035f),
                         rotationDrive = new JointDrive()
                         {
                             positionSpring = 10f,
@@ -141,14 +142,14 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f, // TODO:: test this being 0.225 to test stability of thumb
+                                mass = 0.015f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.ThumbMetacarpal,
                                 type = HandSkeletonDescription.Node.Type.Capsule,
                                 radius = 0.009f,
                                 height = 0.05f,
                                 anchor = new Vector3(0, 0f, -0.025f),
-                                connectedAnchor = new Vector3(0f, 0f, 0.015f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.005f),
                                 rotationDrive = new JointDrive()
                                 {
                                     positionSpring = 10f,
@@ -168,8 +169,8 @@ namespace InteractionTK.HandTracking
                                         joint = Joint.ThumbProximal,
                                         type = HandSkeletonDescription.Node.Type.Capsule,
                                         radius = 0.009f,
-                                        height = 0.04f,
-                                        anchor = new Vector3(0, 0f, -0.017f),
+                                        height = 0.045f,
+                                        anchor = new Vector3(0, 0f, -0.022f),
                                         connectedAnchor = new Vector3(0f, 0f, 0.02f),
                                         rotationDrive = new JointDrive()
                                         {
@@ -186,8 +187,8 @@ namespace InteractionTK.HandTracking
                                                 joint = Joint.ThumbDistal,
                                                 type = HandSkeletonDescription.Node.Type.Capsule,
                                                 radius = 0.008f,
-                                                height = 0.03f,
-                                                anchor = new Vector3(0, 0f, -0.007f),
+                                                height = 0.035f,
+                                                anchor = new Vector3(0, 0f, -0.0075f),
                                                 connectedAnchor = new Vector3(0f, 0f, 0.02f),
                                                 rotationDrive = new JointDrive()
                                                 {
