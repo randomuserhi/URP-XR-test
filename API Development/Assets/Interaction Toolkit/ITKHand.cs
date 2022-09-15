@@ -142,7 +142,7 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f,
+                                mass = 0.225f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.ThumbMetacarpal,
                                 type = HandSkeletonDescription.Node.Type.Capsule,
