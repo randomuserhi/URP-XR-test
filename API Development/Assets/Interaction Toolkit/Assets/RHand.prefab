@@ -94,8 +94,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 1
-  physicsModel: {fileID: 4845860318606506865}
-  realModel: {fileID: 0}
+  model: {fileID: 4845860318606506865}
 --- !u!1001 &4845860319711158905
 PrefabInstance:
   m_ObjectHideFlags: 0

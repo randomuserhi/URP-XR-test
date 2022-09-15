@@ -72,7 +72,6 @@ namespace InteractionTK.HandTracking
 
                 public JointDrive rotationDrive;
 
-                public int[][] ignore; // index coordinate to node that collision should be ignored for
                 public Node[] children;
             }
 
@@ -146,10 +145,6 @@ namespace InteractionTK.HandTracking
                                     positionSpring = 10f,
                                     positionDamper = 0.1f,
                                     maximumForce = 20f
-                                },
-                                ignore = new int[][]
-                                {
-                                    new int[0] // Ignore root collider
                                 },
                                 children = new HandSkeletonDescription.Node[]
                                 {
@@ -403,10 +398,6 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 20f
                                 },
-                                ignore = new int[][]
-                                {
-                                    new int[0] // Ignore root collider
-                                },
                                 children = new HandSkeletonDescription.Node[]
                                 {
                                     new HandSkeletonDescription.Node()
@@ -561,30 +552,7 @@ namespace InteractionTK.HandTracking
                         break;
                 }
                 if (collider)
-                {
                     collider.material = material;
-
-                    if (node.ignore != null)
-                        for (int i = 0; i < node.ignore.Length; ++i)
-                        {
-                            // TODO:: check if node.ignore[i] == null
-
-                            // Ignore root
-                            if (node.ignore[i].Length == 0)
-                            {
-                                Physics.IgnoreCollision(collider, root.collider);
-                                continue;
-                            }
-
-                            // TODO:: error checking here (just simple bound checks)
-                            Node curr = root;
-                            for (int j = 0; j < node.ignore[i].Length; ++j)
-                            {
-                                curr = curr.children[node.ignore[i][j]];
-                            }
-                            Physics.IgnoreCollision(collider, curr.collider);
-                        }
-                }
             }
 
             public void Reset()
@@ -659,6 +627,15 @@ namespace InteractionTK.HandTracking
             RecursiveGenerateNodes(temp, type, descriptor.settings, root, root, descriptor.nodeTree.children);
 
             nodes = temp.ToArray();
+
+            // Disable internal collisions
+            for (int i = 0; i < nodes.Length; ++i)
+            {
+                for (int j = 0; j < nodes.Length; ++j)
+                {
+                    Physics.IgnoreCollision(nodes[i].collider, nodes[j].collider);
+                }
+            }
         }
 
         private void RecursiveGenerateNodes(List<Node> nodes, ITKHand.Handedness type, ITKHand.HandSettings settings, Node root, Node current, ITKHand.HandSkeletonDescription.Node[] children)
@@ -686,6 +663,7 @@ namespace InteractionTK.HandTracking
         private ITKSkeleton skeleton;
 
         private bool safeEnable = true;
+        private float safeEnableFrame = 5; // Enable after 5 frames
         private bool _active = true;
         public bool active
         {
@@ -715,6 +693,8 @@ namespace InteractionTK.HandTracking
             if (_active) return;
             _active = true;
 
+            if (safeEnable) return; // Wait till safe enable finishes
+
             model?.Enable();
 
             for (int i = 0; i < skeleton.nodes.Length; ++i)
@@ -725,8 +705,10 @@ namespace InteractionTK.HandTracking
 
         public void Enable(ITKHand.Pose pose, bool forceEnable = false)
         {
+            if (safeEnable) return; // Wait till safe enable finishes
+
             // Only enable if hand is not inside an object or forceEnable is set to true
-            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHand.Root], 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
+            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHand.Root], 0.1f, ~LayerMask.GetMask("ITKHandIgnore")))
             {
                 if (!_active)
                     // Check if a teleport is actually needed
@@ -792,7 +774,7 @@ namespace InteractionTK.HandTracking
             }
 
             // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
-            if (safeEnable && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.01f)
+            if (safeEnable && safeEnableFrame <= 0 && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.1f)
             {
                 safeEnable = false;
                 for (int i = 0; i < skeleton.nodes.Length; ++i)
@@ -801,6 +783,7 @@ namespace InteractionTK.HandTracking
                 }
                 Enable();
             }
+            else if (safeEnableFrame > 0) --safeEnableFrame;
 
             model?.Track(skeleton);
         }
