@@ -89,7 +89,8 @@ namespace InteractionTK.HandTracking
             public Node nodeTree;
         }
 
-        //TODO:: tweak drives and forces until thumb stops getting mad pushed when two hand holding a rod
+        // TODO:: tweak drives, forces and mass of thumb until thumb stops getting mad pushed when two hand holding a rod
+        //        -> Found out that its the mass that determines stability, increase mass of each joint down the line and test the stability
         public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
         {
             settings = new HandSettings()
@@ -121,7 +122,7 @@ namespace InteractionTK.HandTracking
                     {
                         leftDefaultRotation = Quaternion.Euler(0, 90, 0),
                         rightDefaultRotation = Quaternion.Euler(0, -90, 0),
-                        mass = 0.015f,
+                        mass = 0.225f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.Wrist,
                         toJoint = Joint.ThumbMetacarpal,
@@ -140,7 +141,7 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f,
+                                mass = 0.015f, // TODO:: test this being 0.225 to test stability of thumb
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.ThumbMetacarpal,
                                 type = HandSkeletonDescription.Node.Type.Capsule,
