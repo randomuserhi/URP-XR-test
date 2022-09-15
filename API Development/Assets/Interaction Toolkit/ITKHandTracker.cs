@@ -13,20 +13,21 @@ namespace InteractionTK.HandTracking
 {
     public class ITKHandTracker : MonoBehaviour
     {
-        public ITKHandUtils.Handedness type;
+        public ITKHand.Handedness type;
         private MixedRealityPose MRTKPose;
-        private ITKHandUtils.Pose pose = new ITKHandUtils.Pose(ITKHandUtils.NumJoints);
+        private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
 
         public bool Tracking;
-        public ITKHand hand;
+        public ITKHandPhysics physicsHand;
+        public ITKHandModel hand;
 
         private void FixedUpdate()
         {
             Tracking = true;
-            for (int i = 0; i < ITKHandUtils.MRTKJoints.Length; i++)
+            for (int i = 0; i < ITKHand.MRTKJoints.Length; i++)
             {
-                Handedness handedness = type == ITKHandUtils.Handedness.Left ? Handedness.Left : Handedness.Right;
-                if (HandJointUtils.TryGetJointPose(ITKHandUtils.MRTKJoints[i], handedness, out MRTKPose))
+                Handedness handedness = type == ITKHand.Handedness.Left ? Handedness.Left : Handedness.Right;
+                if (HandJointUtils.TryGetJointPose(ITKHand.MRTKJoints[i], handedness, out MRTKPose))
                 {
                     pose.positions[i] = MRTKPose.Position;
                     pose.rotations[i] = MRTKPose.Rotation;
@@ -34,20 +35,41 @@ namespace InteractionTK.HandTracking
                 else Tracking = false;
             }
 
-            if (hand.type != type)
+            if (physicsHand != null)
             {
-                Debug.LogError("Tracked hand type does not match the type of the ITKHand.");
-                return;
-            }
+                if (physicsHand.type != type)
+                {
+                    Debug.LogError("Tracked hand type does not match the type of the physics hand.");
+                    return;
+                }
 
-            if (Tracking)
-            {
-                hand.Enable(pose);
-                hand.Track(pose);
+                if (Tracking)
+                {
+                    physicsHand.Enable(pose);
+                    physicsHand.Track(pose);
+                }
+                else
+                {
+                    physicsHand.Disable();
+                }
             }
-            else
+            if (hand != null)
             {
-                hand.Disable();
+                if (hand.type != type)
+                {
+                    Debug.LogError("Tracked hand type does not match the type of the physics hand.");
+                    return;
+                }
+
+                if (Tracking)
+                {
+                    hand.Enable();
+                    hand.Track(pose);
+                }
+                else
+                {
+                    hand.Disable();
+                }
             }
         }
     }

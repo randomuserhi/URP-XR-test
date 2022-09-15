@@ -80,7 +80,7 @@ public class TrackerSim : MonoBehaviour
     private float timer = 0;
     public bool play = false;
 
-    public ITKHand hand;
+    public ITKHandPhysics hand;
 
     // Update is called once per frame
     void FixedUpdate()
@@ -100,66 +100,66 @@ public class TrackerSim : MonoBehaviour
 
         if (hand == null) return;
 
-        Vector3[] pos = new Vector3[ITKHandUtils.NumJoints];
-        Quaternion[] rot = new Quaternion[ITKHandUtils.NumJoints];
+        Vector3[] pos = new Vector3[ITKHand.NumJoints];
+        Quaternion[] rot = new Quaternion[ITKHand.NumJoints];
         int index = 0;
         //pos[HandUtils.Palm] = trackers[index++].transform.position;
-        pos[ITKHandUtils.Wrist] = trackers[index++].transform.position;
-        pos[ITKHandUtils.ThumbTip] = trackers[index++].transform.position;
-        pos[ITKHandUtils.ThumbDistal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.ThumbProximal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.ThumbMetacarpal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.IndexTip] = trackers[index++].transform.position;
-        pos[ITKHandUtils.IndexDistal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.IndexMiddle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.IndexKnuckle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.IndexMetacarpal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.MiddleTip] = trackers[index++].transform.position;
-        pos[ITKHandUtils.MiddleDistal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.MiddleMiddle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.MiddleKnuckle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.MiddleMetacarpal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.RingTip] = trackers[index++].transform.position;
-        pos[ITKHandUtils.RingDistal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.RingMiddle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.RingKnuckle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.RingMetacarpal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.PinkyTip] = trackers[index++].transform.position;
-        pos[ITKHandUtils.PinkyDistal] = trackers[index++].transform.position;
-        pos[ITKHandUtils.PinkyMiddle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.PinkyKnuckle] = trackers[index++].transform.position;
-        pos[ITKHandUtils.PinkyMetacarpal] = trackers[index++].transform.position;
+        pos[ITKHand.Wrist] = trackers[index++].transform.position;
+        pos[ITKHand.ThumbTip] = trackers[index++].transform.position;
+        pos[ITKHand.ThumbDistal] = trackers[index++].transform.position;
+        pos[ITKHand.ThumbProximal] = trackers[index++].transform.position;
+        pos[ITKHand.ThumbMetacarpal] = trackers[index++].transform.position;
+        pos[ITKHand.IndexTip] = trackers[index++].transform.position;
+        pos[ITKHand.IndexDistal] = trackers[index++].transform.position;
+        pos[ITKHand.IndexMiddle] = trackers[index++].transform.position;
+        pos[ITKHand.IndexKnuckle] = trackers[index++].transform.position;
+        pos[ITKHand.IndexMetacarpal] = trackers[index++].transform.position;
+        pos[ITKHand.MiddleTip] = trackers[index++].transform.position;
+        pos[ITKHand.MiddleDistal] = trackers[index++].transform.position;
+        pos[ITKHand.MiddleMiddle] = trackers[index++].transform.position;
+        pos[ITKHand.MiddleKnuckle] = trackers[index++].transform.position;
+        pos[ITKHand.MiddleMetacarpal] = trackers[index++].transform.position;
+        pos[ITKHand.RingTip] = trackers[index++].transform.position;
+        pos[ITKHand.RingDistal] = trackers[index++].transform.position;
+        pos[ITKHand.RingMiddle] = trackers[index++].transform.position;
+        pos[ITKHand.RingKnuckle] = trackers[index++].transform.position;
+        pos[ITKHand.RingMetacarpal] = trackers[index++].transform.position;
+        pos[ITKHand.PinkyTip] = trackers[index++].transform.position;
+        pos[ITKHand.PinkyDistal] = trackers[index++].transform.position;
+        pos[ITKHand.PinkyMiddle] = trackers[index++].transform.position;
+        pos[ITKHand.PinkyKnuckle] = trackers[index++].transform.position;
+        pos[ITKHand.PinkyMetacarpal] = trackers[index++].transform.position;
 
         index = 0;
         //rot[HandUtils.Palm] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.Wrist] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.ThumbTip] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.ThumbDistal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.ThumbProximal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.ThumbMetacarpal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.IndexTip] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.IndexDistal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.IndexMiddle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.IndexKnuckle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.IndexMetacarpal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.MiddleTip] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.MiddleDistal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.MiddleMiddle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.MiddleKnuckle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.MiddleMetacarpal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.RingTip] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.RingDistal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.RingMiddle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.RingKnuckle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.RingMetacarpal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.PinkyTip] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.PinkyDistal] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.PinkyMiddle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.PinkyKnuckle] = trackers[index++].transform.rotation;
-        rot[ITKHandUtils.PinkyMetacarpal] = trackers[index++].transform.rotation;
+        rot[ITKHand.Wrist] = trackers[index++].transform.rotation;
+        rot[ITKHand.ThumbTip] = trackers[index++].transform.rotation;
+        rot[ITKHand.ThumbDistal] = trackers[index++].transform.rotation;
+        rot[ITKHand.ThumbProximal] = trackers[index++].transform.rotation;
+        rot[ITKHand.ThumbMetacarpal] = trackers[index++].transform.rotation;
+        rot[ITKHand.IndexTip] = trackers[index++].transform.rotation;
+        rot[ITKHand.IndexDistal] = trackers[index++].transform.rotation;
+        rot[ITKHand.IndexMiddle] = trackers[index++].transform.rotation;
+        rot[ITKHand.IndexKnuckle] = trackers[index++].transform.rotation;
+        rot[ITKHand.IndexMetacarpal] = trackers[index++].transform.rotation;
+        rot[ITKHand.MiddleTip] = trackers[index++].transform.rotation;
+        rot[ITKHand.MiddleDistal] = trackers[index++].transform.rotation;
+        rot[ITKHand.MiddleMiddle] = trackers[index++].transform.rotation;
+        rot[ITKHand.MiddleKnuckle] = trackers[index++].transform.rotation;
+        rot[ITKHand.MiddleMetacarpal] = trackers[index++].transform.rotation;
+        rot[ITKHand.RingTip] = trackers[index++].transform.rotation;
+        rot[ITKHand.RingDistal] = trackers[index++].transform.rotation;
+        rot[ITKHand.RingMiddle] = trackers[index++].transform.rotation;
+        rot[ITKHand.RingKnuckle] = trackers[index++].transform.rotation;
+        rot[ITKHand.RingMetacarpal] = trackers[index++].transform.rotation;
+        rot[ITKHand.PinkyTip] = trackers[index++].transform.rotation;
+        rot[ITKHand.PinkyDistal] = trackers[index++].transform.rotation;
+        rot[ITKHand.PinkyMiddle] = trackers[index++].transform.rotation;
+        rot[ITKHand.PinkyKnuckle] = trackers[index++].transform.rotation;
+        rot[ITKHand.PinkyMetacarpal] = trackers[index++].transform.rotation;
 
         hand.Enable();
-        hand.Track(new ITKHandUtils.Pose()
+        hand.Track(new ITKHand.Pose()
         {
             positions = pos,
             rotations = rot

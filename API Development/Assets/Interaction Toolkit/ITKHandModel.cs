@@ -7,7 +7,7 @@ using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
-    public static partial class ITKHandUtils
+    public static partial class ITKHand
     {
         public struct HandModelPoseOffsets
         {
@@ -145,7 +145,7 @@ namespace InteractionTK.HandTracking
 
     public class ITKHandModel : MonoBehaviour
     {
-        public ITKHandUtils.Handedness type;
+        public ITKHand.Handedness type;
 
         private SkinnedMeshRenderer meshRenderer;
 
@@ -209,32 +209,32 @@ namespace InteractionTK.HandTracking
             Disable();
         }
 
-        public void Track(ITKHandUtils.Pose pose)
+        public void Track(ITKHand.Pose pose)
         {
-            ITKHandUtils.HandModelPoseOffsets offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsetsHololens : ITKHandUtils.rightModelOffsetsHololens;
+            ITKHand.HandModelPoseOffsets offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsHololens : ITKHand.rightModelOffsetsHololens;
 
-            transform.rotation = pose.rotations[ITKHandUtils.Wrist] * offsets.wristRotationOffset;
-            transform.position = pose.positions[ITKHandUtils.Wrist] + transform.rotation *  offsets.poseWristPositionOffset;
+            transform.rotation = pose.rotations[ITKHand.Wrist] * offsets.wristRotationOffset;
+            transform.position = pose.positions[ITKHand.Wrist] + transform.rotation *  offsets.poseWristPositionOffset;
 
-            Vector3 dir = pose.positions[ITKHandUtils.ThumbMetacarpal] - pose.positions[ITKHandUtils.Root];
-            ThumbWristToMetacarpal.rotation = Quaternion.LookRotation(dir, Vector3.up) * offsets.rotationOffsets[ITKHandUtils.Wrist];
+            Vector3 dir = pose.positions[ITKHand.ThumbMetacarpal] - pose.positions[ITKHand.Root];
+            ThumbWristToMetacarpal.rotation = Quaternion.LookRotation(dir, Vector3.up) * offsets.rotationOffsets[ITKHand.Wrist];
 
-            ThumbMetacarpal.rotation = pose.rotations[ITKHandUtils.ThumbMetacarpal] * offsets.rotationOffsets[ITKHandUtils.ThumbMetacarpal];
-            ThumbProximal.rotation = pose.rotations[ITKHandUtils.ThumbProximal] * offsets.rotationOffsets[ITKHandUtils.ThumbProximal];
-            ThumbDistal.rotation = pose.rotations[ITKHandUtils.ThumbDistal] * offsets.rotationOffsets[ITKHandUtils.ThumbProximal];
-            IndexKnuckle.rotation = pose.rotations[ITKHandUtils.IndexKnuckle] * offsets.rotationOffsets[ITKHandUtils.IndexKnuckle];
-            IndexMiddle.rotation = pose.rotations[ITKHandUtils.IndexMiddle] * offsets.rotationOffsets[ITKHandUtils.IndexMiddle];
-            IndexDistal.rotation = pose.rotations[ITKHandUtils.IndexDistal] * offsets.rotationOffsets[ITKHandUtils.IndexDistal];
-            MiddleKnuckle.rotation = pose.rotations[ITKHandUtils.MiddleKnuckle] * offsets.rotationOffsets[ITKHandUtils.MiddleKnuckle];
-            MiddleMiddle.rotation = pose.rotations[ITKHandUtils.MiddleMiddle] * offsets.rotationOffsets[ITKHandUtils.MiddleMiddle];
-            MiddleDistal.rotation = pose.rotations[ITKHandUtils.MiddleDistal] * offsets.rotationOffsets[ITKHandUtils.MiddleDistal];
-            RingKnuckle.rotation = pose.rotations[ITKHandUtils.RingKnuckle] * offsets.rotationOffsets[ITKHandUtils.RingKnuckle];
-            RingMiddle.rotation = pose.rotations[ITKHandUtils.RingMiddle] * offsets.rotationOffsets[ITKHandUtils.RingMiddle];
-            RingDistal.rotation = pose.rotations[ITKHandUtils.RingDistal] * offsets.rotationOffsets[ITKHandUtils.RingDistal];
-            PinkyMetacarpal.rotation = pose.rotations[ITKHandUtils.PinkyMetacarpal] * offsets.rotationOffsets[ITKHandUtils.PinkyMetacarpal];
-            PinkyKnuckle.rotation = pose.rotations[ITKHandUtils.PinkyKnuckle] * offsets.rotationOffsets[ITKHandUtils.PinkyKnuckle];
-            PinkyMiddle.rotation = pose.rotations[ITKHandUtils.PinkyMiddle] * offsets.rotationOffsets[ITKHandUtils.PinkyMiddle];
-            PinkyDistal.rotation = pose.rotations[ITKHandUtils.PinkyDistal] * offsets.rotationOffsets[ITKHandUtils.PinkyDistal];
+            ThumbMetacarpal.rotation = pose.rotations[ITKHand.ThumbMetacarpal] * offsets.rotationOffsets[ITKHand.ThumbMetacarpal];
+            ThumbProximal.rotation = pose.rotations[ITKHand.ThumbProximal] * offsets.rotationOffsets[ITKHand.ThumbProximal];
+            ThumbDistal.rotation = pose.rotations[ITKHand.ThumbDistal] * offsets.rotationOffsets[ITKHand.ThumbProximal];
+            IndexKnuckle.rotation = pose.rotations[ITKHand.IndexKnuckle] * offsets.rotationOffsets[ITKHand.IndexKnuckle];
+            IndexMiddle.rotation = pose.rotations[ITKHand.IndexMiddle] * offsets.rotationOffsets[ITKHand.IndexMiddle];
+            IndexDistal.rotation = pose.rotations[ITKHand.IndexDistal] * offsets.rotationOffsets[ITKHand.IndexDistal];
+            MiddleKnuckle.rotation = pose.rotations[ITKHand.MiddleKnuckle] * offsets.rotationOffsets[ITKHand.MiddleKnuckle];
+            MiddleMiddle.rotation = pose.rotations[ITKHand.MiddleMiddle] * offsets.rotationOffsets[ITKHand.MiddleMiddle];
+            MiddleDistal.rotation = pose.rotations[ITKHand.MiddleDistal] * offsets.rotationOffsets[ITKHand.MiddleDistal];
+            RingKnuckle.rotation = pose.rotations[ITKHand.RingKnuckle] * offsets.rotationOffsets[ITKHand.RingKnuckle];
+            RingMiddle.rotation = pose.rotations[ITKHand.RingMiddle] * offsets.rotationOffsets[ITKHand.RingMiddle];
+            RingDistal.rotation = pose.rotations[ITKHand.RingDistal] * offsets.rotationOffsets[ITKHand.RingDistal];
+            PinkyMetacarpal.rotation = pose.rotations[ITKHand.PinkyMetacarpal] * offsets.rotationOffsets[ITKHand.PinkyMetacarpal];
+            PinkyKnuckle.rotation = pose.rotations[ITKHand.PinkyKnuckle] * offsets.rotationOffsets[ITKHand.PinkyKnuckle];
+            PinkyMiddle.rotation = pose.rotations[ITKHand.PinkyMiddle] * offsets.rotationOffsets[ITKHand.PinkyMiddle];
+            PinkyDistal.rotation = pose.rotations[ITKHand.PinkyDistal] * offsets.rotationOffsets[ITKHand.PinkyDistal];
         }
 
         public void Track(ITKSkeleton skeleton)
@@ -245,16 +245,16 @@ namespace InteractionTK.HandTracking
                 return;
             }
 
-            ITKHandUtils.HandModelPoseOffsets offsets;
+            ITKHand.HandModelPoseOffsets offsets;
 
             switch (VRTK.device)
             {
                 case VRTK.Device.Oculus:
-                    offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsetsOculus : ITKHandUtils.rightModelOffsetsOculus;
+                    offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsOculus : ITKHand.rightModelOffsetsOculus;
                     break;
                 case VRTK.Device.Hololens2:
                 default:
-                    offsets = type == ITKHandUtils.Handedness.Left ? ITKHandUtils.leftModelOffsetsHololens : ITKHandUtils.rightModelOffsetsHololens;
+                    offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsHololens : ITKHand.rightModelOffsetsHololens;
                     break;
             }
 
@@ -268,60 +268,60 @@ namespace InteractionTK.HandTracking
                 Quaternion rot = node.rb.rotation;
                 switch (node.joint)
                 {
-                    case ITKHandUtils.Wrist:
-                        if (node.parent != null) ThumbWristToMetacarpal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.Wrist];
+                    case ITKHand.Wrist:
+                        if (node.parent != null) ThumbWristToMetacarpal.rotation = rot * offsets.rotationOffsets[ITKHand.Wrist];
                         break;
-                    case ITKHandUtils.ThumbMetacarpal:
-                        ThumbMetacarpal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.ThumbMetacarpal];
+                    case ITKHand.ThumbMetacarpal:
+                        ThumbMetacarpal.rotation = rot * offsets.rotationOffsets[ITKHand.ThumbMetacarpal];
                         break;
-                    case ITKHandUtils.ThumbProximal:
-                        ThumbProximal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.ThumbProximal];
+                    case ITKHand.ThumbProximal:
+                        ThumbProximal.rotation = rot * offsets.rotationOffsets[ITKHand.ThumbProximal];
                         break;
-                    case ITKHandUtils.ThumbDistal:
-                        ThumbDistal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.ThumbProximal];
-                        break;
-
-                    case ITKHandUtils.IndexKnuckle:
-                        IndexKnuckle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.IndexKnuckle];
-                        break;
-                    case ITKHandUtils.IndexMiddle:
-                        IndexMiddle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.IndexMiddle];
-                        break;
-                    case ITKHandUtils.IndexDistal:
-                        IndexDistal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.IndexDistal];
+                    case ITKHand.ThumbDistal:
+                        ThumbDistal.rotation = rot * offsets.rotationOffsets[ITKHand.ThumbProximal];
                         break;
 
-                    case ITKHandUtils.MiddleKnuckle:
-                        MiddleKnuckle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.MiddleKnuckle];
+                    case ITKHand.IndexKnuckle:
+                        IndexKnuckle.rotation = rot * offsets.rotationOffsets[ITKHand.IndexKnuckle];
                         break;
-                    case ITKHandUtils.MiddleMiddle:
-                        MiddleMiddle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.MiddleMiddle];
+                    case ITKHand.IndexMiddle:
+                        IndexMiddle.rotation = rot * offsets.rotationOffsets[ITKHand.IndexMiddle];
                         break;
-                    case ITKHandUtils.MiddleDistal:
-                        MiddleDistal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.MiddleDistal];
-                        break;
-
-                    case ITKHandUtils.RingKnuckle:
-                        RingKnuckle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.RingKnuckle];
-                        break;
-                    case ITKHandUtils.RingMiddle:
-                        RingMiddle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.RingMiddle];
-                        break;
-                    case ITKHandUtils.RingDistal:
-                        RingDistal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.RingDistal];
+                    case ITKHand.IndexDistal:
+                        IndexDistal.rotation = rot * offsets.rotationOffsets[ITKHand.IndexDistal];
                         break;
 
-                    case ITKHandUtils.PinkyMetacarpal:
-                        PinkyMetacarpal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.PinkyMetacarpal];
+                    case ITKHand.MiddleKnuckle:
+                        MiddleKnuckle.rotation = rot * offsets.rotationOffsets[ITKHand.MiddleKnuckle];
                         break;
-                    case ITKHandUtils.PinkyKnuckle:
-                        PinkyKnuckle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.PinkyKnuckle];
+                    case ITKHand.MiddleMiddle:
+                        MiddleMiddle.rotation = rot * offsets.rotationOffsets[ITKHand.MiddleMiddle];
                         break;
-                    case ITKHandUtils.PinkyMiddle:
-                        PinkyMiddle.rotation = rot * offsets.rotationOffsets[ITKHandUtils.PinkyMiddle];
+                    case ITKHand.MiddleDistal:
+                        MiddleDistal.rotation = rot * offsets.rotationOffsets[ITKHand.MiddleDistal];
                         break;
-                    case ITKHandUtils.PinkyDistal:
-                        PinkyDistal.rotation = rot * offsets.rotationOffsets[ITKHandUtils.PinkyDistal];
+
+                    case ITKHand.RingKnuckle:
+                        RingKnuckle.rotation = rot * offsets.rotationOffsets[ITKHand.RingKnuckle];
+                        break;
+                    case ITKHand.RingMiddle:
+                        RingMiddle.rotation = rot * offsets.rotationOffsets[ITKHand.RingMiddle];
+                        break;
+                    case ITKHand.RingDistal:
+                        RingDistal.rotation = rot * offsets.rotationOffsets[ITKHand.RingDistal];
+                        break;
+
+                    case ITKHand.PinkyMetacarpal:
+                        PinkyMetacarpal.rotation = rot * offsets.rotationOffsets[ITKHand.PinkyMetacarpal];
+                        break;
+                    case ITKHand.PinkyKnuckle:
+                        PinkyKnuckle.rotation = rot * offsets.rotationOffsets[ITKHand.PinkyKnuckle];
+                        break;
+                    case ITKHand.PinkyMiddle:
+                        PinkyMiddle.rotation = rot * offsets.rotationOffsets[ITKHand.PinkyMiddle];
+                        break;
+                    case ITKHand.PinkyDistal:
+                        PinkyDistal.rotation = rot * offsets.rotationOffsets[ITKHand.PinkyDistal];
                         break;
                 }
             }

@@ -8,7 +8,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace InteractionTK.HandTracking
 {
-    public static partial class ITKHandUtils
+    public static partial class ITKHand
     {
         public static Joint[][] structure = new Joint[][]
         {
@@ -23,16 +23,16 @@ namespace InteractionTK.HandTracking
 
     public class ITKDebugHand : MonoBehaviour
     {
-        public ITKHandUtils.Handedness type;
-        private ITKHandUtils.Pose pose = new ITKHandUtils.Pose(ITKHandUtils.NumJoints);
+        public ITKHand.Handedness type;
+        private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
 
-        public ITKHand hand;
+        public ITKHandPhysics hand;
         public GameObject debugPoint;
 
         public bool Tracking = true;
 
-        private GameObject[] joints = new GameObject[ITKHandUtils.NumJoints];
-        private GameObject[] interactable = new GameObject[ITKHandUtils.NumJoints];
+        private GameObject[] joints = new GameObject[ITKHand.NumJoints];
+        private GameObject[] interactable = new GameObject[ITKHand.NumJoints];
         private static Vector3[][] defaultPositions = new Vector3[][] // positions are the local positions from unity
         {
             new Vector3[] { new Vector3(0, 0, 4.65f) },
@@ -44,30 +44,30 @@ namespace InteractionTK.HandTracking
         };
         private void Start()
         {
-            Vector3 scale = new Vector3(type == ITKHandUtils.Handedness.Left ? 1 : -1, 1, 1);
+            Vector3 scale = new Vector3(type == ITKHand.Handedness.Left ? 1 : -1, 1, 1);
 
-            interactable[ITKHandUtils.Root] = Instantiate(debugPoint);
-            interactable[ITKHandUtils.Root].transform.parent = transform;
-            interactable[ITKHandUtils.Root].name = ((ITKHandUtils.Joint)ITKHandUtils.Root).ToString();
+            interactable[ITKHand.Root] = Instantiate(debugPoint);
+            interactable[ITKHand.Root].transform.parent = transform;
+            interactable[ITKHand.Root].name = ((ITKHand.Joint)ITKHand.Root).ToString();
 
-            joints[ITKHandUtils.Root] = new GameObject();
-            joints[ITKHandUtils.Root].transform.parent = transform;
-            joints[ITKHandUtils.Root].name = "_" + ((ITKHandUtils.Joint)ITKHandUtils.Root).ToString();
-            for (int i = 0; i < ITKHandUtils.structure.Length; ++i)
+            joints[ITKHand.Root] = new GameObject();
+            joints[ITKHand.Root].transform.parent = transform;
+            joints[ITKHand.Root].name = "_" + ((ITKHand.Joint)ITKHand.Root).ToString();
+            for (int i = 0; i < ITKHand.structure.Length; ++i)
             {
-                Transform root = joints[ITKHandUtils.Root].transform;
-                Transform interRoot = interactable[ITKHandUtils.Root].transform;
-                for (int j = 0; j < ITKHandUtils.structure[i].Length; ++j)
+                Transform root = joints[ITKHand.Root].transform;
+                Transform interRoot = interactable[ITKHand.Root].transform;
+                for (int j = 0; j < ITKHand.structure[i].Length; ++j)
                 {
-                    ITKHandUtils.Joint curr = ITKHandUtils.structure[i][j];
+                    ITKHand.Joint curr = ITKHand.structure[i][j];
 
                     GameObject o = new GameObject();
                     o.transform.parent = root;
-                    o.name = "_" + ITKHandUtils.structure[i][j].ToString();
+                    o.name = "_" + ITKHand.structure[i][j].ToString();
 
                     GameObject inter = Instantiate(debugPoint);
                     inter.transform.parent = interRoot;
-                    inter.name = ITKHandUtils.structure[i][j].ToString();
+                    inter.name = ITKHand.structure[i][j].ToString();
 
                     // Position joints to default location
                     inter.transform.localPosition = root.transform.position + Vector3.Scale(defaultPositions[i][j], scale);
@@ -81,10 +81,10 @@ namespace InteractionTK.HandTracking
             }
 
             // Rotate thumb
-            interactable[ITKHandUtils.ThumbMetacarpal].transform.localRotation = Quaternion.Euler(0, 0, type == ITKHandUtils.Handedness.Left ? 270 : 90);
+            interactable[ITKHand.ThumbMetacarpal].transform.localRotation = Quaternion.Euler(0, 0, type == ITKHand.Handedness.Left ? 270 : 90);
 
-            pose.positions = new Vector3[ITKHandUtils.NumJoints];
-            pose.rotations = new Quaternion[ITKHandUtils.NumJoints];
+            pose.positions = new Vector3[ITKHand.NumJoints];
+            pose.rotations = new Quaternion[ITKHand.NumJoints];
         }
 
         private void FixedUpdate()
@@ -95,24 +95,24 @@ namespace InteractionTK.HandTracking
                 return;
             }
 
-            joints[ITKHandUtils.Root].transform.position = interactable[ITKHandUtils.Root].transform.position;
-            joints[ITKHandUtils.Root].transform.rotation = interactable[ITKHandUtils.Root].transform.rotation;
+            joints[ITKHand.Root].transform.position = interactable[ITKHand.Root].transform.position;
+            joints[ITKHand.Root].transform.rotation = interactable[ITKHand.Root].transform.rotation;
 
             for (int i = 0; i < interactable.Length; ++i)
             {
-                if (i != ITKHandUtils.Root) interactable[i].transform.localRotation = Quaternion.Euler(0, 0, interactable[i].transform.localRotation.eulerAngles.z);
+                if (i != ITKHand.Root) interactable[i].transform.localRotation = Quaternion.Euler(0, 0, interactable[i].transform.localRotation.eulerAngles.z);
                 joints[i].transform.rotation = Quaternion.Euler(
                     joints[i].transform.rotation.eulerAngles.x, 
                     joints[i].transform.rotation.eulerAngles.y, 
                     interactable[i].transform.rotation.eulerAngles.z);
             }
 
-            for (int i = 0; i < ITKHandUtils.structure.Length; ++i)
+            for (int i = 0; i < ITKHand.structure.Length; ++i)
             {
-                for (int j = 0; j < ITKHandUtils.structure[i].Length - 1; ++j)
+                for (int j = 0; j < ITKHand.structure[i].Length - 1; ++j)
                 {
-                    ITKHandUtils.Joint curr = ITKHandUtils.structure[i][j];
-                    ITKHandUtils.Joint next = ITKHandUtils.structure[i][j + 1];
+                    ITKHand.Joint curr = ITKHand.structure[i][j];
+                    ITKHand.Joint next = ITKHand.structure[i][j + 1];
                     Vector3 dir = interactable[next].transform.position - interactable[curr].transform.position;
                     if (dir != Vector3.zero) joints[curr].transform.rotation = Quaternion.LookRotation(dir, joints[curr].transform.rotation * Vector3.up);
                     joints[curr].transform.position = interactable[curr].transform.position;
