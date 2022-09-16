@@ -1479,12 +1479,18 @@ namespace InteractionTK.HandTracking
             {
                 // Ensure that hand has been out of frame with frozenOutOfFrame to prevent hand dissapearing if tracking is lost in front of you
                 if (Vector3.Angle(cameraDir, handDir) > 40) frozenOutOfFrame = true;
-                if (frozenOutOfFrame && Vector3.Angle(cameraDir, handDir) < 30 && frozenFrameTimer < 0)
+                if (frozenOutOfFrame)
                 {
-                    frozen = false;
-                    Disable(true);
+                    if (Vector3.Angle(cameraDir, handDir) < 30)
+                    {
+                        if (frozenFrameTimer < 0)
+                        {
+                            frozen = false;
+                            Disable(true);
+                        }
+                        else --frozenFrameTimer;
+                    }
                 }
-                else --frozenFrameTimer;
             }
         }
 

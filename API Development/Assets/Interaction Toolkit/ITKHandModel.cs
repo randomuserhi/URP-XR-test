@@ -213,6 +213,7 @@ namespace InteractionTK.HandTracking
         public Color tint = new Color(1f, 0f, 0f);
 
         private SkinnedMeshRenderer meshRenderer;
+        public ITKGestures gestures;
 
         public Transform wrist;
 
@@ -305,21 +306,9 @@ namespace InteractionTK.HandTracking
 
         private void TransparencyEffect(ITKHand.Pose pose)
         {
-            if (!meshRenderer) return;
+            if (!meshRenderer || !gestures) return;
 
-            float closestDistanceFromPalm = float.PositiveInfinity;
-            for (int i = 0; i < ITKHand.fingerTips.Length; i++)
-            {
-                ITKHand.Joint joint = ITKHand.fingerTips[i];
-                if (joint != ITKHand.Palm)
-                {
-                    float d = Vector3.Distance(pose.positions[joint], pose.positions[ITKHand.Palm]);
-                    if (d < closestDistanceFromPalm) closestDistanceFromPalm = d;
-                }
-            }
-            float thumbIndexDistance = Vector3.Distance(pose.positions[ITKHand.IndexTip], pose.positions[ITKHand.ThumbTip]);
-            float distance = Mathf.Clamp(Mathf.Min(thumbIndexDistance, closestDistanceFromPalm) - 0.015f, 0, float.MaxValue);
-            float t = Mathf.Clamp(1 - (distance / 0.08f), 0f, 1f);
+            float t = Mathf.Max(gestures.grasp, gestures.pinch);
 
             meshRenderer.materials[1].SetFloat("_Transparency", Mathf.Lerp(0.05f, 0.8f, t));
             meshRenderer.materials[1].SetColor("_TintColor", Color.Lerp(new Color(0.2f, 0.2f, 0.2f), tint, t));

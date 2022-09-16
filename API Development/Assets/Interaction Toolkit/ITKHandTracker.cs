@@ -19,6 +19,7 @@ namespace InteractionTK.HandTracking
         private ITKHand.Pose buffer = new ITKHand.Pose(ITKHand.NumJoints);
 
         public bool Tracking;
+        public ITKGestures gestures;
         public ITKHandPhysics physicsHand;
         public ITKHandModel hand;
 
@@ -43,6 +44,8 @@ namespace InteractionTK.HandTracking
                 pose = temp;
             }
 
+            if (gestures != null)
+                gestures.Track(pose);
             if (physicsHand != null)
             {
                 if (physicsHand.type != type)

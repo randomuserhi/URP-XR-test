@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 1
   Tracking: 0
+  gestures: {fileID: 235991629}
   physicsHand: {fileID: 4845860320586893632}
   hand: {fileID: 0}
 --- !u!1 &4845860320586893639
@@ -59,6 +60,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4845860320586893633}
   - component: {fileID: 4845860320586893632}
+  - component: {fileID: 235991629}
   m_Layer: 0
   m_Name: RHand
   m_TagString: Untagged
@@ -96,6 +98,18 @@ MonoBehaviour:
   type: 1
   model: {fileID: 4845860318606506865}
   movingAverageFrameRange: 5
+--- !u!114 &235991629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4845860320586893639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 265e3a798c1b50e4dbd4b292fa3e7aac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4845860319711158905
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -115,6 +129,10 @@ PrefabInstance:
       propertyPath: tint.r
       value: 0.6627451
       objectReference: {fileID: 0}
+    - target: {fileID: 1111021832, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: gestures
+      value: 
+      objectReference: {fileID: 235991629}
     - target: {fileID: 5927214328309293622, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
       propertyPath: m_Name
       value: OculusHand_R
