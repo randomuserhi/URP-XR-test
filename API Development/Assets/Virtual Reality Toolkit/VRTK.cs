@@ -9,7 +9,8 @@ namespace VirtualRealityTK
         public enum Device
         {
             Hololens2,
-            Oculus
+            Oculus,
+            OculusV2 // Second version for oculus for hand tracking V2 in OVR settings
         }
 
         public static Device device = Device.Hololens2;

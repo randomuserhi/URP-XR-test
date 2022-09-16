@@ -32,7 +32,7 @@ namespace InteractionTK.HandTracking
         }
 
         // TODO:: support mesh and compound colliders
-        public struct HandSkeletonDescription
+        public struct SkeletonDescription
         {
             public static readonly JointDrive rootRotationDrive = new JointDrive()
             {
@@ -97,38 +97,38 @@ namespace InteractionTK.HandTracking
 
         // NOTE:: box colliders are used on the fingers instead of capsule colliders due to a known bug on hololens where capsule colliders with joints do not
         //        collider with other capsule colliders properly
-        public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
+        public static SkeletonDescription handSkeletonBox = new SkeletonDescription()
         {
             settings = new HandSettings()
             {
                 defaultHandedness = Handedness.Left,
                 handednessScale = new Vector3(-1, 1, 1),
                 safeMode = true,
-                solverIterations = 25,
-                solverVelocityIterations = 15,
+                solverIterations = 20,
+                solverVelocityIterations = 10,
                 maxVelocity = 5,
                 maxAngularVelocity = 2,
                 maxDepenetrationVelocity = 1,
                 maxError = 1f
             },
-            nodeTree = new HandSkeletonDescription.Node()
+            nodeTree = new SkeletonDescription.Node()
             {
                 // Root node does not need a drive specified
                 mass = 0.255f,
                 centerOfMass = Vector3.zero,
                 joint = Joint.Wrist,
-                colliders = new HandSkeletonDescription.NodeCollider[]
+                colliders = new SkeletonDescription.NodeCollider[]
                 {
-                    new HandSkeletonDescription.NodeCollider()
+                    new SkeletonDescription.NodeCollider()
                     {
-                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                        type = SkeletonDescription.NodeCollider.Type.Box,
                         position = new Vector3(0, 0.01f, 0f),
                         rotation = Quaternion.identity,
                         size = new Vector3(0.06f, 0.015f, 0.07f)
                     },
-                    new HandSkeletonDescription.NodeCollider()
+                    new SkeletonDescription.NodeCollider()
                     {
-                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                        type = SkeletonDescription.NodeCollider.Type.Box,
                         position = new Vector3(0, -0.01f, -0.02f),
                         rotation = Quaternion.identity,
                         size = new Vector3(0.06f, 0.03f, 0.035f)
@@ -136,10 +136,10 @@ namespace InteractionTK.HandTracking
                 },
                 anchor = new Vector3(0.002f, -0.001f, -0.045f),
                 connectedAnchor = Vector3.zero,
-                children = new HandSkeletonDescription.Node[]
+                children = new SkeletonDescription.Node[]
                 {
                     // THUMB
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         leftDefaultRotation = Quaternion.Euler(0, 90, 0),
                         rightDefaultRotation = Quaternion.Euler(0, -90, 0),
@@ -147,11 +147,11 @@ namespace InteractionTK.HandTracking
                         centerOfMass = Vector3.zero,
                         joint = Joint.Wrist,
                         toJoint = Joint.ThumbMetacarpal,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                type = SkeletonDescription.NodeCollider.Type.Box,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 size = new Vector3(0.018f, 0.018f, 0.01f)
@@ -167,18 +167,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 20f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.225f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.ThumbMetacarpal,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         size = new Vector3(0.018f, 0.018f, 0.05f)
@@ -194,18 +194,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 20f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.ThumbProximal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                type = SkeletonDescription.NodeCollider.Type.Box,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 size = new Vector3(0.018f, 0.018f, 0.045f)
@@ -221,18 +221,18 @@ namespace InteractionTK.HandTracking
                                             positionDamper = 0.1f,
                                             maximumForce = 20f
                                         },
-                                        children = new HandSkeletonDescription.Node[]
+                                        children = new SkeletonDescription.Node[]
                                         {
-                                            new HandSkeletonDescription.Node()
+                                            new SkeletonDescription.Node()
                                             {
                                                 mass = 0.03f,
                                                 centerOfMass = Vector3.zero,
                                                 joint = Joint.ThumbDistal,
-                                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                                colliders = new SkeletonDescription.NodeCollider[]
                                                 {
-                                                    new HandSkeletonDescription.NodeCollider()
+                                                    new SkeletonDescription.NodeCollider()
                                                     {
-                                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                                         position = Vector3.zero,
                                                         rotation = Quaternion.identity,
                                                         size = new Vector3(0.016f, 0.016f, 0.035f)
@@ -256,16 +256,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // INDEX
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.IndexKnuckle,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                type = SkeletonDescription.NodeCollider.Type.Box,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 size = new Vector3(0.018f, 0.018f, 0.055f)
@@ -281,18 +281,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 3f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.IndexMiddle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         size = new Vector3(0.016f, 0.016f, 0.04f)
@@ -308,18 +308,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 3f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.IndexDistal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                type = SkeletonDescription.NodeCollider.Type.Box,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 size = new Vector3(0.015f, 0.015f, 0.03f)
@@ -341,16 +341,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // MIDDLE
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.MiddleKnuckle,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                type = SkeletonDescription.NodeCollider.Type.Box,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 size = new Vector3(0.018f, 0.018f, 0.06f)
@@ -366,18 +366,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 3f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.MiddleMiddle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         size = new Vector3(0.016f, 0.016f, 0.04f)
@@ -393,18 +393,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 3f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.MiddleDistal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                type = SkeletonDescription.NodeCollider.Type.Box,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 size = new Vector3(0.015f, 0.015f, 0.03f)
@@ -426,16 +426,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // RING
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.RingKnuckle,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                type = SkeletonDescription.NodeCollider.Type.Box,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 size = new Vector3(0.018f, 0.018f, 0.055f)
@@ -451,18 +451,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 3f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.RingMiddle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         size = new Vector3(0.016f, 0.016f, 0.04f)
@@ -478,18 +478,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 3f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.RingDistal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                type = SkeletonDescription.NodeCollider.Type.Box,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 size = new Vector3(0.015f, 0.015f, 0.03f)
@@ -511,16 +511,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // PINKY
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.PinkyMetacarpal,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                type = SkeletonDescription.NodeCollider.Type.Box,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 size = new Vector3(0.016f, 0.016f, 0.06f)
@@ -536,18 +536,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 20f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.PinkyKnuckle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         size = new Vector3(0.014f, 0.014f, 0.05f)
@@ -563,18 +563,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 20f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.PinkyMiddle,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                type = SkeletonDescription.NodeCollider.Type.Box,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 size = new Vector3(0.014f, 0.014f, 0.03f)
@@ -590,18 +590,18 @@ namespace InteractionTK.HandTracking
                                             positionDamper = 0.1f,
                                             maximumForce = 20f
                                         },
-                                        children = new HandSkeletonDescription.Node[]
+                                        children = new SkeletonDescription.Node[]
                                         {
-                                            new HandSkeletonDescription.Node()
+                                            new SkeletonDescription.Node()
                                             {
                                                 mass = 0.03f,
                                                 centerOfMass = Vector3.zero,
                                                 joint = Joint.PinkyDistal,
-                                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                                colliders = new SkeletonDescription.NodeCollider[]
                                                 {
-                                                    new HandSkeletonDescription.NodeCollider()
+                                                    new SkeletonDescription.NodeCollider()
                                                     {
-                                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                        type = SkeletonDescription.NodeCollider.Type.Box,
                                                         position = Vector3.zero,
                                                         rotation = Quaternion.identity,
                                                         size = new Vector3(0.014f, 0.014f, 0.03f)
@@ -629,38 +629,38 @@ namespace InteractionTK.HandTracking
         };
 
         // Capsule version of hand skeleton
-        /*public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
+        public static SkeletonDescription handSkeleton = new SkeletonDescription()
         {
             settings = new HandSettings()
             {
                 defaultHandedness = Handedness.Left,
                 handednessScale = new Vector3(-1, 1, 1),
                 safeMode = true,
-                solverIterations = 25,
-                solverVelocityIterations = 15,
+                solverIterations = 20,
+                solverVelocityIterations = 10,
                 maxVelocity = 5,
                 maxAngularVelocity = 2,
-                maxDepenetrationVelocity = 1,
+                maxDepenetrationVelocity = 1f,
                 maxError = 1f
             },
-            nodeTree = new HandSkeletonDescription.Node()
+            nodeTree = new SkeletonDescription.Node()
             {
                 // Root node does not need a drive specified
                 mass = 0.255f,
                 centerOfMass = Vector3.zero,
                 joint = Joint.Wrist,
-                colliders = new HandSkeletonDescription.NodeCollider[]
+                colliders = new SkeletonDescription.NodeCollider[]
                 {
-                    new HandSkeletonDescription.NodeCollider()
+                    new SkeletonDescription.NodeCollider()
                     {
-                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                        type = SkeletonDescription.NodeCollider.Type.Box,
                         position = new Vector3(0, 0.01f, 0f),
                         rotation = Quaternion.identity,
                         size = new Vector3(0.06f, 0.015f, 0.07f)
                     },
-                    new HandSkeletonDescription.NodeCollider()
+                    new SkeletonDescription.NodeCollider()
                     {
-                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                        type = SkeletonDescription.NodeCollider.Type.Box,
                         position = new Vector3(0, -0.01f, -0.02f),
                         rotation = Quaternion.identity,
                         size = new Vector3(0.06f, 0.03f, 0.035f)
@@ -668,10 +668,10 @@ namespace InteractionTK.HandTracking
                 },
                 anchor = new Vector3(0.002f, -0.001f, -0.045f),
                 connectedAnchor = Vector3.zero,
-                children = new HandSkeletonDescription.Node[]
+                children = new SkeletonDescription.Node[]
                 {
                     // THUMB
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         leftDefaultRotation = Quaternion.Euler(0, 90, 0),
                         rightDefaultRotation = Quaternion.Euler(0, -90, 0),
@@ -679,11 +679,11 @@ namespace InteractionTK.HandTracking
                         centerOfMass = Vector3.zero,
                         joint = Joint.Wrist,
                         toJoint = Joint.ThumbMetacarpal,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 radius = 0.009f,
@@ -698,18 +698,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 20f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.225f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.ThumbMetacarpal,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         radius = 0.009f,
@@ -724,18 +724,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 20f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.ThumbProximal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 radius = 0.009f,
@@ -750,18 +750,18 @@ namespace InteractionTK.HandTracking
                                             positionDamper = 0.1f,
                                             maximumForce = 20f
                                         },
-                                        children = new HandSkeletonDescription.Node[]
+                                        children = new SkeletonDescription.Node[]
                                         {
-                                            new HandSkeletonDescription.Node()
+                                            new SkeletonDescription.Node()
                                             {
                                                 mass = 0.03f,
                                                 centerOfMass = Vector3.zero,
                                                 joint = Joint.ThumbDistal,
-                                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                                colliders = new SkeletonDescription.NodeCollider[]
                                                 {
-                                                    new HandSkeletonDescription.NodeCollider()
+                                                    new SkeletonDescription.NodeCollider()
                                                     {
-                                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                         position = Vector3.zero,
                                                         rotation = Quaternion.identity,
                                                         radius = 0.008f,
@@ -784,16 +784,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // INDEX
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.IndexKnuckle,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 radius = 0.009f,
@@ -808,18 +808,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 3f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.IndexMiddle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         radius = 0.008f,
@@ -834,18 +834,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 3f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.IndexDistal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 radius = 0.0075f,
@@ -866,16 +866,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // MIDDLE
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.MiddleKnuckle,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 radius = 0.009f,
@@ -890,18 +890,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 3f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.MiddleMiddle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         radius = 0.008f,
@@ -916,18 +916,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 3f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.MiddleDistal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 radius = 0.0075f,
@@ -948,16 +948,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // RING
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.RingKnuckle,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 radius = 0.009f,
@@ -972,18 +972,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 3f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.RingMiddle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         radius = 0.008f,
@@ -998,18 +998,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 3f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.RingDistal,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 radius = 0.0075f,
@@ -1030,16 +1030,16 @@ namespace InteractionTK.HandTracking
                         }
                     },
                     // PINKY
-                    new HandSkeletonDescription.Node()
+                    new SkeletonDescription.Node()
                     {
                         mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.PinkyMetacarpal,
-                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        colliders = new SkeletonDescription.NodeCollider[]
                         {
-                            new HandSkeletonDescription.NodeCollider()
+                            new SkeletonDescription.NodeCollider()
                             {
-                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                 position = Vector3.zero,
                                 rotation = Quaternion.identity,
                                 radius = 0.008f,
@@ -1054,18 +1054,18 @@ namespace InteractionTK.HandTracking
                             positionDamper = 0.1f,
                             maximumForce = 20f
                         },
-                        children = new HandSkeletonDescription.Node[]
+                        children = new SkeletonDescription.Node[]
                         {
-                            new HandSkeletonDescription.Node()
+                            new SkeletonDescription.Node()
                             {
                                 mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.PinkyKnuckle,
-                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                colliders = new SkeletonDescription.NodeCollider[]
                                 {
-                                    new HandSkeletonDescription.NodeCollider()
+                                    new SkeletonDescription.NodeCollider()
                                     {
-                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                         position = Vector3.zero,
                                         rotation = Quaternion.identity,
                                         radius = 0.007f,
@@ -1080,18 +1080,18 @@ namespace InteractionTK.HandTracking
                                     positionDamper = 0.1f,
                                     maximumForce = 20f
                                 },
-                                children = new HandSkeletonDescription.Node[]
+                                children = new SkeletonDescription.Node[]
                                 {
-                                    new HandSkeletonDescription.Node()
+                                    new SkeletonDescription.Node()
                                     {
                                         mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.PinkyMiddle,
-                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        colliders = new SkeletonDescription.NodeCollider[]
                                         {
-                                            new HandSkeletonDescription.NodeCollider()
+                                            new SkeletonDescription.NodeCollider()
                                             {
-                                                type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                 position = Vector3.zero,
                                                 rotation = Quaternion.identity,
                                                 radius = 0.007f,
@@ -1106,18 +1106,18 @@ namespace InteractionTK.HandTracking
                                             positionDamper = 0.1f,
                                             maximumForce = 20f
                                         },
-                                        children = new HandSkeletonDescription.Node[]
+                                        children = new SkeletonDescription.Node[]
                                         {
-                                            new HandSkeletonDescription.Node()
+                                            new SkeletonDescription.Node()
                                             {
                                                 mass = 0.03f,
                                                 centerOfMass = Vector3.zero,
                                                 joint = Joint.PinkyDistal,
-                                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                                colliders = new SkeletonDescription.NodeCollider[]
                                                 {
-                                                    new HandSkeletonDescription.NodeCollider()
+                                                    new SkeletonDescription.NodeCollider()
                                                     {
-                                                        type = HandSkeletonDescription.NodeCollider.Type.Capsule,
+                                                        type = SkeletonDescription.NodeCollider.Type.Capsule,
                                                         position = Vector3.zero,
                                                         rotation = Quaternion.identity,
                                                         radius = 0.007f,
@@ -1141,7 +1141,7 @@ namespace InteractionTK.HandTracking
                     }
                 }
             }
-        };*/
+        };
     }
 
     public class ITKSkeleton
@@ -1160,8 +1160,9 @@ namespace InteractionTK.HandTracking
             public Node[] children;
 
             private Quaternion defaultRotation;
+            private float mass;
 
-            public Node(ITKHand.Handedness type, ITKHand.HandSettings settings, ITKHand.HandSkeletonDescription.Node node, Node root = null, Node parentNode = null, Transform parent = null, Rigidbody body = null, PhysicMaterial material = null, bool isRoot = false)
+            public Node(ITKHand.Handedness type, ITKHand.HandSettings settings, ITKHand.SkeletonDescription.Node node, Node root = null, Node parentNode = null, Transform parent = null, Rigidbody body = null, PhysicMaterial material = null, bool isRoot = false)
             {
                 if (root == null) root = this; this.root = root;
                 this.parent = parentNode;
@@ -1183,6 +1184,7 @@ namespace InteractionTK.HandTracking
                 rb.solverVelocityIterations = settings.solverVelocityIterations;
                 rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 rb.maxDepenetrationVelocity = settings.maxDepenetrationVelocity;
+                mass = node.mass;
                 rb.mass = node.mass;
                 rb.centerOfMass = node.centerOfMass;
                 rb.useGravity = false;
@@ -1193,11 +1195,11 @@ namespace InteractionTK.HandTracking
 
                 if (isRoot)
                 {
-                    j.xDrive = ITKHand.HandSkeletonDescription.rootPositionDrive;
-                    j.yDrive = ITKHand.HandSkeletonDescription.rootPositionDrive;
-                    j.zDrive = ITKHand.HandSkeletonDescription.rootPositionDrive;
+                    j.xDrive = ITKHand.SkeletonDescription.rootPositionDrive;
+                    j.yDrive = ITKHand.SkeletonDescription.rootPositionDrive;
+                    j.zDrive = ITKHand.SkeletonDescription.rootPositionDrive;
 
-                    j.slerpDrive = ITKHand.HandSkeletonDescription.rootRotationDrive;
+                    j.slerpDrive = ITKHand.SkeletonDescription.rootRotationDrive;
                 }
                 else
                 {
@@ -1226,7 +1228,7 @@ namespace InteractionTK.HandTracking
                 colliders = new Collider[node.colliders.Length];
                 for (int i = 0; i < colliders.Length; ++i)
                 {
-                    ITKHand.HandSkeletonDescription.NodeCollider col = node.colliders[i];
+                    ITKHand.SkeletonDescription.NodeCollider col = node.colliders[i];
                     GameObject colObject = new GameObject(name + " collider");
                     colObject.layer = layer;
                     colObject.transform.parent = container.transform;
@@ -1234,14 +1236,14 @@ namespace InteractionTK.HandTracking
                     colObject.transform.localRotation = col.rotation;
                     switch (col.type)
                     {
-                        case ITKHand.HandSkeletonDescription.NodeCollider.Type.Sphere:
+                        case ITKHand.SkeletonDescription.NodeCollider.Type.Sphere:
                             {
                                 SphereCollider c = colObject.AddComponent<SphereCollider>();
                                 c.radius = col.radius;
                                 colliders[i] = c;
                             }
                             break;
-                        case ITKHand.HandSkeletonDescription.NodeCollider.Type.Capsule:
+                        case ITKHand.SkeletonDescription.NodeCollider.Type.Capsule:
                             {
                                 CapsuleCollider c = colObject.AddComponent<CapsuleCollider>();
                                 c.direction = 2;
@@ -1250,7 +1252,7 @@ namespace InteractionTK.HandTracking
                                 colliders[i] = c;
                             }
                             break;
-                        case ITKHand.HandSkeletonDescription.NodeCollider.Type.Box:
+                        case ITKHand.SkeletonDescription.NodeCollider.Type.Box:
                             {
                                 BoxCollider c = colObject.AddComponent<BoxCollider>();
                                 c.size = col.size;
@@ -1268,12 +1270,13 @@ namespace InteractionTK.HandTracking
                 rb.transform.localRotation = defaultRotation;
             }
 
-            public void FixedUpdate(ITKHand.HandSettings settings)
+            public void FixedUpdate(ITKHand.HandSettings settings, float massWeight = 1)
             {
                 if (settings.safeMode)
                 {
-                    rb.velocity = Vector3.ClampMagnitude(rb.velocity, settings.maxVelocity);
-                    rb.angularVelocity = Vector3.ClampMagnitude(rb.velocity, settings.maxAngularVelocity);
+                    rb.mass = mass * Mathf.Clamp(massWeight, 0.01f, 1f);
+                    rb.velocity = Vector3.ClampMagnitude(rb.velocity, settings.maxVelocity) * massWeight;
+                    rb.angularVelocity = Vector3.ClampMagnitude(rb.velocity, settings.maxAngularVelocity) * massWeight;
                     rb.maxDepenetrationVelocity = settings.maxDepenetrationVelocity;
                 }
             }
@@ -1323,7 +1326,7 @@ namespace InteractionTK.HandTracking
         public Node[] nodes;
         public PhysicMaterial material;
 
-        public ITKSkeleton(ITKHand.Handedness type, Transform parent, ITKHand.HandSkeletonDescription descriptor, PhysicMaterial material)
+        public ITKSkeleton(ITKHand.Handedness type, Transform parent, ITKHand.SkeletonDescription descriptor, PhysicMaterial material)
         {
             List<Node> temp = new List<Node>();
 
@@ -1344,7 +1347,7 @@ namespace InteractionTK.HandTracking
                             Physics.IgnoreCollision(nodes[i].colliders[k], nodes[j].colliders[l]);
         }
 
-        private void RecursiveGenerateNodes(List<Node> nodes, ITKHand.Handedness type, ITKHand.HandSettings settings, Node root, Node current, ITKHand.HandSkeletonDescription.Node[] children)
+        private void RecursiveGenerateNodes(List<Node> nodes, ITKHand.Handedness type, ITKHand.HandSettings settings, Node root, Node current, ITKHand.SkeletonDescription.Node[] children)
         {
             nodes.Add(current);
             if (children == null) return;
@@ -1372,7 +1375,8 @@ namespace InteractionTK.HandTracking
         private int safeEnableFrame = 5; // Enable after 5 frames
 
         private bool frozen = false; // True when tracking is lost but hand is still enabled
-        private int frozenTime = 0;
+        private int frozenFrameTimer = 0;
+        private float massWeight = 1f;
 
         private bool _active = true;
         public bool active
@@ -1400,19 +1404,27 @@ namespace InteractionTK.HandTracking
             }
 
             movingAverage = new ITKHand.Pose[movingAverageFrameRange];
-            skeleton = new ITKSkeleton(type, transform, ITKHand.handSkeleton, material);
-            Disable();
+            // Due to bug on hololens, capsule colliders don't behave properly, so box colliders are used instead
+            ITKHand.SkeletonDescription description = VRTK.device == VRTK.Device.Hololens2 ? ITKHand.handSkeletonBox : ITKHand.handSkeleton;
+            skeleton = new ITKSkeleton(type, transform, description, material);
+            Disable(true);
         }
 
         public void Enable(bool forceEnable = false)
         {
             if (_active) return;
             _active = true;
-            frozen = false;
 
             if (safeEnable) return; // Wait till safe enable finishes
 
             model?.Enable();
+
+            // If we were frozen lerp velocity to prevent jitter
+            if (frozen)
+            {
+                massWeight = -0.01f;
+                frozen = false;
+            }
 
             for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
@@ -1459,19 +1471,16 @@ namespace InteractionTK.HandTracking
             else if (!frozen)
             {
                 frozen = true;
-                frozenTime = 5;
+                frozenFrameTimer = 5; // give 5 frame delay for hand tracking to catch up
             }
-            // Fully disable hand if it comes back into view and tracking is still not provided
-            else if (frozen && Vector3.Angle(cameraDir, handDir) < 40)
+            else if (frozen)
             {
-                //Debug.Log("Remove hand");
-                frozen = false;
-                /*if (frozenTime > 0) --frozenTime; // Wait a couple frames in case tracking takes a while to come back
-                else // If tracking is still not available after wait, disable hand
+                if (Vector3.Angle(cameraDir, handDir) < 30 && frozenFrameTimer < 0)
                 {
-                    Debug.Log("Remove hand");
-                    Disable(true); // If you do not force disable or set frozen to false, infinite calls will be made (Stackoverflow)
-                }*/
+                    frozen = false;
+                    Disable(true);
+                }
+                else --frozenFrameTimer;
             }
         }
 
@@ -1540,7 +1549,7 @@ namespace InteractionTK.HandTracking
             // Update nodes
             for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
-                skeleton.nodes[i].FixedUpdate(skeleton.settings);
+                skeleton.nodes[i].FixedUpdate(skeleton.settings, massWeight);
             }
 
             // teleport and set joints velocity to zero if unstable (far from target)
@@ -1560,6 +1569,9 @@ namespace InteractionTK.HandTracking
                 Enable();
             }
             else if (safeEnableFrame > 0) --safeEnableFrame;
+
+            // Lerp velocity weight to 1
+            massWeight = Mathf.Lerp(massWeight, 1, 0.5f);
 
             model?.Track(pose, skeleton);
         }

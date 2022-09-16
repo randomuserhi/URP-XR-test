@@ -79,6 +79,69 @@ namespace InteractionTK.HandTracking
             }
         };
 
+        public static HandModelPoseOffsets leftModelOffsetsOculusV2 = new HandModelPoseOffsets()
+        {
+            wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
+            poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
+            wristRotationOffset = Quaternion.Euler(355, 272, 180),
+            rotationOffsets = new Quaternion[]
+            {
+                Quaternion.Euler(312, 274, 186), //Quaternion.Euler(312, 274, 186),
+                Quaternion.Euler(345, 278, 173), //Quaternion.Euler(255, 278, 173),
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.Euler(12, 276, 182),
+                Quaternion.Euler(355, 267, 180), //Quaternion.Euler(265, 267, 180),
+                Quaternion.Euler(0, 268, 171),
+                Quaternion.Euler(356, 264, 165),
+                Quaternion.Euler(4, 269, 167),
+                Quaternion.Euler(356, 264, 170),
+                Quaternion.Euler(7.7f, 275, 185), //Quaternion.Euler(-87.7f, 275, 185),
+                Quaternion.Euler(-1, 273, 183),
+                Quaternion.Euler(0, 274, 181),
+                Quaternion.Euler(0, 274, 186),
+                Quaternion.Euler(0, 268, 171),
+                Quaternion.identity,
+                Quaternion.Euler(359, 267, 167),
+                Quaternion.Euler(0, 267, 171),
+                Quaternion.Euler(0, 267, 176),
+                Quaternion.Euler(0, 268, 176),
+                Quaternion.identity,
+                Quaternion.identity,
+            }
+        };
+        public static HandModelPoseOffsets rightModelOffsetsOculusV2 = new HandModelPoseOffsets()
+        {
+            wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
+            poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
+            wristRotationOffset = Quaternion.Euler(355, 272, 0),
+            rotationOffsets = new Quaternion[]
+            {
+                Quaternion.Euler(312, 274, 6), //Quaternion.Euler(0, 81, 164.3f),
+                Quaternion.Euler(345, 278, -7), //Quaternion.Euler(80, 258, 0),
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.identity,
+                Quaternion.Euler(350, 269, 359),
+                Quaternion.Euler(355, 267, 0), //Quaternion.Euler(85, 267, 0),
+                Quaternion.Euler(0, 268, -9),
+                Quaternion.Euler(356, 264, -15),
+                Quaternion.Euler(4, 269, -13),
+                Quaternion.Euler(356, 264, -10),
+                Quaternion.Euler(7.7f, 275, 5), //Quaternion.Euler(97.7f, 275, 5),
+                Quaternion.Euler(-1, 273, 3),
+                Quaternion.Euler(0, 274, 1),
+                Quaternion.Euler(0, 274, 6),
+                Quaternion.Euler(0, 268, -9),
+                Quaternion.identity,
+                Quaternion.Euler(359, 267, -13),
+                Quaternion.Euler(0, 267, -9),
+                Quaternion.Euler(0, 267, -4),
+                Quaternion.Euler(0, 268, -4),
+            }
+        };
+
         public static HandModelPoseOffsets leftModelOffsetsOculus = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
@@ -208,7 +271,6 @@ namespace InteractionTK.HandTracking
         private void Start()
         {
             meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-            Disable();
         }
 
         public void Track(ITKHand.Pose pose)
@@ -281,6 +343,9 @@ namespace InteractionTK.HandTracking
             {
                 case VRTK.Device.Oculus:
                     offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsOculus : ITKHand.rightModelOffsetsOculus;
+                    break;
+                case VRTK.Device.OculusV2:
+                    offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsOculusV2 : ITKHand.rightModelOffsetsOculusV2;
                     break;
                 case VRTK.Device.Hololens2:
                 default:

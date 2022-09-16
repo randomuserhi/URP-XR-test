@@ -16,6 +16,7 @@ namespace InteractionTK.HandTracking
         public ITKHand.Handedness type;
         private MixedRealityPose MRTKPose;
         private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
+        private ITKHand.Pose buffer = new ITKHand.Pose(ITKHand.NumJoints);
 
         public bool Tracking;
         public ITKHandPhysics physicsHand;
@@ -29,10 +30,17 @@ namespace InteractionTK.HandTracking
                 Handedness handedness = type == ITKHand.Handedness.Left ? Handedness.Left : Handedness.Right;
                 if (HandJointUtils.TryGetJointPose(ITKHand.MRTKJoints[i], handedness, out MRTKPose))
                 {
-                    pose.positions[i] = MRTKPose.Position;
-                    pose.rotations[i] = MRTKPose.Rotation;
+                    buffer.positions[i] = MRTKPose.Position;
+                    buffer.rotations[i] = MRTKPose.Rotation;
                 }
                 else Tracking = false;
+            }
+
+            if (Tracking) // On successful track swap buffers
+            {
+                ITKHand.Pose temp = buffer;
+                buffer = pose;
+                pose = temp;
             }
 
             if (physicsHand != null)
@@ -44,14 +52,11 @@ namespace InteractionTK.HandTracking
                 }
 
                 if (Tracking)
-                {
                     physicsHand.Enable(pose);
-                    physicsHand.Track(pose);
-                }
                 else
-                {
                     physicsHand.Disable();
-                }
+
+                physicsHand.Track(pose);
             }
             if (hand != null)
             {
@@ -62,14 +67,11 @@ namespace InteractionTK.HandTracking
                 }
 
                 if (Tracking)
-                {
                     hand.Enable();
-                    hand.Track(pose);
-                }
                 else
-                {
                     hand.Disable();
-                }
+                
+                hand.Track(pose);
             }
         }
     }
