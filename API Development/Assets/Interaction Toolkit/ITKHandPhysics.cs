@@ -1375,6 +1375,7 @@ namespace InteractionTK.HandTracking
         private int safeEnableFrame = 5; // Enable after 5 frames
 
         private bool frozen = false; // True when tracking is lost but hand is still enabled
+        private bool frozenOutOfFrame = false; // True when frozen hand has been out of frame (may just be loss of tracking in front of you)
         private int frozenFrameTimer = 0;
         private float massWeight = 1f;
 
@@ -1471,11 +1472,14 @@ namespace InteractionTK.HandTracking
             else if (!frozen)
             {
                 frozen = true;
+                frozenOutOfFrame = false;
                 frozenFrameTimer = 5; // give 5 frame delay for hand tracking to catch up
             }
             else if (frozen)
             {
-                if (Vector3.Angle(cameraDir, handDir) < 30 && frozenFrameTimer < 0)
+                // Ensure that hand has been out of frame with frozenOutOfFrame to prevent hand dissapearing if tracking is lost in front of you
+                if (Vector3.Angle(cameraDir, handDir) > 40) frozenOutOfFrame = true;
+                if (frozenOutOfFrame && Vector3.Angle(cameraDir, handDir) < 30 && frozenFrameTimer < 0)
                 {
                     frozen = false;
                     Disable(true);
