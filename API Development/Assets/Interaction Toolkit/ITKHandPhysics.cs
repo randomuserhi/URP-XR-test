@@ -94,7 +94,540 @@ namespace InteractionTK.HandTracking
         // TODO:: tweak drives, forces and mass of thumb until thumb stops getting mad pushed when two hand holding a rod
         //        -> Found out that its the mass that determines stability, increase mass of each joint down the line and test the stability
         //        -> instability might be because the join isn't offset from the root => This is *partially the reason*, mass seems to be the main contributor
+
+        // NOTE:: box colliders are used on the fingers instead of capsule colliders due to a known bug on hololens where capsule colliders with joints do not
+        //        collider with other capsule colliders properly
         public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
+        {
+            settings = new HandSettings()
+            {
+                defaultHandedness = Handedness.Left,
+                handednessScale = new Vector3(-1, 1, 1),
+                safeMode = true,
+                solverIterations = 25,
+                solverVelocityIterations = 15,
+                maxVelocity = 5,
+                maxAngularVelocity = 2,
+                maxDepenetrationVelocity = 1,
+                maxError = 1f
+            },
+            nodeTree = new HandSkeletonDescription.Node()
+            {
+                // Root node does not need a drive specified
+                mass = 0.255f,
+                centerOfMass = Vector3.zero,
+                joint = Joint.Wrist,
+                colliders = new HandSkeletonDescription.NodeCollider[]
+                {
+                    new HandSkeletonDescription.NodeCollider()
+                    {
+                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                        position = new Vector3(0, 0.01f, 0f),
+                        rotation = Quaternion.identity,
+                        size = new Vector3(0.06f, 0.015f, 0.07f)
+                    },
+                    new HandSkeletonDescription.NodeCollider()
+                    {
+                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                        position = new Vector3(0, -0.01f, -0.02f),
+                        rotation = Quaternion.identity,
+                        size = new Vector3(0.06f, 0.03f, 0.035f)
+                    }
+                },
+                anchor = new Vector3(0.002f, -0.001f, -0.045f),
+                connectedAnchor = Vector3.zero,
+                children = new HandSkeletonDescription.Node[]
+                {
+                    // THUMB
+                    new HandSkeletonDescription.Node()
+                    {
+                        leftDefaultRotation = Quaternion.Euler(0, 90, 0),
+                        rightDefaultRotation = Quaternion.Euler(0, -90, 0),
+                        mass = 0.225f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.Wrist,
+                        toJoint = Joint.ThumbMetacarpal,
+                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        {
+                            new HandSkeletonDescription.NodeCollider()
+                            {
+                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                position = Vector3.zero,
+                                rotation = Quaternion.identity,
+                                size = new Vector3(0.018f, 0.018f, 0.01f)
+                                //radius = 0.009f,
+                                //height = 0.01f,
+                            }
+                        },
+                        anchor = new Vector3(0, 0f, -0.005f),
+                        connectedAnchor = new Vector3(0.016f, 0.003f, -0.035f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 20f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.225f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.ThumbMetacarpal,
+                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                {
+                                    new HandSkeletonDescription.NodeCollider()
+                                    {
+                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        position = Vector3.zero,
+                                        rotation = Quaternion.identity,
+                                        size = new Vector3(0.018f, 0.018f, 0.05f)
+                                        //radius = 0.009f,
+                                        //height = 0.05f,
+                                    }
+                                },
+                                anchor = new Vector3(0, 0f, -0.025f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.005f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 20f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.03f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.ThumbProximal,
+                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        {
+                                            new HandSkeletonDescription.NodeCollider()
+                                            {
+                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                position = Vector3.zero,
+                                                rotation = Quaternion.identity,
+                                                size = new Vector3(0.018f, 0.018f, 0.045f)
+                                                //radius = 0.009f,
+                                                //height = 0.045f,
+                                            }
+                                        },
+                                        anchor = new Vector3(0, 0f, -0.022f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.02f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 20f
+                                        },
+                                        children = new HandSkeletonDescription.Node[]
+                                        {
+                                            new HandSkeletonDescription.Node()
+                                            {
+                                                mass = 0.03f,
+                                                centerOfMass = Vector3.zero,
+                                                joint = Joint.ThumbDistal,
+                                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                                {
+                                                    new HandSkeletonDescription.NodeCollider()
+                                                    {
+                                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                        position = Vector3.zero,
+                                                        rotation = Quaternion.identity,
+                                                        size = new Vector3(0.016f, 0.016f, 0.035f)
+                                                        //radius = 0.008f,
+                                                        //height = 0.035f,
+                                                    }
+                                                },
+                                                anchor = new Vector3(0, 0f, -0.0075f),
+                                                connectedAnchor = new Vector3(0f, 0f, 0.02f),
+                                                rotationDrive = new JointDrive()
+                                                {
+                                                    positionSpring = 10f,
+                                                    positionDamper = 0.1f,
+                                                    maximumForce = 20f
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // INDEX
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.03f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.IndexKnuckle,
+                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        {
+                            new HandSkeletonDescription.NodeCollider()
+                            {
+                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                position = Vector3.zero,
+                                rotation = Quaternion.identity,
+                                size = new Vector3(0.018f, 0.018f, 0.055f)
+                                //radius = 0.009f,
+                                //height = 0.055f,
+                            }
+                        },
+                        anchor = new Vector3(0, 0f, -0.0275f),
+                        connectedAnchor = new Vector3(0.022f, 0.014f, 0.025f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 3f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.03f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.IndexMiddle,
+                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                {
+                                    new HandSkeletonDescription.NodeCollider()
+                                    {
+                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        position = Vector3.zero,
+                                        rotation = Quaternion.identity,
+                                        size = new Vector3(0.016f, 0.016f, 0.04f)
+                                        //radius = 0.008f,
+                                        //height = 0.04f,
+                                    }
+                                },
+                                anchor = new Vector3(0, 0f, -0.012f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.0275f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 3f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.03f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.IndexDistal,
+                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        {
+                                            new HandSkeletonDescription.NodeCollider()
+                                            {
+                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                position = Vector3.zero,
+                                                rotation = Quaternion.identity,
+                                                size = new Vector3(0.015f, 0.015f, 0.03f)
+                                                //radius = 0.0075f,
+                                                //height = 0.03f,
+                                            }
+                                        },
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.012f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 3f
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // MIDDLE
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.03f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.MiddleKnuckle,
+                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        {
+                            new HandSkeletonDescription.NodeCollider()
+                            {
+                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                position = Vector3.zero,
+                                rotation = Quaternion.identity,
+                                size = new Vector3(0.018f, 0.018f, 0.06f)
+                                //radius = 0.009f,
+                                //height = 0.06f,
+                            }
+                        },
+                        anchor = new Vector3(0, 0f, -0.03f),
+                        connectedAnchor = new Vector3(0f, 0.014f, 0.025f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 3f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.03f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.MiddleMiddle,
+                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                {
+                                    new HandSkeletonDescription.NodeCollider()
+                                    {
+                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        position = Vector3.zero,
+                                        rotation = Quaternion.identity,
+                                        size = new Vector3(0.016f, 0.016f, 0.04f)
+                                        //radius = 0.008f,
+                                        //height = 0.04f,
+                                    }
+                                },
+                                anchor = new Vector3(0, 0f, -0.012f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.03f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 3f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.03f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.MiddleDistal,
+                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        {
+                                            new HandSkeletonDescription.NodeCollider()
+                                            {
+                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                position = Vector3.zero,
+                                                rotation = Quaternion.identity,
+                                                size = new Vector3(0.015f, 0.015f, 0.03f)
+                                                //radius = 0.0075f,
+                                                //height = 0.03f,
+                                            }
+                                        },
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.012f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 3f
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // RING
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.03f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.RingKnuckle,
+                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        {
+                            new HandSkeletonDescription.NodeCollider()
+                            {
+                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                position = Vector3.zero,
+                                rotation = Quaternion.identity,
+                                size = new Vector3(0.018f, 0.018f, 0.055f)
+                                //radius = 0.009f,
+                                //height = 0.055f,
+                            }
+                        },
+                        anchor = new Vector3(0, 0f, -0.0275f),
+                        connectedAnchor = new Vector3(-0.022f, 0.014f, 0.025f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 3f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.03f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.RingMiddle,
+                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                {
+                                    new HandSkeletonDescription.NodeCollider()
+                                    {
+                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        position = Vector3.zero,
+                                        rotation = Quaternion.identity,
+                                        size = new Vector3(0.016f, 0.016f, 0.04f)
+                                        //radius = 0.008f,
+                                        //height = 0.04f,
+                                    }
+                                },
+                                anchor = new Vector3(0, 0f, -0.012f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.0275f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 3f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.03f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.RingDistal,
+                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        {
+                                            new HandSkeletonDescription.NodeCollider()
+                                            {
+                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                position = Vector3.zero,
+                                                rotation = Quaternion.identity,
+                                                size = new Vector3(0.015f, 0.015f, 0.03f)
+                                                //radius = 0.0075f,
+                                                //height = 0.03f,
+                                            }
+                                        },
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.012f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 3f
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    // PINKY
+                    new HandSkeletonDescription.Node()
+                    {
+                        mass = 0.03f,
+                        centerOfMass = Vector3.zero,
+                        joint = Joint.PinkyMetacarpal,
+                        colliders = new HandSkeletonDescription.NodeCollider[]
+                        {
+                            new HandSkeletonDescription.NodeCollider()
+                            {
+                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                position = Vector3.zero,
+                                rotation = Quaternion.identity,
+                                size = new Vector3(0.016f, 0.016f, 0.06f)
+                                //radius = 0.008f,
+                                //height = 0.06f,
+                            }
+                        },
+                        anchor = new Vector3(0f, 0f, -0.03f),
+                        connectedAnchor = new Vector3(-0.02f, 0.014f, -0.035f),
+                        rotationDrive = new JointDrive()
+                        {
+                            positionSpring = 10f,
+                            positionDamper = 0.1f,
+                            maximumForce = 20f
+                        },
+                        children = new HandSkeletonDescription.Node[]
+                        {
+                            new HandSkeletonDescription.Node()
+                            {
+                                mass = 0.03f,
+                                centerOfMass = Vector3.zero,
+                                joint = Joint.PinkyKnuckle,
+                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                {
+                                    new HandSkeletonDescription.NodeCollider()
+                                    {
+                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                        position = Vector3.zero,
+                                        rotation = Quaternion.identity,
+                                        size = new Vector3(0.014f, 0.014f, 0.05f)
+                                        //radius = 0.007f,
+                                        //height = 0.05f,
+                                    }
+                                },
+                                anchor = new Vector3(0, 0f, -0.025f),
+                                connectedAnchor = new Vector3(0f, 0f, 0.02f),
+                                rotationDrive = new JointDrive()
+                                {
+                                    positionSpring = 10f,
+                                    positionDamper = 0.1f,
+                                    maximumForce = 20f
+                                },
+                                children = new HandSkeletonDescription.Node[]
+                                {
+                                    new HandSkeletonDescription.Node()
+                                    {
+                                        mass = 0.03f,
+                                        centerOfMass = Vector3.zero,
+                                        joint = Joint.PinkyMiddle,
+                                        colliders = new HandSkeletonDescription.NodeCollider[]
+                                        {
+                                            new HandSkeletonDescription.NodeCollider()
+                                            {
+                                                type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                position = Vector3.zero,
+                                                rotation = Quaternion.identity,
+                                                size = new Vector3(0.014f, 0.014f, 0.03f)
+                                                //radius = 0.007f,
+                                                //height = 0.03f,
+                                            }
+                                        },
+                                        anchor = new Vector3(0, 0f, -0.015f),
+                                        connectedAnchor = new Vector3(0f, 0f, 0.018f),
+                                        rotationDrive = new JointDrive()
+                                        {
+                                            positionSpring = 10f,
+                                            positionDamper = 0.1f,
+                                            maximumForce = 20f
+                                        },
+                                        children = new HandSkeletonDescription.Node[]
+                                        {
+                                            new HandSkeletonDescription.Node()
+                                            {
+                                                mass = 0.03f,
+                                                centerOfMass = Vector3.zero,
+                                                joint = Joint.PinkyDistal,
+                                                colliders = new HandSkeletonDescription.NodeCollider[]
+                                                {
+                                                    new HandSkeletonDescription.NodeCollider()
+                                                    {
+                                                        type = HandSkeletonDescription.NodeCollider.Type.Box,
+                                                        position = Vector3.zero,
+                                                        rotation = Quaternion.identity,
+                                                        size = new Vector3(0.014f, 0.014f, 0.03f)
+                                                        //radius = 0.007f,
+                                                        //height = 0.03f,
+                                                    }
+                                                },
+                                                anchor = new Vector3(0, 0f, -0.01f),
+                                                connectedAnchor = new Vector3(0f, 0f, 0.013f),
+                                                rotationDrive = new JointDrive()
+                                                {
+                                                    positionSpring = 10f,
+                                                    positionDamper = 0.1f,
+                                                    maximumForce = 20f
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        /*public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
         {
             settings = new HandSettings()
             {
@@ -606,7 +1139,7 @@ namespace InteractionTK.HandTracking
                     }
                 }
             }
-        };
+        };*/
     }
 
     public class ITKSkeleton
