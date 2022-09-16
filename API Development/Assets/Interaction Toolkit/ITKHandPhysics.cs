@@ -193,7 +193,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     new HandSkeletonDescription.Node()
                                     {
-                                        mass = 0.015f,
+                                        mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.ThumbProximal,
                                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -219,7 +219,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             new HandSkeletonDescription.Node()
                                             {
-                                                mass = 0.015f,
+                                                mass = 0.03f,
                                                 centerOfMass = Vector3.zero,
                                                 joint = Joint.ThumbDistal,
                                                 colliders = new HandSkeletonDescription.NodeCollider[]
@@ -251,7 +251,7 @@ namespace InteractionTK.HandTracking
                     // INDEX
                     new HandSkeletonDescription.Node()
                     {
-                        mass = 0.015f,
+                        mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.IndexKnuckle,
                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -277,7 +277,7 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f,
+                                mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.IndexMiddle,
                                 colliders = new HandSkeletonDescription.NodeCollider[]
@@ -303,7 +303,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     new HandSkeletonDescription.Node()
                                     {
-                                        mass = 0.015f,
+                                        mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.IndexDistal,
                                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -333,7 +333,7 @@ namespace InteractionTK.HandTracking
                     // MIDDLE
                     new HandSkeletonDescription.Node()
                     {
-                        mass = 0.015f,
+                        mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.MiddleKnuckle,
                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -359,7 +359,7 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f,
+                                mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.MiddleMiddle,
                                 colliders = new HandSkeletonDescription.NodeCollider[]
@@ -385,7 +385,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     new HandSkeletonDescription.Node()
                                     {
-                                        mass = 0.015f,
+                                        mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.MiddleDistal,
                                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -415,7 +415,7 @@ namespace InteractionTK.HandTracking
                     // RING
                     new HandSkeletonDescription.Node()
                     {
-                        mass = 0.015f,
+                        mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.RingKnuckle,
                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -441,7 +441,7 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f,
+                                mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.RingMiddle,
                                 colliders = new HandSkeletonDescription.NodeCollider[]
@@ -467,7 +467,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     new HandSkeletonDescription.Node()
                                     {
-                                        mass = 0.015f,
+                                        mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.RingDistal,
                                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -497,7 +497,7 @@ namespace InteractionTK.HandTracking
                     // PINKY
                     new HandSkeletonDescription.Node()
                     {
-                        mass = 0.015f,
+                        mass = 0.03f,
                         centerOfMass = Vector3.zero,
                         joint = Joint.PinkyMetacarpal,
                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -523,7 +523,7 @@ namespace InteractionTK.HandTracking
                         {
                             new HandSkeletonDescription.Node()
                             {
-                                mass = 0.015f,
+                                mass = 0.03f,
                                 centerOfMass = Vector3.zero,
                                 joint = Joint.PinkyKnuckle,
                                 colliders = new HandSkeletonDescription.NodeCollider[]
@@ -549,7 +549,7 @@ namespace InteractionTK.HandTracking
                                 {
                                     new HandSkeletonDescription.Node()
                                     {
-                                        mass = 0.015f,
+                                        mass = 0.03f,
                                         centerOfMass = Vector3.zero,
                                         joint = Joint.PinkyMiddle,
                                         colliders = new HandSkeletonDescription.NodeCollider[]
@@ -575,7 +575,7 @@ namespace InteractionTK.HandTracking
                                         {
                                             new HandSkeletonDescription.Node()
                                             {
-                                                mass = 0.015f,
+                                                mass = 0.03f,
                                                 centerOfMass = Vector3.zero,
                                                 joint = Joint.PinkyDistal,
                                                 colliders = new HandSkeletonDescription.NodeCollider[]

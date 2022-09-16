@@ -95,7 +95,7 @@ MonoBehaviour:
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 0
   model: {fileID: 2234745475363537738}
-  movingAverageFrameRange: 3
+  movingAverageFrameRange: 0
 --- !u!1001 &2234745474021881333
 PrefabInstance:
   m_ObjectHideFlags: 0
