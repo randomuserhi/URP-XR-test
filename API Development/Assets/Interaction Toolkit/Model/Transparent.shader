@@ -2,7 +2,7 @@ Shader "Unlit/Transparent" {
     Properties {
         _MainTex ("Albedo Texture", 2D) = "white" {}
         _TintColor("Tint Color", COLOR) = (1, 1, 1, 1)
-        _Transparency("Transparency", Range(0.0, 0.5)) = 0.25
+        _Transparency("Transparency", Range(0.0, 1.0)) = 0.25
     }
     SubShader {
         Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
@@ -51,7 +51,7 @@ Shader "Unlit/Transparent" {
 			fixed4 frag (v2f i) : SV_Target
 			{
 				// sample the texture
-				fixed4 col = tex2D(_MainTex, i.uv) + _TintColor;
+				fixed4 col = _TintColor;
 				col.a = _Transparency;
 				return col;
 			}

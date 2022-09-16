@@ -102,6 +102,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2234745473904345640}
     m_Modifications:
+    - target: {fileID: 1879635647, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: tint.b
+      value: 0.15294118
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879635647, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: tint.g
+      value: 0.12156863
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879635647, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: tint.r
+      value: 0.6431373
+      objectReference: {fileID: 0}
     - target: {fileID: 7278447879179043335, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -150,6 +162,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: OculusHand_L
       objectReference: {fileID: 0}
+    - target: {fileID: 8063299684226797200, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8063299684226797200, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: ea3ac37f125d5a945b578fa3ea612620, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
 --- !u!4 &8791401284169496562 stripped

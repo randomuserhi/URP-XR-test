@@ -147,6 +147,8 @@ namespace InteractionTK.HandTracking
     {
         public ITKHand.Handedness type;
 
+        public Color tint = new Color(1f, 0f, 0f);
+
         private SkinnedMeshRenderer meshRenderer;
 
         public Transform wrist;
@@ -257,8 +259,10 @@ namespace InteractionTK.HandTracking
             float distance = Mathf.Clamp(Mathf.Min(thumbIndexDistance, closestDistanceFromPalm) - 0.015f, 0, float.MaxValue);
             float t = Mathf.Clamp(1 - (distance / 0.08f), 0f, 1f);
 
-            float alpha = Mathf.Lerp(0.085f, 0.5f, t);
-            meshRenderer.materials[1].SetFloat("_Transparency", alpha);
+            meshRenderer.materials[1].SetFloat("_Transparency", Mathf.Lerp(0.05f, 0.8f, t));
+            meshRenderer.materials[1].SetColor("_TintColor", Color.Lerp(new Color(0.2f, 0.2f, 0.2f), tint, t));
+            meshRenderer.materials[2].SetFloat("_OutlineThickness", Mathf.Lerp(0.0003f, 0.001f, t));
+            meshRenderer.materials[2].SetColor("_OutlineColor", Color.Lerp(new Color(1f, 1f, 1f), new Color(0.47f, 0.5f, 1f), t));
         }
 
         public void Track(ITKHand.Pose pose, ITKSkeleton skeleton)
