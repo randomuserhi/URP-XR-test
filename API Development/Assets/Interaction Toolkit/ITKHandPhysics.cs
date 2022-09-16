@@ -693,6 +693,7 @@ namespace InteractionTK.HandTracking
                 {
                     ITKHand.HandSkeletonDescription.NodeCollider col = node.colliders[i];
                     GameObject colObject = new GameObject(name + " collider");
+                    colObject.layer = layer;
                     colObject.transform.parent = container.transform;
                     colObject.transform.localPosition = col.position;
                     colObject.transform.localRotation = col.rotation;

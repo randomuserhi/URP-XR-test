@@ -95,6 +95,7 @@ MonoBehaviour:
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 1
   model: {fileID: 4845860318606506865}
+  movingAverageFrameRange: 3
 --- !u!1001 &4845860319711158905
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -102,6 +103,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4845860318853719933}
     m_Modifications:
+    - target: {fileID: 1111021832, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: tint.b
+      value: 0.15236092
+      objectReference: {fileID: 0}
+    - target: {fileID: 1111021832, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: tint.g
+      value: 0.12156863
+      objectReference: {fileID: 0}
+    - target: {fileID: 1111021832, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: tint.r
+      value: 0.6627451
+      objectReference: {fileID: 0}
     - target: {fileID: 5927214328309293622, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
       propertyPath: m_Name
       value: OculusHand_R
@@ -150,6 +163,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8655638044933649692, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8655638044933649692, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: ea3ac37f125d5a945b578fa3ea612620, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
 --- !u!4 &1888581520239631093 stripped
