@@ -627,6 +627,8 @@ namespace InteractionTK.HandTracking
                 }
             }
         };
+
+        // Capsule version of hand skeleton
         /*public static HandSkeletonDescription handSkeleton = new HandSkeletonDescription()
         {
             settings = new HandSettings()
