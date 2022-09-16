@@ -119,16 +119,16 @@ namespace InteractionTK.HandTracking
                     new HandSkeletonDescription.NodeCollider()
                     {
                         type = HandSkeletonDescription.NodeCollider.Type.Box,
-                        position = Vector3.zero,
+                        position = new Vector3(0, 0.01f, 0f),
                         rotation = Quaternion.identity,
-                        size = new Vector3(0.06f, 0.025f, 0.07f)
+                        size = new Vector3(0.06f, 0.015f, 0.07f)
                     },
                     new HandSkeletonDescription.NodeCollider()
                     {
                         type = HandSkeletonDescription.NodeCollider.Type.Box,
-                        position = new Vector3(0, 0, -0.02f),
-                        rotation = Quaternion.Euler(-45, 0, 0),
-                        size = new Vector3(0.06f, 0.025f, 0.035f)
+                        position = new Vector3(0, -0.01f, -0.02f),
+                        rotation = Quaternion.identity,
+                        size = new Vector3(0.06f, 0.03f, 0.035f)
                     }
                 },
                 anchor = new Vector3(0.002f, -0.001f, -0.045f),
