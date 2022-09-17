@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace InteractionTK.HandTracking
 {
-    public class ITKPhysicsGrabbable : MonoBehaviour
+    public class ITKGrabbable : MonoBehaviour
     {
         public float safeRadius = 0.06f;
 
@@ -21,8 +21,8 @@ namespace InteractionTK.HandTracking
         {
             public Vector3 anchor;
             public ConfigurableJoint joint;
-            private ITKPhysicsGrabbable self;
-            public Grab(ITKPhysicsGrabbable self, ITKInteractable interactable, ITKHandInteractController controller)
+            private ITKGrabbable self;
+            public Grab(ITKGrabbable self, ITKInteractable interactable, ITKHandInteractController controller)
             {
                 this.self = self;
                 anchor = self.transform.InverseTransformPoint(controller.gesture.ClosestPointFromJoint(interactable.colliders, ITKHand.ThumbTip));
