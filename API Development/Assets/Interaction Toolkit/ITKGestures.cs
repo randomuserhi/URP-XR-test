@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
@@ -8,7 +9,8 @@ namespace InteractionTK.HandTracking
 {
     public class ITKGestures : MonoBehaviour
     {
-        private ITKHand.Pose pose;
+        public ITKHand.Handedness type;
+        public ITKHand.Pose pose { private set; get; }
 
         private float _intention;
         private float _grasp;
@@ -28,31 +30,87 @@ namespace InteractionTK.HandTracking
                 ITKHand.RingTip,
                 ITKHand.PinkyTip
             };
+        // TODO:: make overloads that take in a single Collider or ITKInteractable
         public float Distance(Collider[] colliders)
         {
             float closest = float.PositiveInfinity;
-            for (int i = 0; i < colliders.Length; ++i)
+            if (pose.positions != null && pose.rotations != null)
             {
-                Collider c = colliders[i];
-                if (c.enabled)
+                for (int i = 0; i < colliders.Length; ++i)
                 {
-                    float closestJoint = float.PositiveInfinity;
-                    for (int j = 0; j < validJoints.Length; ++j)
+                    Collider c = colliders[i];
+                    if (c.enabled)
                     {
-                        Vector3 position = pose.positions[validJoints[j]];
-                        float dist = Vector3.Distance(c.ClosestPoint(position), position);
-                        if (dist < closestJoint)
-                            closestJoint = dist;
+                        float closestJoint = float.PositiveInfinity;
+                        for (int j = 0; j < validJoints.Length; ++j)
+                        {
+                            Vector3 position = pose.positions[validJoints[j]];
+                            float dist = Vector3.Distance(c.ClosestPoint(position), position);
+                            if (dist < closestJoint)
+                                closestJoint = dist;
+                        }
+                        if (closestJoint < closest)
+                            closest = closestJoint;
                     }
-                    if (closestJoint < closest)
-                        closest = closestJoint;
                 }
             }
             return closest;
         }
 
+        public Vector3 ClosestPointFromJoint(Collider[] colliders, ITKHand.Joint joint)
+        {
+            float closest = float.PositiveInfinity;
+            Vector3 point = Vector3.zero;
+            if (pose.positions != null && pose.rotations != null)
+            {
+                for (int i = 0; i < colliders.Length; ++i)
+                {
+                    Collider c = colliders[i];
+                    if (c.enabled)
+                    {
+                        Vector3 position = pose.positions[joint];
+                        Vector3 closestPoint = c.ClosestPoint(position);
+                        float dist = Vector3.Distance(closestPoint, position);
+                        if (dist < closest)
+                        {
+                            closest = dist;
+                            point = closestPoint;
+                        }
+                    }
+                }
+            }
+            return point;
+        }
+
+        public bool active
+        {
+            get => _active;
+            set
+            {
+                _active = value;
+                if (_active) Enable();
+                else Disable();
+            }
+        }
+
+        private bool _active = true;
+        public void Enable()
+        {
+            _active = true;
+        }
+        public void Disable()
+        {
+            _active = false;
+
+            _intention = 0;
+            _grasp = 0;
+            _pinch = 0;
+        }
+
         public void Track(ITKHand.Pose pose)
         {
+            if (!active) return;
+
             this.pose = pose;
 
             // Gestures are weighted depending on whether you are facing it
@@ -68,15 +126,18 @@ namespace InteractionTK.HandTracking
 
             // Grasp confidence
             float averageDistanceFromPalm = 0;
+            float totalWeighting = 0;
             for (int i = 0; i < ITKHand.fingerTips.Length; i++)
             {
                 ITKHand.Joint joint = ITKHand.fingerTips[i];
                 if (joint != ITKHand.Palm)
                 {
-                    averageDistanceFromPalm += Vector3.Distance(pose.positions[joint], pose.positions[ITKHand.Palm]);
+                    float weighting = joint == ITKHand.IndexTip ? 1f : 0.1f;
+                    totalWeighting += weighting;
+                    averageDistanceFromPalm += Vector3.Distance(pose.positions[joint], pose.positions[ITKHand.Palm]) * weighting;
                 }
             }
-            averageDistanceFromPalm /= ITKHand.fingerTips.Length;
+            averageDistanceFromPalm /= totalWeighting;
             averageDistanceFromPalm -= 0.04f;
             float distance = Mathf.Clamp(averageDistanceFromPalm, 0, float.MaxValue);
             _grasp = Mathf.Clamp(1 - (distance / 0.08f), 0f, 1f);

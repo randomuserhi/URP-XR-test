@@ -1324,10 +1324,13 @@ namespace InteractionTK.HandTracking
         public ITKHand.HandSettings settings;
         public Node root;
         public Node[] nodes;
+        public Node[] joints;
         public PhysicMaterial material;
 
         public ITKSkeleton(ITKHand.Handedness type, Transform parent, ITKHand.SkeletonDescription descriptor, PhysicMaterial material)
         {
+            joints = new Node[ITKHand.NumJoints];
+
             List<Node> temp = new List<Node>();
 
             this.type = type;
@@ -1349,6 +1352,7 @@ namespace InteractionTK.HandTracking
 
         private void RecursiveGenerateNodes(List<Node> nodes, ITKHand.Handedness type, ITKHand.HandSettings settings, Node root, Node current, ITKHand.SkeletonDescription.Node[] children)
         {
+            if (joints[current.joint] == null) joints[current.joint] = current;
             nodes.Add(current);
             if (children == null) return;
 
@@ -1369,14 +1373,12 @@ namespace InteractionTK.HandTracking
 
         public ITKHandModel model;
 
-        private ITKSkeleton skeleton;
+        public ITKSkeleton skeleton { private set; get; }
 
         private bool safeEnable = true;
         private int safeEnableFrame = 5; // Enable after 5 frames
 
-        private bool frozen = false; // True when tracking is lost but hand is still enabled
-        private bool frozenOutOfFrame = false; // True when frozen hand has been out of frame (may just be loss of tracking in front of you)
-        private int frozenFrameTimer = 0;
+        private bool frozen;
         private float massWeight = 1f;
 
         private bool _active = true;
@@ -1411,12 +1413,12 @@ namespace InteractionTK.HandTracking
             Disable(true);
         }
 
-        public void Enable(bool forceEnable = false)
+        public void Enable()
         {
+            if (safeEnable) return; // Wait till safe enable finishes
+
             if (_active) return;
             _active = true;
-
-            if (safeEnable) return; // Wait till safe enable finishes
 
             model?.Enable();
 
@@ -1451,46 +1453,15 @@ namespace InteractionTK.HandTracking
 
         public void Disable(bool forceDisable = false)
         {
-            Vector3 handDir = skeleton.root.rb.position - Camera.main.transform.position;
-            Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
-            // Only disable if hand is behind you, otherwise to keep physics smooth allow hand tracking to be lost whilst its within 180 fov
-            if (forceDisable || Vector3.Dot(cameraDir, handDir) < 0)
-            {
-                if (!_active) return;
-                _active = false;
-                frozen = false;
+            if (!_active) return;
+            _active = false;
 
-                model?.Disable();
+            model?.Disable();
 
-                for (int i = 0; i < skeleton.nodes.Length; ++i)
-                {
-                    for (int j = 0; j < skeleton.nodes[i].colliders.Length; ++j)
-                        skeleton.nodes[i].colliders[j].enabled = false;
-                }
-            }
-            // Object will not be disabled but is still physically active
-            else if (!frozen)
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
             {
-                frozen = true;
-                frozenOutOfFrame = false;
-                frozenFrameTimer = 5; // give 5 frame delay for hand tracking to catch up
-            }
-            else if (frozen)
-            {
-                // Ensure that hand has been out of frame with frozenOutOfFrame to prevent hand dissapearing if tracking is lost in front of you
-                if (Vector3.Angle(cameraDir, handDir) > 40) frozenOutOfFrame = true;
-                if (frozenOutOfFrame)
-                {
-                    if (Vector3.Angle(cameraDir, handDir) < 30)
-                    {
-                        if (frozenFrameTimer < 0)
-                        {
-                            frozen = false;
-                            Disable(true);
-                        }
-                        else --frozenFrameTimer;
-                    }
-                }
+                for (int j = 0; j < skeleton.nodes[i].colliders.Length; ++j)
+                    skeleton.nodes[i].colliders[j].enabled = false;
             }
         }
 
@@ -1505,9 +1476,11 @@ namespace InteractionTK.HandTracking
             }
         }
 
-        public void Track(ITKHand.Pose pose)
+        public void Track(ITKHand.Pose pose, bool frozen = false)
         {
             ITKSkeleton.Node root = skeleton.root;
+
+            this.frozen = frozen;
 
             if (movingAverage != null && movingAverage.Length > 0) // Calculate moving average
             {

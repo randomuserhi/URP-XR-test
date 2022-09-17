@@ -123,95 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &235991626 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4845860320586893639, guid: 11536eba3a63f4943907cfcda17bb1bb, type: 3}
-  m_PrefabInstance: {fileID: 4845860318606506876}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &235991627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 235991626}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 783170ff220a39146b95eb34181e7f3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gestures: {fileID: 235991629}
-  physicsHand: {fileID: 235991628}
-  lingerTimer: 0.2
---- !u!114 &235991628 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4845860320586893632, guid: 11536eba3a63f4943907cfcda17bb1bb, type: 3}
-  m_PrefabInstance: {fileID: 4845860318606506876}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 235991626}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee638545f49506f498b058e78d6e979c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &235991629 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 235991629, guid: 11536eba3a63f4943907cfcda17bb1bb, type: 3}
-  m_PrefabInstance: {fileID: 4845860318606506876}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 235991626}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 265e3a798c1b50e4dbd4b292fa3e7aac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &299654145 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4845860318853719933, guid: 11536eba3a63f4943907cfcda17bb1bb, type: 3}
   m_PrefabInstance: {fileID: 4845860318606506876}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &345746838 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2234745475051542794, guid: 5854fccd7d4103d47be85a6bb2f82c41, type: 3}
-  m_PrefabInstance: {fileID: 2234745475363537756}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &345746839
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 345746838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 783170ff220a39146b95eb34181e7f3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gestures: {fileID: 345746841}
-  physicsHand: {fileID: 345746840}
-  lingerTimer: 0.2
---- !u!114 &345746840 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2234745475051542788, guid: 5854fccd7d4103d47be85a6bb2f82c41, type: 3}
-  m_PrefabInstance: {fileID: 2234745475363537756}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 345746838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee638545f49506f498b058e78d6e979c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &345746841 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 345746841, guid: 5854fccd7d4103d47be85a6bb2f82c41, type: 3}
-  m_PrefabInstance: {fileID: 2234745475363537756}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 345746838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 265e3a798c1b50e4dbd4b292fa3e7aac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,6 +282,7 @@ GameObject:
   - component: {fileID: 797423454}
   - component: {fileID: 797423453}
   - component: {fileID: 797423452}
+  - component: {fileID: 797423458}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -388,8 +305,73 @@ MonoBehaviour:
   distance: 0.05
   colliders:
   - {fileID: 797423454}
+  intention: 1
   pinch: 1
-  grasp: 1
+  grasp: 0
+  OnHover:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 797423458}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnHover
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnHoverExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 797423458}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnHoverExit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnInteract:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 797423458}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnInteractExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 797423458}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnInteractExit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!54 &797423453
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -476,12 +458,25 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 797423451}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.127, y: 0, z: 0.359}
+  m_LocalPosition: {x: -0.01, y: 0.155, z: 0.395}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &797423458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 797423451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 705eb7f9b960a3b4496a0bdaf5d37a53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  safeRadius: 0.06
 --- !u!1 &807572130
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,6 +491,7 @@ GameObject:
   - component: {fileID: 807572132}
   - component: {fileID: 807572131}
   - component: {fileID: 807572136}
+  - component: {fileID: 807572137}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -589,7 +585,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 807572130}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.004, y: 0, z: 0.307}
+  m_LocalPosition: {x: -0.0069999993, y: 0.2495, z: 0.39600003}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 0}
@@ -610,8 +606,86 @@ MonoBehaviour:
   distance: 0.05
   colliders:
   - {fileID: 807572132}
+  intention: 1
   pinch: 1
-  grasp: 1
+  grasp: 0
+  OnHover:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 807572137}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnHover
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnHoverExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 807572137}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnHoverExit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnInteract:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 807572137}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnInteractExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 807572137}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnInteractExit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &807572137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807572130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 705eb7f9b960a3b4496a0bdaf5d37a53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  safeRadius: 0.06
 --- !u!1 &831817649
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,6 +933,198 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
+--- !u!1 &1046940353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1046940359}
+  - component: {fileID: 1046940358}
+  - component: {fileID: 1046940357}
+  - component: {fileID: 1046940356}
+  - component: {fileID: 1046940355}
+  - component: {fileID: 1046940354}
+  m_Layer: 0
+  m_Name: Cube (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1046940354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046940353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 705eb7f9b960a3b4496a0bdaf5d37a53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  safeRadius: 0.06
+--- !u!114 &1046940355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046940353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b89ec21343a3fb748a0d2eb9e74e9e47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distance: 0.05
+  colliders:
+  - {fileID: 1046940356}
+  intention: 1
+  pinch: 1
+  grasp: 0
+  OnHover:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1046940354}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnHover
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnHoverExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1046940354}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnHoverExit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnInteract:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1046940354}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnInteractExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1046940354}
+        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
+          Assembly-CSharp
+        m_MethodName: OnInteractExit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!65 &1046940356
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046940353}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1046940357
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046940353}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1046940358
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046940353}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1046940359
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046940353}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.184, y: 0.155, z: 0.325}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1082581650
 GameObject:
   m_ObjectHideFlags: 0
@@ -950,7 +1216,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1082581650}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.39568365, z: 0}
+  m_LocalPosition: {x: 0, y: -0.24068365, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

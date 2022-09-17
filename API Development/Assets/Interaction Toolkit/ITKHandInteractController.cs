@@ -7,55 +7,94 @@ namespace InteractionTK.HandTracking
 {
     public class ITKHandInteractController : MonoBehaviour
     {
-        public ITKGestures gestures;
+        public ITKGestures gesture;
         public ITKHandPhysics physicsHand;
 
-        public float lingerTimer = 0.2f;
+        public float lingerTimer = 0.1f;
 
         private ITKInteractable interactable;
         private float linger = 0;
 
+        public void SwapInteractable(ITKInteractable newInteractable) // may be undefined behaviour when swapping interaction whilst locked
+        {
+            interactable.nearbyControllers.Remove(this);
+            interactable = newInteractable;
+        }
+
+        private bool active = true;
+        public bool isLocked { get => !active; }
+        public void Lock(ITKInteractable caller)
+        {
+            if (interactable != caller)
+            {
+                interactable.nearbyControllers.Remove(this);
+                interactable = caller;
+            }
+            interactable.nearbyControllers.Add(this);
+            active = false;
+        }
+
+        public void Unlock(ITKInteractable caller)
+        {
+            if (caller == interactable)
+                active = true;
+        }
+
         private void FixedUpdate()
         {
-            if (!gestures)
+            if (!gesture)
             {
                 Debug.LogError("Please assign gestures for this interact controller.");
                 return;
             }
 
-            if (interactable == null)
-            {
-                float closest = float.PositiveInfinity;
-                ITKInteractable newInteractable = null;
-                for (int i = 0; i < ITKInteractable.interactables.Count; ++i)
-                {
-                    ITKInteractable current = ITKInteractable.interactables[i];
-                    float dist = gestures.Distance(current.colliders);
-                    if (dist < closest)
-                    {
-                        closest = dist;
-                        newInteractable = current;
-                    }
-                }
+            if (!active) return;
 
-                if (newInteractable != null && closest < newInteractable.distance && !newInteractable.connectedControllers.Contains(this))
+            if (!gesture.active)
+            {
+                if (interactable)
                 {
-                    interactable = newInteractable;
-                    newInteractable.connectedControllers.Add(this);
+                    interactable.nearbyControllers.Remove(this);
+                    interactable = null;
+                }
+                return;
+            }
+
+            float closest = float.PositiveInfinity;
+            ITKInteractable newInteractable = null;
+            for (int i = 0; i < ITKInteractable.interactables.Count; ++i)
+            {
+                ITKInteractable current = ITKInteractable.interactables[i];
+                float dist = gesture.Distance(current.colliders);
+                if (dist < closest && !current.isInteracting(this, out _))
+                {
+                    closest = dist;
+                    newInteractable = current;
                 }
             }
-            else
+
+            if (interactable != null)
             {
-                float dist = gestures.Distance(interactable.colliders);
-                if (dist < interactable.distance)
+                float distance = gesture.Distance(interactable.colliders);
+                if (distance < interactable.distance && // Still within range of object
+                   interactable == newInteractable || // Other object is itself
+                    (distance < closest && // Another object is not closer
+                    (newInteractable == null || closest > newInteractable.distance))) // The other object is within interact range
+                {
                     linger = lingerTimer;
-                else if (linger > 0)
+                }
+                else if (linger >= 0)
                     linger -= Time.fixedDeltaTime;
                 else
                 {
-                    interactable.connectedControllers.Remove(this);
+                    interactable.nearbyControllers.Remove(this);
                     interactable = null;
                 }
+            }
+            else if (newInteractable != null && closest < newInteractable.distance && !newInteractable.nearbyControllers.Contains(this))
+            {
+                interactable = newInteractable;
+                interactable.nearbyControllers.Add(this);
             }
         }
     }

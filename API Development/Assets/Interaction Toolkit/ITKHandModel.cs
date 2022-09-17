@@ -20,7 +20,7 @@ namespace InteractionTK.HandTracking
         // TODO:: package these values in a single struct for hand setup and throw into a JSON
         public static HandModelPoseOffsets leftModelOffsetsHololens = new HandModelPoseOffsets()
         {
-            wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
+            wristPositionOffset = new Vector3(0.06f, -0.02f, 0),
             poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 180),
             rotationOffsets = new Quaternion[]
@@ -50,7 +50,7 @@ namespace InteractionTK.HandTracking
         };
         public static HandModelPoseOffsets rightModelOffsetsHololens = new HandModelPoseOffsets()
         {
-            wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
+            wristPositionOffset = new Vector3(-0.06f, 0.02f, 0),
             poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 0),
             rotationOffsets = new Quaternion[]
@@ -81,7 +81,7 @@ namespace InteractionTK.HandTracking
 
         public static HandModelPoseOffsets leftModelOffsetsOculusV2 = new HandModelPoseOffsets()
         {
-            wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
+            wristPositionOffset = new Vector3(0.06f, -0.02f, 0),
             poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 180),
             rotationOffsets = new Quaternion[]
@@ -113,7 +113,7 @@ namespace InteractionTK.HandTracking
         };
         public static HandModelPoseOffsets rightModelOffsetsOculusV2 = new HandModelPoseOffsets()
         {
-            wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
+            wristPositionOffset = new Vector3(-0.06f, 0.02f, 0),
             poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 0),
             rotationOffsets = new Quaternion[]
@@ -144,7 +144,7 @@ namespace InteractionTK.HandTracking
 
         public static HandModelPoseOffsets leftModelOffsetsOculus = new HandModelPoseOffsets()
         {
-            wristPositionOffset = new Vector3(0.06f, -0.01f, 0),
+            wristPositionOffset = new Vector3(0.06f, -0.02f, 0),
             poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 180),
             rotationOffsets = new Quaternion[]
@@ -176,7 +176,7 @@ namespace InteractionTK.HandTracking
         };
         public static HandModelPoseOffsets rightModelOffsetsOculus = new HandModelPoseOffsets()
         {
-            wristPositionOffset = new Vector3(-0.06f, 0.01f, 0),
+            wristPositionOffset = new Vector3(-0.06f, 0.02f, 0),
             poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
             wristRotationOffset = Quaternion.Euler(355, 272, 0),
             rotationOffsets = new Quaternion[]

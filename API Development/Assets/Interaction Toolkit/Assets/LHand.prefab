@@ -61,6 +61,7 @@ GameObject:
   - component: {fileID: 2234745475051542795}
   - component: {fileID: 2234745475051542788}
   - component: {fileID: 345746841}
+  - component: {fileID: 345746839}
   m_Layer: 0
   m_Name: LHand
   m_TagString: Untagged
@@ -97,7 +98,7 @@ MonoBehaviour:
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 0
   model: {fileID: 2234745475363537738}
-  movingAverageFrameRange: 5
+  movingAverageFrameRange: 0
 --- !u!114 &345746841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,6 +111,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 265e3a798c1b50e4dbd4b292fa3e7aac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &345746839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2234745475051542794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 783170ff220a39146b95eb34181e7f3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gesture: {fileID: 345746841}
+  physicsHand: {fileID: 2234745475051542788}
+  lingerTimer: 0.1
 --- !u!1001 &2234745474021881333
 PrefabInstance:
   m_ObjectHideFlags: 0

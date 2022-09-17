@@ -147,6 +147,10 @@ namespace InteractionTK.HandTracking
             {
                 positions = new Vector3[NumJoints];
                 rotations = new Quaternion[NumJoints];
+
+                // Set all quaternions to identity (unity default value for quaternion is invalid)
+                for (int i = 0; i < rotations.Length; ++i)
+                    rotations[i] = Quaternion.identity;
             }
         }
 

@@ -1,6 +1,9 @@
+using Oculus.Interaction;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace InteractionTK.HandTracking
 {
@@ -11,11 +14,49 @@ namespace InteractionTK.HandTracking
         public float distance = 0.05f;
         public Collider[] colliders;
 
+        public bool intention = true;
         public bool pinch = true;
         public bool grasp = true;
 
+        public enum Type
+        {
+            None,
+            Grasp,
+            Pinch
+        }
+
+        public UnityEvent<ITKInteractable> OnHover;
+        public UnityEvent<ITKInteractable> OnHoverExit;
+        public UnityEvent<ITKInteractable> OnInteract;
+        public UnityEvent<ITKInteractable> OnInteractExit;
+
         //[HideInInspector]
-        public HashSet<ITKHandInteractController> connectedControllers = new HashSet<ITKHandInteractController>();
+        public HashSet<ITKHandInteractController> nearbyControllers = new HashSet<ITKHandInteractController>();
+        public Dictionary<ITKHandInteractController, Type> interactingControllers = new Dictionary<ITKHandInteractController, Type>();
+
+        public bool isInteracting(ITKHandInteractController controller, out Type interactionType)
+        {
+            bool interact = false;
+            interactionType = Type.None;
+            if (controller.gesture.grasp > 0.6f)
+            {
+                if (grasp)
+                {
+                    interactionType = Type.Grasp;
+                    interact = true;
+                }
+            }
+            else if (controller.gesture.pinch > 0.8f)
+            {
+                if (pinch)
+                {
+                    interactionType = Type.Pinch;
+                    interact = true;
+                }
+            }
+
+            return interact;
+        }
 
         private void Start()
         {
@@ -29,13 +70,35 @@ namespace InteractionTK.HandTracking
 
         private void FixedUpdate()
         {
-            if (connectedControllers.Count > 0)
+            if (nearbyControllers.Count > 0)
             {
-                GetComponent<MeshRenderer>().material.color = Color.red;
+                OnHover?.Invoke(this);
             }
             else
             {
-                GetComponent<MeshRenderer>().material.color = Color.white;
+                OnHoverExit?.Invoke(this);
+            }
+
+            foreach (ITKHandInteractController controller in nearbyControllers)
+            {
+                Type interactionType;
+                bool interact = isInteracting(controller, out interactionType);
+
+                if (interact && (controller.isLocked || !intention || controller.gesture.intention > 0.2))
+                {
+                    controller.Lock(this);
+                    if (!interactingControllers.ContainsKey(controller))
+                        interactingControllers.Add(controller, interactionType);
+                    
+                    OnInteract?.Invoke(this);
+                }
+                else if (!interact)
+                {
+                    interactingControllers.Remove(controller);
+                    controller.Unlock(this);
+
+                    OnInteractExit?.Invoke(this);
+                }
             }
         }
     }
