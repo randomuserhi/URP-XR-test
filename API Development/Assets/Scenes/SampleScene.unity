@@ -307,7 +307,7 @@ MonoBehaviour:
   - {fileID: 797423454}
   intention: 1
   pinch: 1
-  grasp: 0
+  grasp: 1
   OnHover:
     m_PersistentCalls:
       m_Calls:
@@ -330,7 +330,7 @@ MonoBehaviour:
       - m_Target: {fileID: 797423458}
         m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
           Assembly-CSharp
-        m_MethodName: OnHoverExit
+        m_MethodName: OnNoHover
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -362,7 +362,7 @@ MonoBehaviour:
       - m_Target: {fileID: 797423458}
         m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
           Assembly-CSharp
-        m_MethodName: OnInteractExit
+        m_MethodName: OnNoInteraction
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -608,7 +608,7 @@ MonoBehaviour:
   - {fileID: 807572132}
   intention: 1
   pinch: 1
-  grasp: 0
+  grasp: 1
   OnHover:
     m_PersistentCalls:
       m_Calls:
@@ -631,7 +631,7 @@ MonoBehaviour:
       - m_Target: {fileID: 807572137}
         m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
           Assembly-CSharp
-        m_MethodName: OnHoverExit
+        m_MethodName: OnNoHover
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -663,7 +663,7 @@ MonoBehaviour:
       - m_Target: {fileID: 807572137}
         m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
           Assembly-CSharp
-        m_MethodName: OnInteractExit
+        m_MethodName: OnNoInteraction
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -984,7 +984,7 @@ MonoBehaviour:
   - {fileID: 1046940356}
   intention: 1
   pinch: 1
-  grasp: 0
+  grasp: 1
   OnHover:
     m_PersistentCalls:
       m_Calls:
@@ -1007,7 +1007,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1046940354}
         m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
           Assembly-CSharp
-        m_MethodName: OnHoverExit
+        m_MethodName: OnNoHover
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1039,7 +1039,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1046940354}
         m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
           Assembly-CSharp
-        m_MethodName: OnInteractExit
+        m_MethodName: OnNoInteraction
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

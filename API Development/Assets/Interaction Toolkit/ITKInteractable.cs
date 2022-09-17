@@ -27,10 +27,9 @@ namespace InteractionTK.HandTracking
 
         public UnityEvent<ITKInteractable> OnHover;
         public UnityEvent<ITKInteractable> OnHoverExit;
-        public UnityEvent<ITKInteractable> OnInteract;
-        public UnityEvent<ITKInteractable> OnInteractExit;
+        public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteract;
+        public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteractExit;
 
-        //[HideInInspector]
         public HashSet<ITKHandInteractController> nearbyControllers = new HashSet<ITKHandInteractController>();
         public Dictionary<ITKHandInteractController, Type> interactingControllers = new Dictionary<ITKHandInteractController, Type>();
 
@@ -90,14 +89,14 @@ namespace InteractionTK.HandTracking
                     if (!interactingControllers.ContainsKey(controller))
                         interactingControllers.Add(controller, interactionType);
                     
-                    OnInteract?.Invoke(this);
+                    OnInteract?.Invoke(this, controller);
                 }
                 else if (!interact)
                 {
                     interactingControllers.Remove(controller);
                     controller.Unlock(this);
 
-                    OnInteractExit?.Invoke(this);
+                    OnInteractExit?.Invoke(this, controller);
                 }
             }
         }
