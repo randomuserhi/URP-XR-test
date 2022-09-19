@@ -48,6 +48,7 @@ MonoBehaviour:
   type: 1
   Tracking: 0
   gestures: {fileID: 235991629}
+  pinchGesture: {fileID: 0}
   physicsHand: {fileID: 4845860320586893632}
   nonPhysicsHand: {fileID: 0}
   hand: {fileID: 0}
@@ -126,6 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gesture: {fileID: 235991629}
+  pinchGesture: {fileID: 0}
   physicsHand: {fileID: 4845860320586893632}
   nonPhysicsHand: {fileID: 0}
   lingerTimer: 0.1
@@ -152,6 +154,18 @@ PrefabInstance:
       propertyPath: gestures
       value: 
       objectReference: {fileID: 235991629}
+    - target: {fileID: 4883594072549815219, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4883594072549815219, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4883594072549815219, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5927214328309293622, guid: b119de19995e4c94fb16ff3225f2bd60, type: 3}
       propertyPath: m_Name
       value: OculusHand_R

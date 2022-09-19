@@ -1,6 +1,5 @@
 Shader "Unlit/Transparent" {
     Properties {
-        _MainTex ("Albedo Texture", 2D) = "white" {}
         _TintColor("Tint Color", COLOR) = (1, 1, 1, 1)
         _Transparency("Transparency", Range(0.0, 1.0)) = 0.25
     }

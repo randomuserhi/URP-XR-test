@@ -1583,7 +1583,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  device: 0
+  tint: {r: 1, g: 0, b: 0, a: 1}
+  gestures: {fileID: 0}
   wrist: {fileID: 4883594072549815219}
   ThumbWristToMetacarpal: {fileID: 6715632217703167527}
   ThumbMetacarpal: {fileID: 1945075942984308372}
@@ -1602,7 +1603,6 @@ MonoBehaviour:
   PinkyKnuckle: {fileID: 8291041901397010873}
   PinkyMiddle: {fileID: 487405442607217041}
   PinkyDistal: {fileID: 568359818508081563}
-  rotOffset: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1 &5943774293921530151
 GameObject:
   m_ObjectHideFlags: 0

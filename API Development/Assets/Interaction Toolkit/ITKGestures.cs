@@ -96,10 +96,12 @@ namespace InteractionTK.HandTracking
         private bool _active = true;
         public void Enable()
         {
+            if (_active) return;
             _active = true;
         }
         public void Disable()
         {
+            if (!_active) return;
             _active = false;
 
             _intention = 0;
@@ -141,12 +143,12 @@ namespace InteractionTK.HandTracking
             averageDistanceFromPalm /= totalWeighting;
             averageDistanceFromPalm -= 0.04f;
             float distance = Mathf.Clamp(averageDistanceFromPalm, 0, float.MaxValue);
-            _grasp = Mathf.Clamp(1 - (distance / 0.08f), 0f, 1f);
+            _grasp = Mathf.Clamp01(1 - (distance / 0.08f));
 
             // Pinch confidence
             float thumbIndexDistance = Vector3.Distance(pose.positions[ITKHand.IndexTip], pose.positions[ITKHand.ThumbTip]);
             distance = Mathf.Clamp(thumbIndexDistance - 0.015f, 0, float.MaxValue);
-            _pinch = Mathf.Clamp(1 - (distance / 0.08f), 0f, 1f);
+            _pinch = Mathf.Clamp01(1 - (distance / 0.08f));
         }
     }
 }

@@ -8,6 +8,7 @@ namespace InteractionTK.HandTracking
     public class ITKHandInteractController : MonoBehaviour
     {
         public ITKGestures gesture;
+        public ITKPinchGesture pinchGesture;
         public ITKHandPhysics physicsHand;
         public ITKHandNonPhysics nonPhysicsHand;
 

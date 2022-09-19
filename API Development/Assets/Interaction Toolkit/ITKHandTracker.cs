@@ -20,11 +20,12 @@ namespace InteractionTK.HandTracking
 
         public bool Tracking;
         public ITKGestures gestures;
+        public ITKPinchGesture pinchGesture;
         public ITKHandPhysics physicsHand;
         public ITKHandNonPhysics nonPhysicsHand;
         public ITKHandModel hand;
 
-        private bool frozen = false; // True when tracking is lost but hand is still enabled
+        private bool frozen = false; // True when tracking is lost but tracking is still enabled
         private bool frozenOutOfFrame = false; // True when frozen hand has been out of frame (may just be loss of tracking in front of you)
         private int frozenFrameTimer = 0;
 
@@ -32,6 +33,8 @@ namespace InteractionTK.HandTracking
         {
             if (gestures != null)
                 gestures.Enable();
+            if (pinchGesture != null)
+                pinchGesture.Enable();
             if (physicsHand != null)
                 physicsHand.Enable();
             if (nonPhysicsHand != null)
@@ -51,6 +54,8 @@ namespace InteractionTK.HandTracking
 
                 if (gestures != null)
                     gestures.Disable();
+                if (pinchGesture != null)
+                    pinchGesture.Disable();
                 if (physicsHand != null)
                     physicsHand.Disable();
                 if (nonPhysicsHand != null)
@@ -105,18 +110,26 @@ namespace InteractionTK.HandTracking
                 pose = temp;
             }
 
-            // Send tracking data to components
+            // Enable or Disable based on tracking
             if (Tracking)
                 Enable();
             else
                 Disable();
 
+            // Send tracking data to components
             if (gestures != null)
             {
                 if (gestures.type != type)
                     Debug.LogError("Tracked hand type does not match the type of the gesture script.");
                 else
                     gestures.Track(pose);
+            }
+            if (pinchGesture != null)
+            {
+                if (pinchGesture.type != type)
+                    Debug.LogError("Tracked hand type does not match the type of the pinch gesture script.");
+                else
+                    pinchGesture.Track(pose);
             }
             if (physicsHand != null)
             {

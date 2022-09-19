@@ -48,6 +48,7 @@ MonoBehaviour:
   type: 0
   Tracking: 0
   gestures: {fileID: 345746841}
+  pinchGesture: {fileID: 0}
   physicsHand: {fileID: 2234745475051542788}
   nonPhysicsHand: {fileID: 0}
   hand: {fileID: 0}
@@ -126,6 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gesture: {fileID: 345746841}
+  pinchGesture: {fileID: 0}
   physicsHand: {fileID: 2234745475051542788}
   nonPhysicsHand: {fileID: 0}
   lingerTimer: 0.1
@@ -152,6 +154,18 @@ PrefabInstance:
       propertyPath: gestures
       value: 
       objectReference: {fileID: 345746841}
+    - target: {fileID: 6424661200658632353, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6424661200658632353, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6424661200658632353, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7278447879179043335, guid: 78769fc2ebf3ecc4d8c321545530b2d5, type: 3}
       propertyPath: m_RootOrder
       value: 1
