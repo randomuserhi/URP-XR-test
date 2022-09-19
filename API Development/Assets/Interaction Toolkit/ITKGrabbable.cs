@@ -12,25 +12,33 @@ namespace InteractionTK.HandTracking
 {
     public class ITKGrabbable : MonoBehaviour
     {
-        public float safeRadius = 0.06f;
-
-        private int layer = -1;
-        private Rigidbody rb;
-
         private class Grab
         {
-            public Vector3 anchor;
+            public Vector3 thumbLocalScaledAnchor;
+            public Vector3 thumbLocalAnchor;
+            public Vector3 thumbAnchor;
+            public Vector3 palmLocalScaledAnchor;
+            public Vector3 palmLocalAnchor;
+            public Vector3 palmAnchor;
             public ConfigurableJoint joint;
             private ITKGrabbable self;
             public Grab(ITKGrabbable self, ITKInteractable interactable, ITKHandInteractController controller)
             {
                 this.self = self;
-                anchor = self.transform.InverseTransformPoint(controller.gesture.ClosestPointFromJoint(interactable.colliders, ITKHand.ThumbTip));
+
+                thumbAnchor = controller.gesture.ClosestPointFromJoint(interactable.colliders, ITKHand.ThumbTip, out _);
+                thumbLocalAnchor = Quaternion.Inverse(controller.gesture.pose.rotations[ITKHand.Root]) * (self.transform.position - thumbAnchor - controller.gesture.pose.positions[ITKHand.Root]);
+                thumbLocalScaledAnchor = self.transform.InverseTransformPoint(thumbAnchor);
+
+                palmAnchor = controller.gesture.ClosestPointFromJoint(interactable.colliders, ITKHand.Palm, out _);
+                palmLocalAnchor = Quaternion.Inverse(controller.gesture.pose.rotations[ITKHand.Root]) * (self.transform.position - palmAnchor - controller.gesture.pose.positions[ITKHand.Root]);
+                palmLocalScaledAnchor = self.transform.InverseTransformPoint(palmAnchor);
 
                 if (self.rb)
                 {
                     joint = self.gameObject.AddComponent<ConfigurableJoint>();
-                    joint.connectedBody = controller.physicsHand.skeleton.root.rb;
+                    if (controller.physicsHand) joint.connectedBody = controller.physicsHand.skeleton.root.rb;
+                    else if (controller.nonPhysicsHand) joint.connectedBody = controller.nonPhysicsHand.skeleton.root.rb;
                     joint.rotationDriveMode = RotationDriveMode.Slerp;
                     joint.slerpDrive = new JointDrive()
                     {
@@ -48,7 +56,7 @@ namespace InteractionTK.HandTracking
                     joint.yDrive = drive;
                     joint.zDrive = drive;
 
-                    joint.anchor = anchor;
+                    joint.anchor = thumbLocalScaledAnchor;
 
                     joint.autoConfigureConnectedAnchor = false;
 
@@ -65,11 +73,36 @@ namespace InteractionTK.HandTracking
                     self.rb.velocity += new Vector3(0, 0.0001f, 0);
             }
         }
-        private Dictionary<ITKHandInteractController, Grab> hands = new Dictionary<ITKHandInteractController, Grab>();
+
+        public float safeDist = 0.01f;
+        public ITKInteractable interactable;
+
+        private Rigidbody rb;
+        private bool physicsObject;
+
+        private Dictionary<ITKHandInteractController, Grab> interactingHands = new Dictionary<ITKHandInteractController, Grab>();
+        private HashSet<ITKHandInteractController> hands = new HashSet<ITKHandInteractController>();
 
         private void Start()
         {
+            if (interactable == null) interactable = GetComponent<ITKInteractable>();
+            if (interactable)
+            {
+                interactable.OnHover.AddListener(OnHover);
+                interactable.OnNoHover.AddListener(OnNoHover);
+                interactable.OnInteract.AddListener(OnInteract);
+                interactable.OnNoInteract.AddListener(OnNoInteract);
+            }
+
             rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                rb = gameObject.AddComponent<Rigidbody>();
+                rb.isKinematic = true;
+                rb.mass = 0.5f; // Make mass reasonable
+            }
+
+            physicsObject = !rb.isKinematic;
         }
 
         public void OnHover(ITKInteractable interactable)
@@ -90,91 +123,86 @@ namespace InteractionTK.HandTracking
         {
             if (!enabled) return;
 
-            if (layer < 0) layer = gameObject.layer;
-            gameObject.layer = LayerMask.NameToLayer("ITKHandIgnore");
+            if (!hands.Contains(controller))
+            {
+                hands.Add(controller);
+                if (controller.physicsHand) controller.physicsHand.IgnoreCollision(interactable.colliders);
+            }
 
-            if (!hands.ContainsKey(controller))
+            if (!interactingHands.ContainsKey(controller))
             {
                 Grab grab = new Grab(this, interactable, controller);
-                hands.Add(controller, grab);
+                interactingHands.Add(controller, grab);
             }
-            else
+
+            if (interactingHands.ContainsKey(controller))
             {
-                if (controller.physicsHand != null)
+                if (!physicsObject) rb.isKinematic = false;
+
+                if (controller.physicsHand)
                 {
-                    if (rb == null || rb.isKinematic)
+                    if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
                     {
-                        if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
-                        {
-
-                        }
-                        else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
-                        {
-
-                        }
+                        Vector3 thumbTip = controller.physicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.position + controller.physicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.rotation * new Vector3(0, 0, 0.03f);
+                        Vector3 position = Quaternion.Inverse(controller.physicsHand.skeleton.root.rb.rotation) * (thumbTip - controller.physicsHand.skeleton.root.rb.position);
+                        interactingHands[controller].joint.connectedAnchor = position;
+                        interactingHands[controller].joint.anchor = interactingHands[controller].thumbLocalScaledAnchor;
                     }
-                    else
+                    else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
                     {
-                        if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
-                        {
-                            Vector3 thumbTip = controller.physicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.position + controller.physicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.rotation * new Vector3(0, 0, 0.03f);
-                            Vector3 position = Quaternion.Inverse(controller.physicsHand.skeleton.root.rb.rotation) * (thumbTip - controller.physicsHand.skeleton.root.rb.position);
-                            hands[controller].joint.connectedAnchor = position;
-                            hands[controller].joint.anchor = hands[controller].anchor;
-                        }
-                        else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
-                        {
-                            hands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
-                            hands[controller].joint.anchor = Vector3.zero;
-                        }
+                        interactingHands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
+                        interactingHands[controller].joint.anchor = interactingHands[controller].palmLocalScaledAnchor;
+                    }
+                }
+                else if (controller.nonPhysicsHand)
+                {
+                    if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
+                    {
+                        Vector3 thumbTip = controller.nonPhysicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.position + controller.nonPhysicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.rotation * new Vector3(0, 0, 0.03f);
+                        Vector3 position = Quaternion.Inverse(controller.nonPhysicsHand.skeleton.root.rb.rotation) * (thumbTip - controller.nonPhysicsHand.skeleton.root.rb.position);
+                        interactingHands[controller].joint.connectedAnchor = position;
+                        interactingHands[controller].joint.anchor = interactingHands[controller].thumbLocalScaledAnchor;
+                    }
+                    else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
+                    {
+                        interactingHands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
+                        interactingHands[controller].joint.anchor = interactingHands[controller].palmLocalScaledAnchor;
                     }
                 }
                 else
                 {
-                    if (rb == null || rb.isKinematic)
+                    if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
                     {
-                        if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
-                        {
-
-                        }
-                        else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
-                        {
-
-                        }
+                        Vector3 thumbTip = controller.gesture.pose.positions[ITKHand.ThumbTip];
+                        Vector3 position = Quaternion.Inverse(controller.gesture.pose.rotations[ITKHand.Root]) * (thumbTip - controller.gesture.pose.positions[ITKHand.Root]);
+                        interactingHands[controller].joint.connectedAnchor = position;
+                        interactingHands[controller].joint.anchor = interactingHands[controller].thumbLocalScaledAnchor;
                     }
-                    else
+                    else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
                     {
-                        if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
-                        {
-                            Vector3 thumbTip = controller.gesture.pose.positions[ITKHand.ThumbTip];
-                            Vector3 position = Quaternion.Inverse(controller.gesture.pose.rotations[ITKHand.Root]) * (thumbTip - controller.gesture.pose.positions[ITKHand.Root]);
-                            hands[controller].joint.connectedAnchor = position;
-                            hands[controller].joint.anchor = hands[controller].anchor;
-                        }
-                        else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
-                        {
-                            hands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
-                            hands[controller].joint.anchor = Vector3.zero;
-                        }
+                        interactingHands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
+                        interactingHands[controller].joint.anchor = interactingHands[controller].palmLocalScaledAnchor;
                     }
                 }
             }
         }
 
-        public void OnNoInteraction(ITKInteractable interactable, ITKHandInteractController controller)
+        public void OnNoInteract(ITKInteractable interactable, ITKHandInteractController controller)
         {
             if (!enabled) return;
 
-            if (hands.ContainsKey(controller))
+            if (interactingHands.ContainsKey(controller))
             {
-                hands[controller].Destroy();
-                hands.Remove(controller);
+                if (!physicsObject) rb.isKinematic = true;
+
+                interactingHands[controller].Destroy();
+                interactingHands.Remove(controller);
             }
 
-            if (!Physics.CheckSphere(transform.position, safeRadius, LayerMask.GetMask("ITKHand")))
+            if (hands.Contains(controller) && controller.gesture.Distance(interactable.colliders) > safeDist)
             {
-                if (layer >= 0) gameObject.layer = layer;
-                layer = -1;
+                hands.Remove(controller);
+                if (controller.physicsHand) controller.physicsHand.IgnoreCollision(interactable.colliders, false);
             }
         }
     }

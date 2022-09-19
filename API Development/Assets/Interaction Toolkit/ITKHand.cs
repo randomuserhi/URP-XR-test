@@ -1,4 +1,5 @@
 using Microsoft.MixedReality.Toolkit.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -151,6 +152,12 @@ namespace InteractionTK.HandTracking
                 // Set all quaternions to identity (unity default value for quaternion is invalid)
                 for (int i = 0; i < rotations.Length; ++i)
                     rotations[i] = Quaternion.identity;
+            }
+
+            public void Copy(Pose other)
+            {
+                Array.Copy(other.positions, positions, NumJoints);
+                Array.Copy(other.rotations, rotations, NumJoints);
             }
         }
 

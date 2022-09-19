@@ -1,7 +1,7 @@
-using Oculus.Interaction;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -26,12 +26,24 @@ namespace InteractionTK.HandTracking
         }
 
         public UnityEvent<ITKInteractable> OnHover;
-        public UnityEvent<ITKInteractable> OnHoverExit;
+        public UnityEvent<ITKInteractable> OnNoHover;
         public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteract;
-        public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteractExit;
+        public UnityEvent<ITKInteractable, ITKHandInteractController> OnNoInteract;
 
-        public HashSet<ITKHandInteractController> nearbyControllers = new HashSet<ITKHandInteractController>();
+        // If true it means the interaction was already grabbing, and needs to wait till its no longer grabbing
+        public Dictionary<ITKHandInteractController, bool> nearbyControllers = new Dictionary<ITKHandInteractController, bool>();
         public Dictionary<ITKHandInteractController, Type> interactingControllers = new Dictionary<ITKHandInteractController, Type>();
+
+        public void Add(ITKHandInteractController controller)
+        {
+            if (!nearbyControllers.ContainsKey(controller))
+                nearbyControllers.Add(controller, (!intention || controller.gesture.intention > 0.5) && isInteracting(controller, out _));
+        }
+
+        public void Remove(ITKHandInteractController controller)
+        {
+            nearbyControllers.Remove(controller);
+        }
 
         public bool isInteracting(ITKHandInteractController controller, out Type interactionType)
         {
@@ -75,28 +87,45 @@ namespace InteractionTK.HandTracking
             }
             else
             {
-                OnHoverExit?.Invoke(this);
+                OnNoHover?.Invoke(this);
             }
 
-            foreach (ITKHandInteractController controller in nearbyControllers)
+            ITKHandInteractController[] controllers = nearbyControllers.Keys.ToArray();
+            for (int i = 0; i < controllers.Length; ++i)
             {
+                ITKHandInteractController controller = controllers[i];
                 Type interactionType;
                 bool interact = isInteracting(controller, out interactionType);
+                bool intent = (!intention || controller.gesture.intention > 0.5);
 
-                if (interact && (controller.isLocked || !intention || controller.gesture.intention > 0.2))
+                if (nearbyControllers[controller])
                 {
-                    controller.Lock(this);
-                    if (!interactingControllers.ContainsKey(controller))
-                        interactingControllers.Add(controller, interactionType);
-                    
-                    OnInteract?.Invoke(this, controller);
+                    nearbyControllers[controller] = interact;
                 }
-                else if (!interact)
+                else
                 {
-                    interactingControllers.Remove(controller);
-                    controller.Unlock(this);
+                    if (interact)
+                    {
+                        if (controller.isLocked || intent)
+                        {
+                            controller.Lock(this);
+                            if (!interactingControllers.ContainsKey(controller))
+                                interactingControllers.Add(controller, interactionType);
 
-                    OnInteractExit?.Invoke(this, controller);
+                            OnInteract?.Invoke(this, controller);
+                        }
+                        else if (!intent) // No intent to grab, set interact state to true to ensure grab doesn't happen as hand moves back into intent frame
+                        {
+                            nearbyControllers[controller] = true;
+                        }
+                    }
+                    else if (!interact)
+                    {
+                        interactingControllers.Remove(controller);
+                        controller.Unlock(this);
+
+                        OnNoInteract?.Invoke(this, controller);
+                    }
                 }
             }
         }

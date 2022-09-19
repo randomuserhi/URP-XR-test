@@ -21,6 +21,7 @@ namespace InteractionTK.HandTracking
         public bool Tracking;
         public ITKGestures gestures;
         public ITKHandPhysics physicsHand;
+        public ITKHandNonPhysics nonPhysicsHand;
         public ITKHandModel hand;
 
         private bool frozen = false; // True when tracking is lost but hand is still enabled
@@ -33,6 +34,8 @@ namespace InteractionTK.HandTracking
                 gestures.Enable();
             if (physicsHand != null)
                 physicsHand.Enable();
+            if (nonPhysicsHand != null)
+                nonPhysicsHand.Enable();
             if (hand != null)
                 hand.Enable();
         }
@@ -50,6 +53,8 @@ namespace InteractionTK.HandTracking
                     gestures.Disable();
                 if (physicsHand != null)
                     physicsHand.Disable();
+                if (nonPhysicsHand != null)
+                    nonPhysicsHand.Disable();
                 if (hand != null)
                     hand.Disable();
             }
@@ -109,32 +114,30 @@ namespace InteractionTK.HandTracking
             if (gestures != null)
             {
                 if (gestures.type != type)
-                {
                     Debug.LogError("Tracked hand type does not match the type of the gesture script.");
-                    return;
-                }
-
-                gestures.Track(pose);
+                else
+                    gestures.Track(pose);
             }
             if (physicsHand != null)
             {
                 if (physicsHand.type != type)
-                {
                     Debug.LogError("Tracked hand type does not match the type of the physics hand.");
-                    return;
-                }
-
-                physicsHand.Track(pose, frozen);
+                else
+                    physicsHand.Track(pose, frozen);
+            }
+            if (nonPhysicsHand != null)
+            {
+                if (nonPhysicsHand.type != type)
+                    Debug.LogError("Tracked hand type does not match the type of the non-physics hand.");
+                else
+                    nonPhysicsHand.Track(pose);
             }
             if (hand != null)
             {
                 if (hand.type != type)
-                {
                     Debug.LogError("Tracked hand type does not match the type of the physics hand.");
-                    return;
-                }
-                
-                hand.Track(pose);
+                else
+                    hand.Track(pose);
             }
         }
     }

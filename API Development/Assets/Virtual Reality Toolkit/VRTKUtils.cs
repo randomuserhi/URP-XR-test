@@ -14,6 +14,12 @@ namespace VirtualRealityTK
             }
         }
 
+        public static float SignedDistance(Vector3 from, Vector3 to, Vector3 direction)
+        {
+            Vector3 dir = to - from;
+            return Vector3.Distance(from, to) * Mathf.Sign(Vector3.Dot(dir, direction));
+        }
+
         // See: https://forum.unity.com/threads/shortest-rotation-between-two-quaternions.812346/
         public static Quaternion ShortestRotation(Quaternion a, Quaternion b)
         {

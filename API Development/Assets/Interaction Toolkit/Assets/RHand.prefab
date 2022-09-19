@@ -49,6 +49,7 @@ MonoBehaviour:
   Tracking: 0
   gestures: {fileID: 235991629}
   physicsHand: {fileID: 4845860320586893632}
+  nonPhysicsHand: {fileID: 0}
   hand: {fileID: 0}
 --- !u!1 &4845860320586893639
 GameObject:
@@ -126,6 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gesture: {fileID: 235991629}
   physicsHand: {fileID: 4845860320586893632}
+  nonPhysicsHand: {fileID: 0}
   lingerTimer: 0.1
 --- !u!1001 &4845860319711158905
 PrefabInstance:

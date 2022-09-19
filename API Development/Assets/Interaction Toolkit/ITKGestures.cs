@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
-using static OVRPlugin;
+using UnityEngine.UIElements;
+using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
@@ -45,7 +45,7 @@ namespace InteractionTK.HandTracking
                         for (int j = 0; j < validJoints.Length; ++j)
                         {
                             Vector3 position = pose.positions[validJoints[j]];
-                            float dist = Vector3.Distance(c.ClosestPoint(position), position);
+                            float dist = VRTKUtils.SignedDistance(position, c.ClosestPoint(position), c.transform.position - c.ClosestPoint(position));
                             if (dist < closestJoint)
                                 closestJoint = dist;
                         }
@@ -57,9 +57,9 @@ namespace InteractionTK.HandTracking
             return closest;
         }
 
-        public Vector3 ClosestPointFromJoint(Collider[] colliders, ITKHand.Joint joint)
+        public Vector3 ClosestPointFromJoint(Collider[] colliders, ITKHand.Joint joint, out float distance)
         {
-            float closest = float.PositiveInfinity;
+            distance = float.PositiveInfinity;
             Vector3 point = Vector3.zero;
             if (pose.positions != null && pose.rotations != null)
             {
@@ -70,10 +70,10 @@ namespace InteractionTK.HandTracking
                     {
                         Vector3 position = pose.positions[joint];
                         Vector3 closestPoint = c.ClosestPoint(position);
-                        float dist = Vector3.Distance(closestPoint, position);
-                        if (dist < closest)
+                        float dist = VRTKUtils.SignedDistance(position, c.ClosestPoint(position), c.transform.position - c.ClosestPoint(position));
+                        if (dist < distance)
                         {
-                            closest = dist;
+                            distance = dist;
                             point = closestPoint;
                         }
                     }
@@ -116,7 +116,8 @@ namespace InteractionTK.HandTracking
             // Gestures are weighted depending on whether you are facing it
             // this is to test if it was intentional or not, since you are probably looking at it if its intentional
             const float fov = 50f;
-            Vector3 handDir = pose.positions[ITKHand.Root] - Camera.main.transform.position;
+            // Intention is taken from the thumb since most people will use their index + thumb and the thumb moves the least
+            Vector3 handDir = pose.positions[ITKHand.ThumbTip] - Camera.main.transform.position;
             Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
             float t = 1f - Mathf.Clamp(Vector3.Angle(cameraDir, handDir) / fov, 0f, 1f);
             float x = (t * 2f) - 1f;

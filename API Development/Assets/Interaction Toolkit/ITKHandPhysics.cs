@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using UnityEngine;
 using VirtualRealityTK;
+using static OVRPlugin;
 
 namespace InteractionTK.HandTracking
 {
@@ -1160,7 +1161,8 @@ namespace InteractionTK.HandTracking
             public Node[] children;
 
             private Quaternion defaultRotation;
-            private float mass;
+            private readonly float mass;
+            private readonly Vector3 inertiaTensor;
 
             public Node(ITKHand.Handedness type, ITKHand.HandSettings settings, ITKHand.SkeletonDescription.Node node, Node root = null, Node parentNode = null, Transform parent = null, Rigidbody body = null, PhysicMaterial material = null, bool isRoot = false)
             {
@@ -1263,6 +1265,34 @@ namespace InteractionTK.HandTracking
                     if (colliders[i])
                         colliders[i].material = material;
                 }
+
+                inertiaTensor = rb.inertiaTensor;
+            }
+
+            public void Enable()
+            {
+                if (colliders == null) return;
+
+                for (int i = 0; i < colliders.Length; ++i)
+                    colliders[i].enabled = true;
+            }
+            public void Disable()
+            {
+                if (colliders == null) return;
+
+                for (int i = 0; i < colliders.Length; ++i)
+                    colliders[i].enabled = false;
+
+                rb.inertiaTensor = inertiaTensor; // reset inertia tensor to maintain rotaions
+            }
+
+            public void DeleteColliders()
+            {
+                for (int i = 0; i < colliders.Length; ++i)
+                    UnityEngine.Object.Destroy(colliders[i]);
+
+                colliders = null;
+                rb.inertiaTensor = inertiaTensor; // reset inertia tensor to maintain rotaions
             }
 
             public void Reset()
@@ -1393,7 +1423,7 @@ namespace InteractionTK.HandTracking
             get => _active;
         }
 
-        public int movingAverageFrameRange = 5;
+        public int movingAverageFrameRange = 0;
         private int movingAverageCount = 0;
         private int movingAverageIndex = 0;
         private ITKHand.Pose[] movingAverage;
@@ -1428,12 +1458,6 @@ namespace InteractionTK.HandTracking
                 massWeight = -0.01f;
                 frozen = false;
             }
-
-            for (int i = 0; i < skeleton.nodes.Length; ++i)
-            {
-                for (int j = 0; j < skeleton.nodes[i].colliders.Length; ++j)
-                    skeleton.nodes[i].colliders[j].enabled = true;
-            }
         }
 
         public void Enable(ITKHand.Pose pose, bool forceEnable = false)
@@ -1441,7 +1465,7 @@ namespace InteractionTK.HandTracking
             if (safeEnable) return; // Wait till safe enable finishes
 
             // Only enable if hand is not inside an object or forceEnable is set to true
-            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHand.Root], 0.1f, ~LayerMask.GetMask("ITKHandIgnore")))
+            if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHand.Root], 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
             {
                 if (!_active)
                     // Check if a teleport is actually needed
@@ -1457,12 +1481,21 @@ namespace InteractionTK.HandTracking
             _active = false;
 
             model?.Disable();
+        }
 
+        public void IgnoreCollision(Collider collider, bool ignore = true)
+        {
             for (int i = 0; i < skeleton.nodes.Length; ++i)
-            {
                 for (int j = 0; j < skeleton.nodes[i].colliders.Length; ++j)
-                    skeleton.nodes[i].colliders[j].enabled = false;
-            }
+                    Physics.IgnoreCollision(skeleton.nodes[i].colliders[j], collider, ignore);
+        }
+
+        public void IgnoreCollision(Collider[] colliders, bool ignore = true)
+        {
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
+                for (int j = 0; j < skeleton.nodes[i].colliders.Length; ++j)
+                    for (int k = 0; k < colliders.Length; ++k)
+                        Physics.IgnoreCollision(skeleton.nodes[i].colliders[j], colliders[k], ignore);
         }
 
         public void Teleport(Vector3 position)
@@ -1484,10 +1517,9 @@ namespace InteractionTK.HandTracking
 
             if (movingAverage != null && movingAverage.Length > 0) // Calculate moving average
             {
-                movingAverage[movingAverageIndex].positions = new Vector3[ITKHand.NumJoints];
-                movingAverage[movingAverageIndex].rotations = new Quaternion[ITKHand.NumJoints];
-                Array.Copy(pose.positions, movingAverage[movingAverageIndex].positions, ITKHand.NumJoints);
-                Array.Copy(pose.rotations, movingAverage[movingAverageIndex].rotations, ITKHand.NumJoints);
+                if (movingAverage[movingAverageIndex].positions == null) movingAverage[movingAverageIndex].positions = new Vector3[ITKHand.NumJoints];
+                if (movingAverage[movingAverageIndex].rotations == null) movingAverage[movingAverageIndex].rotations = new Quaternion[ITKHand.NumJoints];
+                movingAverage[movingAverageIndex].Copy(pose);
                 movingAverageIndex = (movingAverageIndex + 1) % movingAverage.Length;
                 if (movingAverageCount < movingAverage.Length) ++movingAverageCount;
 
@@ -1542,7 +1574,7 @@ namespace InteractionTK.HandTracking
             }
 
             // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
-            if (safeEnable && safeEnableFrame <= 0 && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.1f)
+            if (safeEnable && safeEnableFrame <= 0 && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.1f)
             {
                 safeEnable = false;
                 for (int i = 0; i < skeleton.nodes.Length; ++i)

@@ -310,68 +310,16 @@ MonoBehaviour:
   grasp: 1
   OnHover:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 797423458}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnHover
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnHoverExit:
+      m_Calls: []
+  OnNoHover:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 797423458}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnNoHover
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   OnInteract:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 797423458}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnInteract
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnInteractExit:
+      m_Calls: []
+  OnNoInteract:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 797423458}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnNoInteraction
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!54 &797423453
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -476,7 +424,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 705eb7f9b960a3b4496a0bdaf5d37a53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  safeRadius: 0.06
+  safeDist: 0.01
+  interactable: {fileID: 797423452}
 --- !u!1 &807572130
 GameObject:
   m_ObjectHideFlags: 0
@@ -611,68 +560,16 @@ MonoBehaviour:
   grasp: 1
   OnHover:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 807572137}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnHover
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnHoverExit:
+      m_Calls: []
+  OnNoHover:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 807572137}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnNoHover
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   OnInteract:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 807572137}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnInteract
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnInteractExit:
+      m_Calls: []
+  OnNoInteract:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 807572137}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnNoInteraction
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &807572137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -685,7 +582,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 705eb7f9b960a3b4496a0bdaf5d37a53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  safeRadius: 0.06
+  safeDist: 0.01
+  interactable: {fileID: 807572136}
 --- !u!1 &831817649
 GameObject:
   m_ObjectHideFlags: 0
@@ -966,7 +864,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 705eb7f9b960a3b4496a0bdaf5d37a53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  safeRadius: 0.06
+  safeDist: 0.01
+  interactable: {fileID: 1046940355}
 --- !u!114 &1046940355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -987,68 +886,16 @@ MonoBehaviour:
   grasp: 1
   OnHover:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1046940354}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnHover
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnHoverExit:
+      m_Calls: []
+  OnNoHover:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1046940354}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnNoHover
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   OnInteract:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1046940354}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnInteract
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnInteractExit:
+      m_Calls: []
+  OnNoInteract:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1046940354}
-        m_TargetAssemblyTypeName: InteractionTK.HandTracking.ITKPhysicsGrabbable,
-          Assembly-CSharp
-        m_MethodName: OnNoInteraction
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!65 &1046940356
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1533,7 +1380,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2234745473904345640, guid: 5854fccd7d4103d47be85a6bb2f82c41, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 2234745473904345640, guid: 5854fccd7d4103d47be85a6bb2f82c41, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1594,7 +1441,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845860318853719933, guid: 11536eba3a63f4943907cfcda17bb1bb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4845860318853719933, guid: 11536eba3a63f4943907cfcda17bb1bb, type: 3}
       propertyPath: m_LocalPosition.y

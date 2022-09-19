@@ -274,9 +274,21 @@ namespace InteractionTK.HandTracking
             meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         }
 
+        private void TransparencyEffect()
+        {
+            if (!meshRenderer || !gestures) return;
+
+            float t = Mathf.Max(gestures.grasp, gestures.pinch);
+
+            meshRenderer.materials[1].SetFloat("_Transparency", Mathf.Lerp(0.05f, 0.8f, t));
+            meshRenderer.materials[1].SetColor("_TintColor", Color.Lerp(new Color(0.2f, 0.2f, 0.2f), tint, t));
+            meshRenderer.materials[2].SetFloat("_OutlineThickness", Mathf.Lerp(0.0003f, 0.001f, t));
+            meshRenderer.materials[2].SetColor("_OutlineColor", Color.Lerp(new Color(1f, 1f, 1f), new Color(0.47f, 0.5f, 1f), t));
+        }
+
         public void Track(ITKHand.Pose pose)
         {
-            TransparencyEffect(pose);
+            TransparencyEffect();
 
             ITKHand.HandModelPoseOffsets offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsHololens : ITKHand.rightModelOffsetsHololens;
 
@@ -284,6 +296,7 @@ namespace InteractionTK.HandTracking
             transform.position = pose.positions[ITKHand.Wrist] + transform.rotation *  offsets.poseWristPositionOffset;
 
             Vector3 dir = pose.positions[ITKHand.ThumbMetacarpal] - pose.positions[ITKHand.Root];
+            if (dir == Vector3.zero) dir = Vector3.forward;
             ThumbWristToMetacarpal.rotation = Quaternion.LookRotation(dir, Vector3.up) * offsets.rotationOffsets[ITKHand.Wrist];
 
             ThumbMetacarpal.rotation = pose.rotations[ITKHand.ThumbMetacarpal] * offsets.rotationOffsets[ITKHand.ThumbMetacarpal];
@@ -304,18 +317,6 @@ namespace InteractionTK.HandTracking
             PinkyDistal.rotation = pose.rotations[ITKHand.PinkyDistal] * offsets.rotationOffsets[ITKHand.PinkyDistal];
         }
 
-        private void TransparencyEffect(ITKHand.Pose pose)
-        {
-            if (!meshRenderer || !gestures) return;
-
-            float t = Mathf.Max(gestures.grasp, gestures.pinch);
-
-            meshRenderer.materials[1].SetFloat("_Transparency", Mathf.Lerp(0.05f, 0.8f, t));
-            meshRenderer.materials[1].SetColor("_TintColor", Color.Lerp(new Color(0.2f, 0.2f, 0.2f), tint, t));
-            meshRenderer.materials[2].SetFloat("_OutlineThickness", Mathf.Lerp(0.0003f, 0.001f, t));
-            meshRenderer.materials[2].SetColor("_OutlineColor", Color.Lerp(new Color(1f, 1f, 1f), new Color(0.47f, 0.5f, 1f), t));
-        }
-
         public void Track(ITKHand.Pose pose, ITKSkeleton skeleton)
         {
             if (skeleton.type != type)
@@ -324,7 +325,7 @@ namespace InteractionTK.HandTracking
                 return;
             }
 
-            TransparencyEffect(pose);
+            TransparencyEffect();
 
             ITKHand.HandModelPoseOffsets offsets;
 

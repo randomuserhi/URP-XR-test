@@ -9,6 +9,7 @@ namespace InteractionTK.HandTracking
     {
         public ITKGestures gesture;
         public ITKHandPhysics physicsHand;
+        public ITKHandNonPhysics nonPhysicsHand;
 
         public float lingerTimer = 0.1f;
 
@@ -30,7 +31,8 @@ namespace InteractionTK.HandTracking
                 interactable.nearbyControllers.Remove(this);
                 interactable = caller;
             }
-            interactable.nearbyControllers.Add(this);
+            if (!interactable.nearbyControllers.ContainsKey(this))
+                interactable.nearbyControllers.Add(this, false);
             active = false;
         }
 
@@ -66,7 +68,7 @@ namespace InteractionTK.HandTracking
             {
                 ITKInteractable current = ITKInteractable.interactables[i];
                 float dist = gesture.Distance(current.colliders);
-                if (dist < closest && !current.isInteracting(this, out _))
+                if (dist < closest)
                 {
                     closest = dist;
                     newInteractable = current;
@@ -87,14 +89,14 @@ namespace InteractionTK.HandTracking
                     linger -= Time.fixedDeltaTime;
                 else
                 {
-                    interactable.nearbyControllers.Remove(this);
+                    interactable.Remove(this);
                     interactable = null;
                 }
             }
-            else if (newInteractable != null && closest < newInteractable.distance && !newInteractable.nearbyControllers.Contains(this))
+            else if (newInteractable != null && closest < newInteractable.distance && !newInteractable.nearbyControllers.ContainsKey(this))
             {
                 interactable = newInteractable;
-                interactable.nearbyControllers.Add(this);
+                interactable.Add(this);
             }
         }
     }
