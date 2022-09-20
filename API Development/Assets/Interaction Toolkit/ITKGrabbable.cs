@@ -89,8 +89,9 @@ namespace InteractionTK.HandTracking
             if (interactable)
             {
                 interactable.OnHover.AddListener(OnHover);
-                interactable.OnNoHover.AddListener(OnNoHover);
+                interactable.OnHoverExit.AddListener(OnHoverExit);
                 interactable.OnInteract.AddListener(OnInteract);
+                interactable.OnInteractExit.AddListener(OnInteractExit);
                 interactable.OnNoInteract.AddListener(OnNoInteract);
             }
 
@@ -112,7 +113,7 @@ namespace InteractionTK.HandTracking
             GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
-        public void OnNoHover(ITKInteractable interactable)
+        public void OnHoverExit(ITKInteractable interactable)
         {
             if (!enabled) return;
 
@@ -186,8 +187,18 @@ namespace InteractionTK.HandTracking
                 }
             }
         }
-
         public void OnNoInteract(ITKInteractable interactable, ITKHandInteractController controller)
+        {
+            if (!enabled) return;
+
+            if (hands.Contains(controller) && controller.gesture.Distance(interactable.colliders) > safeDist)
+            {
+                hands.Remove(controller);
+                if (controller.physicsHand) controller.physicsHand.IgnoreCollision(interactable.colliders, false);
+            }
+        }
+
+        public void OnInteractExit(ITKInteractable interactable, ITKHandInteractController controller)
         {
             if (!enabled) return;
 
@@ -197,12 +208,6 @@ namespace InteractionTK.HandTracking
 
                 interactingHands[controller].Destroy();
                 interactingHands.Remove(controller);
-            }
-
-            if (hands.Contains(controller) && controller.gesture.Distance(interactable.colliders) > safeDist)
-            {
-                hands.Remove(controller);
-                if (controller.physicsHand) controller.physicsHand.IgnoreCollision(interactable.colliders, false);
             }
         }
     }

@@ -46,7 +46,7 @@ public class ITKHandNonPhysics : MonoBehaviour
         skeleton = new ITKSkeleton(type, transform, description, material);
         for (int i = 0; i < skeleton.nodes.Length; ++i) // Remove colliders to stop physics interactions
             skeleton.nodes[i].DeleteColliders();
-        Disable(true);
+        Disable();
     }
 
     public void Enable()
@@ -84,7 +84,7 @@ public class ITKHandNonPhysics : MonoBehaviour
         }
     }
 
-    public void Disable(bool forceDisable = false)
+    public void Disable()
     {
         if (!_active) return;
         _active = false;
@@ -93,6 +93,16 @@ public class ITKHandNonPhysics : MonoBehaviour
 
         for (int i = 0; i < skeleton.nodes.Length; ++i)
             skeleton.nodes[i].Disable();
+    }
+
+    private void OnDisable()
+    {
+        Disable();
+    }
+
+    private void OnEnable()
+    {
+        Enable();
     }
 
     public void Teleport(Vector3 position)

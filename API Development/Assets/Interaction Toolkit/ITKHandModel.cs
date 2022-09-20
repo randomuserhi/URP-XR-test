@@ -269,6 +269,16 @@ namespace InteractionTK.HandTracking
             _active = false;
         }
 
+        private void OnDisable()
+        {
+            Disable();
+        }
+
+        private void OnEnable()
+        {
+            Enable();
+        }
+
         private void Start()
         {
             meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();

@@ -8,60 +8,85 @@ namespace InteractionTK.HandTracking
     public class ITKHandInteractController : MonoBehaviour
     {
         public ITKGestures gesture;
-        public ITKPinchGesture pinchGesture;
         public ITKHandPhysics physicsHand;
         public ITKHandNonPhysics nonPhysicsHand;
 
         public float lingerTimer = 0.1f;
 
-        private ITKInteractable interactable;
+        [HideInInspector]
+        public ITKInteractable interactable;
         private float linger = 0;
 
         public void SwapInteractable(ITKInteractable newInteractable) // may be undefined behaviour when swapping interaction whilst locked
         {
-            interactable.nearbyControllers.Remove(this);
+            interactable.Remove(this);
             interactable = newInteractable;
         }
 
-        private bool active = true;
-        public bool isLocked { get => !active; }
+        private bool _locked = false;
+        public bool locked { get => _locked; }
         public void Lock(ITKInteractable caller)
         {
             if (interactable != caller)
             {
-                interactable.nearbyControllers.Remove(this);
+                interactable.Remove(this);
                 interactable = caller;
             }
-            if (!interactable.nearbyControllers.ContainsKey(this))
-                interactable.nearbyControllers.Add(this, false);
-            active = false;
+            if (!interactable.hoveringControllers.ContainsKey(this))
+                interactable.hoveringControllers.Add(this, false);
+            _locked = true;
         }
 
         public void Unlock(ITKInteractable caller)
         {
             if (caller == interactable)
-                active = true;
+                _locked = false;
         }
 
-        private void FixedUpdate()
+        private bool _active = true;
+        public void Enable()
+        {
+            if (_active) return;
+            _active = true;
+        }
+        public void Disable()
+        {
+            if (!_active) return;
+            _active = false;
+
+            _locked = false;
+            if (interactable)
+            {
+                interactable.Remove(this);
+                interactable = null;
+            }
+        }
+
+        private void Start()
         {
             if (!gesture)
             {
                 Debug.LogError("Please assign gestures for this interact controller.");
                 return;
             }
+        }
 
-            if (!active) return;
+        private void OnDisable()
+        {
+            Disable();
+        }
 
-            if (!gesture.active)
-            {
-                if (interactable)
-                {
-                    interactable.nearbyControllers.Remove(this);
-                    interactable = null;
-                }
-                return;
-            }
+        private void OnEnable()
+        {
+            Enable();
+        }
+
+        private void FixedUpdate()
+        {
+            if (_locked) return;
+            if (!gesture.active) Disable();
+            else Enable();
+            if (!_active) return;
 
             float closest = float.PositiveInfinity;
             ITKInteractable newInteractable = null;
@@ -94,7 +119,7 @@ namespace InteractionTK.HandTracking
                     interactable = null;
                 }
             }
-            else if (newInteractable != null && closest < newInteractable.distance && !newInteractable.nearbyControllers.ContainsKey(this))
+            else if (newInteractable != null && closest < newInteractable.distance && !newInteractable.hoveringControllers.ContainsKey(this))
             {
                 interactable = newInteractable;
                 interactable.Add(this);

@@ -20,7 +20,6 @@ namespace InteractionTK.HandTracking
 
         public bool Tracking;
         public ITKGestures gestures;
-        public ITKPinchGesture pinchGesture;
         public ITKHandPhysics physicsHand;
         public ITKHandNonPhysics nonPhysicsHand;
         public ITKHandModel hand;
@@ -33,8 +32,6 @@ namespace InteractionTK.HandTracking
         {
             if (gestures != null)
                 gestures.Enable();
-            if (pinchGesture != null)
-                pinchGesture.Enable();
             if (physicsHand != null)
                 physicsHand.Enable();
             if (nonPhysicsHand != null)
@@ -45,6 +42,8 @@ namespace InteractionTK.HandTracking
 
         private void Disable(bool forceDisable = false)
         {
+            if (pose.positions == null || pose.rotations == null || Camera.main == null) return;
+
             Vector3 handDir = pose.positions[ITKHand.Root] - Camera.main.transform.position;
             Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
             // Only disable if hand is behind you, otherwise to keep physics smooth allow hand tracking to be lost whilst its within 180 fov
@@ -54,8 +53,6 @@ namespace InteractionTK.HandTracking
 
                 if (gestures != null)
                     gestures.Disable();
-                if (pinchGesture != null)
-                    pinchGesture.Disable();
                 if (physicsHand != null)
                     physicsHand.Disable();
                 if (nonPhysicsHand != null)
@@ -89,6 +86,16 @@ namespace InteractionTK.HandTracking
             }
         }
 
+        private void OnDisable()
+        {
+            Disable(true);
+        }
+
+        private void OnEnable()
+        {
+            Enable();
+        }
+
         private void FixedUpdate()
         {
             Tracking = true;
@@ -119,38 +126,35 @@ namespace InteractionTK.HandTracking
             // Send tracking data to components
             if (gestures != null)
             {
+#if UNITY_EDITOR
                 if (gestures.type != type)
-                    Debug.LogError("Tracked hand type does not match the type of the gesture script.");
-                else
-                    gestures.Track(pose);
-            }
-            if (pinchGesture != null)
-            {
-                if (pinchGesture.type != type)
-                    Debug.LogError("Tracked hand type does not match the type of the pinch gesture script.");
-                else
-                    pinchGesture.Track(pose);
+                    Debug.LogWarning("Tracked hand type does not match the type of the gesture script.");
+#endif
+                gestures.Track(pose);
             }
             if (physicsHand != null)
             {
+#if UNITY_EDITOR
                 if (physicsHand.type != type)
-                    Debug.LogError("Tracked hand type does not match the type of the physics hand.");
-                else
-                    physicsHand.Track(pose, frozen);
+                    Debug.LogWarning("Tracked hand type does not match the type of the physics hand.");
+#endif
+                physicsHand.Track(pose, frozen);
             }
             if (nonPhysicsHand != null)
             {
+#if UNITY_EDITOR
                 if (nonPhysicsHand.type != type)
-                    Debug.LogError("Tracked hand type does not match the type of the non-physics hand.");
-                else
-                    nonPhysicsHand.Track(pose);
+                    Debug.LogWarning("Tracked hand type does not match the type of the non-physics hand.");
+#endif
+                nonPhysicsHand.Track(pose);
             }
             if (hand != null)
             {
+#if UNITY_EDITOR
                 if (hand.type != type)
                     Debug.LogError("Tracked hand type does not match the type of the physics hand.");
-                else
-                    hand.Track(pose);
+#endif
+                hand.Track(pose);
             }
         }
     }

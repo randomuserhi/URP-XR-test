@@ -1286,6 +1286,16 @@ namespace InteractionTK.HandTracking
                 rb.inertiaTensor = inertiaTensor; // reset inertia tensor to maintain rotaions
             }
 
+            private void OnDisable()
+            {
+                Disable();
+            }
+
+            private void OnEnable()
+            {
+                Enable();
+            }
+
             public void DeleteColliders()
             {
                 for (int i = 0; i < colliders.Length; ++i)
@@ -1406,7 +1416,7 @@ namespace InteractionTK.HandTracking
         public ITKSkeleton skeleton { private set; get; }
 
         private bool safeEnable = true;
-        private int safeEnableFrame = 5; // Enable after 5 frames
+        private int safeEnableFrame = 15; // Enable after 15 frames
 
         private bool frozen;
         private float massWeight = 1f;
@@ -1452,6 +1462,9 @@ namespace InteractionTK.HandTracking
 
             model?.Enable();
 
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
+                skeleton.nodes[i].Enable();
+
             // If we were frozen lerp velocity to prevent jitter
             if (frozen)
             {
@@ -1481,6 +1494,9 @@ namespace InteractionTK.HandTracking
             _active = false;
 
             model?.Disable();
+
+            for (int i = 0; i < skeleton.nodes.Length; ++i)
+                skeleton.nodes[i].Disable();
         }
 
         public void IgnoreCollision(Collider collider, bool ignore = true)
@@ -1574,7 +1590,7 @@ namespace InteractionTK.HandTracking
             }
 
             // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
-            if (safeEnable && safeEnableFrame <= 0 && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.1f)
+            if (safeEnable && safeEnableFrame <= 0 && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.1f)
             {
                 safeEnable = false;
                 for (int i = 0; i < skeleton.nodes.Length; ++i)

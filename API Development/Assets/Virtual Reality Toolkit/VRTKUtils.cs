@@ -20,6 +20,39 @@ namespace VirtualRealityTK
             return Vector3.Distance(from, to) * Mathf.Sign(Vector3.Dot(dir, direction));
         }
 
+        // https://answers.unity.com/questions/660369/how-to-convert-python-in-to-c-maths.html
+        //Two non-parallel lines which may or may not touch each other have a point on each line which are closest
+        //to each other. This function finds those two points. If the lines are not parallel, the function 
+        //outputs true, otherwise false.
+        public static bool ClosestPointsOnTwoLines(out Vector3 closestPoint1, out Vector3 closestPoint2, Vector3 p1, Vector3 vec1, Vector3 p2, Vector3 vec2)
+        {
+            closestPoint1 = Vector3.zero;
+            closestPoint2 = Vector3.zero;
+
+            float a = Vector3.Dot(vec1, vec1);
+            float b = Vector3.Dot(vec1, vec2);
+            float e = Vector3.Dot(vec2, vec2);
+
+            float d = a * e - b * b;
+
+            //lines are not parallel
+            if (d != 0.0f)
+            {
+                Vector3 r = p1 - p2;
+                float c = Vector3.Dot(vec1, r);
+                float f = Vector3.Dot(vec2, r);
+
+                float s = (b * f - c * e) / d;
+                float t = (a * f - c * b) / d;
+
+                closestPoint1 = p1 + vec1 * s;
+                closestPoint2 = p2 + vec2 * t;
+
+                return true;
+            }
+            else return false;
+        }
+
         // See: https://forum.unity.com/threads/shortest-rotation-between-two-quaternions.812346/
         public static Quaternion ShortestRotation(Quaternion a, Quaternion b)
         {

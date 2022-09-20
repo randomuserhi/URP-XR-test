@@ -26,23 +26,26 @@ namespace InteractionTK.HandTracking
         }
 
         public UnityEvent<ITKInteractable> OnHover;
-        public UnityEvent<ITKInteractable> OnNoHover;
+        public UnityEvent<ITKInteractable> OnHoverExit;
         public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteract;
         public UnityEvent<ITKInteractable, ITKHandInteractController> OnNoInteract;
+        public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteractExit;
 
         // If true it means the interaction was already grabbing, and needs to wait till its no longer grabbing
-        public Dictionary<ITKHandInteractController, bool> nearbyControllers = new Dictionary<ITKHandInteractController, bool>();
+        public Dictionary<ITKHandInteractController, bool> hoveringControllers = new Dictionary<ITKHandInteractController, bool>();
         public Dictionary<ITKHandInteractController, Type> interactingControllers = new Dictionary<ITKHandInteractController, Type>();
 
         public void Add(ITKHandInteractController controller)
         {
-            if (!nearbyControllers.ContainsKey(controller))
-                nearbyControllers.Add(controller, (!intention || controller.gesture.intention > 0.5) && isInteracting(controller, out _));
+            if (!hoveringControllers.ContainsKey(controller))
+                hoveringControllers.Add(controller, (!intention || controller.gesture.intention > 0.5) && isInteracting(controller, out _));
         }
 
         public void Remove(ITKHandInteractController controller)
         {
-            nearbyControllers.Remove(controller);
+            OnInteractExit?.Invoke(this, controller);
+            hoveringControllers.Remove(controller);
+            interactingControllers.Remove(controller);
         }
 
         public bool isInteracting(ITKHandInteractController controller, out Type interactionType)
@@ -79,18 +82,22 @@ namespace InteractionTK.HandTracking
             interactables.Remove(this);
         }
 
+        private bool onHoverExit = false;
+        private bool onInteractExit = false;
         private void FixedUpdate()
         {
-            if (nearbyControllers.Count > 0)
+            if (hoveringControllers.Count > 0)
             {
+                onHoverExit = true;
                 OnHover?.Invoke(this);
             }
-            else
+            else if (onHoverExit)
             {
-                OnNoHover?.Invoke(this);
+                onHoverExit = false;
+                OnHoverExit?.Invoke(this);
             }
 
-            ITKHandInteractController[] controllers = nearbyControllers.Keys.ToArray();
+            ITKHandInteractController[] controllers = hoveringControllers.Keys.ToArray();
             for (int i = 0; i < controllers.Length; ++i)
             {
                 ITKHandInteractController controller = controllers[i];
@@ -98,25 +105,26 @@ namespace InteractionTK.HandTracking
                 bool interact = isInteracting(controller, out interactionType);
                 bool intent = (!intention || controller.gesture.intention > 0.5);
 
-                if (nearbyControllers[controller])
+                if (hoveringControllers[controller])
                 {
-                    nearbyControllers[controller] = interact;
+                    hoveringControllers[controller] = interact;
                 }
                 else
                 {
                     if (interact)
                     {
-                        if (controller.isLocked || intent)
+                        if (controller.locked || intent)
                         {
                             controller.Lock(this);
                             if (!interactingControllers.ContainsKey(controller))
                                 interactingControllers.Add(controller, interactionType);
 
+                            onInteractExit = true;
                             OnInteract?.Invoke(this, controller);
                         }
                         else if (!intent) // No intent to grab, set interact state to true to ensure grab doesn't happen as hand moves back into intent frame
                         {
-                            nearbyControllers[controller] = true;
+                            hoveringControllers[controller] = true;
                         }
                     }
                     else if (!interact)
@@ -124,6 +132,11 @@ namespace InteractionTK.HandTracking
                         interactingControllers.Remove(controller);
                         controller.Unlock(this);
 
+                        if (onInteractExit)
+                        {
+                            onInteractExit = false;
+                            OnInteractExit?.Invoke(this, controller);
+                        }
                         OnNoInteract?.Invoke(this, controller);
                     }
                 }

@@ -10,7 +10,7 @@ namespace InteractionTK.HandTracking
     public class ITKGestures : MonoBehaviour
     {
         public ITKHand.Handedness type;
-        public ITKHand.Pose pose { private set; get; }
+        public ITKHand.Pose pose { private set; get; } = new ITKHand.Pose(ITKHand.NumJoints);
 
         private float _intention;
         private float _grasp;
@@ -109,6 +109,27 @@ namespace InteractionTK.HandTracking
             _pinch = 0;
         }
 
+        private void OnDisable()
+        {
+            Disable();
+        }
+
+        private void OnEnable()
+        {
+            Enable();
+        }
+
+        public float CalculateIntent(Vector3 point)
+        {
+            const float fov = 50f;
+            Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
+            float t = 1f - Mathf.Clamp(Vector3.Angle(cameraDir, point - Camera.main.transform.position) / fov, 0f, 1f);
+            float x = (t * 2f) - 1f;
+            const float scale = 1.5f;
+            const float rate = -9f;
+            return 1f / (1 + Mathf.Pow(scale, rate * x));
+        }
+
         public void Track(ITKHand.Pose pose)
         {
             if (!active) return;
@@ -117,15 +138,8 @@ namespace InteractionTK.HandTracking
 
             // Gestures are weighted depending on whether you are facing it
             // this is to test if it was intentional or not, since you are probably looking at it if its intentional
-            const float fov = 50f;
             // Intention is taken from the thumb since most people will use their index + thumb and the thumb moves the least
-            Vector3 handDir = pose.positions[ITKHand.ThumbTip] - Camera.main.transform.position;
-            Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
-            float t = 1f - Mathf.Clamp(Vector3.Angle(cameraDir, handDir) / fov, 0f, 1f);
-            float x = (t * 2f) - 1f;
-            const float scale = 2f;
-            const float rate = -9f;
-            _intention = 1f / (1 + Mathf.Pow(scale, rate * x));
+            _intention = CalculateIntent(pose.positions[ITKHand.ThumbTip]);
 
             // Grasp confidence
             float averageDistanceFromPalm = 0;
