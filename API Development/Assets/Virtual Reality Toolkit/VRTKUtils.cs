@@ -20,6 +20,12 @@ namespace VirtualRealityTK
             return Vector3.Distance(from, to) * Mathf.Sign(Vector3.Dot(dir, direction));
         }
 
+        public static float SignedProjectedDistance(Vector3 from, Vector3 to, Vector3 direction)
+        {
+            Vector3 dir = to - from;
+            return Vector3.Project(dir, direction).magnitude * Mathf.Sign(Vector3.Dot(dir, direction));
+        }
+
         // https://answers.unity.com/questions/660369/how-to-convert-python-in-to-c-maths.html
         //Two non-parallel lines which may or may not touch each other have a point on each line which are closest
         //to each other. This function finds those two points. If the lines are not parallel, the function 

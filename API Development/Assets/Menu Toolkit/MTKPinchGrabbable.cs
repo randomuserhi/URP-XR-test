@@ -1,32 +1,24 @@
 using InteractionTK.HandTracking;
-using Oculus.Platform.Models;
+using InteractionTK;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace InteractionTK
+namespace InteractionTK.Menus
 {
-    public class ITKPinchGrabbable : MonoBehaviour
+    public class MTKPinchGrabbable : MonoBehaviour
     {
         private class Grab
         {
             public ConfigurableJoint joint;
-            private ITKPinchGrabbable self;
-            public Grab(ITKPinchGrabbable self, ITKPinchController controller)
+            private MTKPinchGrabbable self;
+            public Grab(MTKPinchGrabbable self, ITKPinchController controller)
             {
                 this.self = self;
 
                 if (self.rb)
                 {
                     joint = self.gameObject.AddComponent<ConfigurableJoint>();
-                    joint.rotationDriveMode = RotationDriveMode.Slerp;
-                    joint.slerpDrive = new JointDrive()
-                    {
-                        positionSpring = 1e+20f,
-                        positionDamper = 1e+18f,
-                        maximumForce = 5f
-                    };
                     JointDrive drive = new JointDrive()
                     {
                         positionSpring = 1e+20f,
@@ -38,10 +30,8 @@ namespace InteractionTK
                     joint.zDrive = drive;
 
                     joint.anchor = controller.localHit;
-
                     joint.autoConfigureConnectedAnchor = false;
 
-                    joint.targetRotation = Quaternion.identity;
                     joint.targetPosition = Vector3.zero;
                 }
             }
@@ -57,6 +47,7 @@ namespace InteractionTK
 
         public ITKPinchInteractable pinchInteractable;
         public float minDist = 0.15f;
+        public GameObject center;
 
         private Rigidbody rb;
         private bool physicsObject;
@@ -114,6 +105,7 @@ namespace InteractionTK
                     rb.angularVelocity *= 0.5f;
                 }
                 interactingHands[controller].joint.connectedAnchor = anchor;
+                transform.rotation = Quaternion.LookRotation(center.transform.position - Camera.main.transform.position);
             }
         }
 

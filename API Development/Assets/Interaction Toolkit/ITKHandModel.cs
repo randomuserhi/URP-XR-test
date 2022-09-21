@@ -79,7 +79,7 @@ namespace InteractionTK.HandTracking
             }
         };
 
-        public static HandModelPoseOffsets leftModelOffsetsOculusV2 = new HandModelPoseOffsets()
+        public static HandModelPoseOffsets leftModelOffsetsOculus_HandV2 = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(0.06f, -0.02f, 0),
             poseWristPositionOffset = new Vector3(0.02f, -0.02f, 0),
@@ -111,7 +111,7 @@ namespace InteractionTK.HandTracking
                 Quaternion.identity,
             }
         };
-        public static HandModelPoseOffsets rightModelOffsetsOculusV2 = new HandModelPoseOffsets()
+        public static HandModelPoseOffsets rightModelOffsetsOculus_HandV2 = new HandModelPoseOffsets()
         {
             wristPositionOffset = new Vector3(-0.06f, 0.02f, 0),
             poseWristPositionOffset = new Vector3(-0.02f, 0.02f, 0),
@@ -344,8 +344,8 @@ namespace InteractionTK.HandTracking
                 case VRTK.Device.Oculus:
                     offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsOculus : ITKHand.rightModelOffsetsOculus;
                     break;
-                case VRTK.Device.OculusV2:
-                    offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsOculusV2 : ITKHand.rightModelOffsetsOculusV2;
+                case VRTK.Device.Oculus_HandV2:
+                    offsets = type == ITKHand.Handedness.Left ? ITKHand.leftModelOffsetsOculus_HandV2 : ITKHand.rightModelOffsetsOculus_HandV2;
                     break;
                 case VRTK.Device.Hololens2:
                 default:

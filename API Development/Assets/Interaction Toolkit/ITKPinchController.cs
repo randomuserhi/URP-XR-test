@@ -1,16 +1,17 @@
 using InteractionTK.HandTracking;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace InteractionTK.HandTracking
 {
-    public class ITKPinchGestureController : MonoBehaviour
+    public class ITKPinchController : MonoBehaviour
     {
         public ITKHand.Handedness type;
 
         public ITKGestures gesture;
-        public ITKHandInteractController controller;
+        public ITKHandController controller;
 
         public GameObject pinchCursor;
         public GameObject line;
@@ -33,6 +34,8 @@ namespace InteractionTK.HandTracking
 
         [HideInInspector]
         public ITKPinchInteractable interactable;
+        private Collider interactingCollider;
+        private Vector3 localHitRelativeToCollider;
         private float linger = 0;
 
         public void SwapInteractable(ITKPinchInteractable newInteractable) // may be undefined behaviour when swapping interaction whilst locked
@@ -51,7 +54,7 @@ namespace InteractionTK.HandTracking
                 interactable = caller;
             }
             if (!interactable.hoveringControllers.ContainsKey(this))
-                interactable.hoveringControllers.Add(this, false);
+                interactable.hoveringControllers.Add(this, new ITKPinchInteractable.Data(false));
             _locked = true;
         }
 
@@ -148,11 +151,27 @@ namespace InteractionTK.HandTracking
             RaycastHit newHit = new RaycastHit();
             ITKPinchInteractable newInteractable = null;
             float distance = float.PositiveInfinity;
-            if (_pinch > 0 && Physics.Raycast(ray, out newHit, float.PositiveInfinity, ~LayerMask.GetMask("ITKHand")))
+            
+            RaycastHit[] buffer = Physics.RaycastAll(ray, float.PositiveInfinity, ~LayerMask.GetMask("ITKHand"));
+            bool success = false;
+            for (int i = 0; i < buffer.Length; ++i)
+            {
+                ITKPinchInteractable temp = buffer[i].collider.GetComponent<ITKPinchInteractable>();
+                if (!temp) temp = buffer[i].collider.GetComponentInChildren<ITKPinchInteractable>();
+                if (!temp) temp = buffer[i].collider.GetComponentInParent<ITKPinchInteractable>();
+                if (!temp) continue;
+                if (ITKPinchInteractable.interactables.Contains(temp) && temp.colliders.Contains(buffer[i].collider) && buffer[i].distance < distance)
+                {
+                    distance = buffer[i].distance;
+                    newHit = buffer[i];
+                    newInteractable = temp;
+                    success = true;
+                }
+            }
+
+            if (_pinch > 0 && success)
             {
                 newIntent = gesture.CalculateIntent(newHit.point);
-                newInteractable = newHit.collider.GetComponent<ITKPinchInteractable>();
-                distance = newHit.distance;
 
                 Vector3 dir = newHit.point - position;
                 if (pinchArrow) pinchArrow.transform.rotation = Quaternion.LookRotation(dir);
@@ -216,7 +235,7 @@ namespace InteractionTK.HandTracking
                 float dist = 5;
                 if (interactable)
                 {
-                    Vector3 pos = interactable.transform.TransformPoint(localHit);
+                    Vector3 pos = interactingCollider.transform.TransformPoint(localHitRelativeToCollider);
                     dist = Vector3.Distance(pos, pinchArrow.transform.position);
                     lineRenderer.SetPosition(1, pos);
                 }
@@ -236,6 +255,8 @@ namespace InteractionTK.HandTracking
 
         private void AssignValues(RaycastHit newHit, float newIntent)
         {
+            interactingCollider = newHit.collider;
+            if (interactingCollider) localHitRelativeToCollider = interactingCollider.transform.InverseTransformPoint(hit.point);
             hit = newHit;
             if (hit.transform) localHit = hit.transform.InverseTransformPoint(hit.point);
             else localHit = Vector3.zero;

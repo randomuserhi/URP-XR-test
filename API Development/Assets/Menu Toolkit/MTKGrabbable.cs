@@ -1,18 +1,11 @@
-using System;
+using InteractionTK.HandTracking;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Schema;
 using UnityEngine;
 
-using InteractionTK.HandTracking;
-
-// TODO:: 2 hand grab, grasping
-//        set position of grab
-
-namespace InteractionTK
+namespace InteractionTK.Menus
 {
-    public class ITKGrabbable : MonoBehaviour
+    public class MTKGrabbable : MonoBehaviour
     {
         private class Grab
         {
@@ -23,8 +16,8 @@ namespace InteractionTK
             public Vector3 palmLocalAnchor;
             public Vector3 palmAnchor;
             public ConfigurableJoint joint;
-            private ITKGrabbable self;
-            public Grab(ITKGrabbable self, ITKInteractable interactable, ITKHandController controller)
+            private MTKGrabbable self;
+            public Grab(MTKGrabbable self, ITKInteractable interactable, ITKHandController controller)
             {
                 this.self = self;
 
@@ -41,13 +34,6 @@ namespace InteractionTK
                     joint = self.gameObject.AddComponent<ConfigurableJoint>();
                     if (controller.physicsHand) joint.connectedBody = controller.physicsHand.skeleton.root.rb;
                     else if (controller.nonPhysicsHand) joint.connectedBody = controller.nonPhysicsHand.skeleton.root.rb;
-                    joint.rotationDriveMode = RotationDriveMode.Slerp;
-                    joint.slerpDrive = new JointDrive()
-                    {
-                        positionSpring = 1e+20f,
-                        positionDamper = 1e+18f,
-                        maximumForce = 5f
-                    };
                     JointDrive drive = new JointDrive()
                     {
                         positionSpring = 1e+20f,
@@ -62,7 +48,6 @@ namespace InteractionTK
 
                     joint.autoConfigureConnectedAnchor = false;
 
-                    joint.targetRotation = Quaternion.identity;
                     joint.targetPosition = Vector3.zero;
                 }
             }
@@ -78,6 +63,7 @@ namespace InteractionTK
 
         public ITKInteractable interactable;
         public float safeDist = 0.01f;
+        public GameObject center;
 
         private Rigidbody rb;
         private bool physicsObject;
@@ -126,19 +112,22 @@ namespace InteractionTK
             {
                 if (!physicsObject) rb.isKinematic = false;
 
+                Grab grab = interactingHands[controller];
+                transform.rotation = Quaternion.LookRotation(center.transform.position - Camera.main.transform.position);
+
                 if (controller.physicsHand)
                 {
                     if (interactable.interactingControllers[controller] == ITKInteractable.Type.Pinch)
                     {
                         Vector3 thumbTip = controller.physicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.position + controller.physicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.rotation * new Vector3(0, 0, 0.03f);
                         Vector3 position = Quaternion.Inverse(controller.physicsHand.skeleton.root.rb.rotation) * (thumbTip - controller.physicsHand.skeleton.root.rb.position);
-                        interactingHands[controller].joint.connectedAnchor = position;
-                        interactingHands[controller].joint.anchor = interactingHands[controller].thumbLocalScaledAnchor;
+                        grab.joint.connectedAnchor = position;
+                        grab.joint.anchor = grab.thumbLocalScaledAnchor;
                     }
                     else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
                     {
-                        interactingHands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
-                        interactingHands[controller].joint.anchor = interactingHands[controller].palmLocalScaledAnchor;
+                        grab.joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
+                        grab.joint.anchor = grab.palmLocalScaledAnchor;
                     }
                 }
                 else if (controller.nonPhysicsHand)
@@ -147,13 +136,13 @@ namespace InteractionTK
                     {
                         Vector3 thumbTip = controller.nonPhysicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.position + controller.nonPhysicsHand.skeleton.joints[ITKHand.ThumbDistal].rb.rotation * new Vector3(0, 0, 0.03f);
                         Vector3 position = Quaternion.Inverse(controller.nonPhysicsHand.skeleton.root.rb.rotation) * (thumbTip - controller.nonPhysicsHand.skeleton.root.rb.position);
-                        interactingHands[controller].joint.connectedAnchor = position;
-                        interactingHands[controller].joint.anchor = interactingHands[controller].thumbLocalScaledAnchor;
+                        grab.joint.connectedAnchor = position;
+                        grab.joint.anchor = grab.thumbLocalScaledAnchor;
                     }
                     else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
                     {
-                        interactingHands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
-                        interactingHands[controller].joint.anchor = interactingHands[controller].palmLocalScaledAnchor;
+                        grab.joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
+                        grab.joint.anchor = grab.palmLocalScaledAnchor;
                     }
                 }
                 else
@@ -162,13 +151,13 @@ namespace InteractionTK
                     {
                         Vector3 thumbTip = controller.gesture.pose.positions[ITKHand.ThumbTip];
                         Vector3 position = Quaternion.Inverse(controller.gesture.pose.rotations[ITKHand.Root]) * (thumbTip - controller.gesture.pose.positions[ITKHand.Root]);
-                        interactingHands[controller].joint.connectedAnchor = position;
-                        interactingHands[controller].joint.anchor = interactingHands[controller].thumbLocalScaledAnchor;
+                        grab.joint.connectedAnchor = position;
+                        grab.joint.anchor = grab.thumbLocalScaledAnchor;
                     }
                     else if (interactable.interactingControllers[controller] == ITKInteractable.Type.Grasp)
                     {
-                        interactingHands[controller].joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
-                        interactingHands[controller].joint.anchor = interactingHands[controller].palmLocalScaledAnchor;
+                        grab.joint.connectedAnchor = new Vector3(0, -0.03f, 0.02f);
+                        grab.joint.anchor = grab.palmLocalScaledAnchor;
                     }
                 }
             }

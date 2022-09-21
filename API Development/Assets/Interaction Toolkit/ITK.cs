@@ -8,6 +8,5 @@ namespace InteractionTK
 {
     public static partial class ITK
     {
-        
     }
 }

@@ -5,92 +5,118 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class ITKPinchInteractable : MonoBehaviour
+namespace InteractionTK
 {
-    public float distance = float.PositiveInfinity;
-    public bool intention = true;
-
-    public UnityEvent<ITKPinchInteractable> OnHover;
-    public UnityEvent<ITKPinchInteractable> OnHoverExit;
-    public UnityEvent<ITKPinchInteractable, ITKPinchGestureController> OnInteract;
-    public UnityEvent<ITKPinchInteractable, ITKPinchGestureController> OnNoInteract;
-    public UnityEvent<ITKPinchInteractable, ITKPinchGestureController> OnInteractExit;
-
-    // If true it means the interaction was already grabbing, and needs to wait till its no longer grabbing
-    public Dictionary<ITKPinchGestureController, bool> hoveringControllers = new Dictionary<ITKPinchGestureController, bool>();
-    public HashSet<ITKPinchGestureController> interactingControllers = new HashSet<ITKPinchGestureController>();
-
-    public bool isInteracting(ITKPinchGestureController controller)
+    public class ITKPinchInteractable : MonoBehaviour
     {
-        return controller.pinch > 0.8f;
-    }
+        public static HashSet<ITKPinchInteractable> interactables = new HashSet<ITKPinchInteractable>();
 
-    public void Add(ITKPinchGestureController controller)
-    {
-        if (!hoveringControllers.ContainsKey(controller))
-            hoveringControllers.Add(controller, (!intention || controller.intention > 0.5) && isInteracting(controller));
-    }
+        public float distance = float.PositiveInfinity;
+        public Collider[] colliders;
 
-    public void Remove(ITKPinchGestureController controller)
-    {
-        OnInteractExit?.Invoke(this, controller);
-        hoveringControllers.Remove(controller);
-    }
+        public bool intention = true;
 
-    private bool onHoverExit = false;
-    private bool onInteractExit = false;
-    private void FixedUpdate()
-    {
-        if (hoveringControllers.Count > 0)
+        public UnityEvent<ITKPinchInteractable, ITKPinchController> OnHover;
+        public UnityEvent<ITKPinchInteractable, ITKPinchController> OnHoverExit;
+        public UnityEvent<ITKPinchInteractable, ITKPinchController> OnInteract;
+        public UnityEvent<ITKPinchInteractable, ITKPinchController> OnNoInteract;
+        public UnityEvent<ITKPinchInteractable, ITKPinchController> OnInteractExit;
+
+        public class Data
         {
-            onHoverExit = true;
-            OnHover?.Invoke(this);
-        }
-        else if (onHoverExit)
-        {
-            onHoverExit = false;
-            OnHoverExit?.Invoke(this);
-        }
+            // If true it means the interaction was already grabbing, and needs to wait till its no longer grabbing
+            public bool initialState;
+            public bool onHoverExit = false;
+            public bool onInteractExit = false;
 
-        ITKPinchGestureController[] controllers = hoveringControllers.Keys.ToArray();
-        for (int i = 0; i < controllers.Length; ++i)
-        {
-            ITKPinchGestureController controller = controllers[i];
-            bool interact = isInteracting(controller);
-            bool intent = (!intention || controller.intention > 0.5);
-
-            if (hoveringControllers[controller])
+            public Data(bool state)
             {
-                hoveringControllers[controller] = interact;
+                initialState = state;
             }
-            else
+        }
+        public Dictionary<ITKPinchController, Data> hoveringControllers = new Dictionary<ITKPinchController, Data>();
+        public HashSet<ITKPinchController> interactingControllers = new HashSet<ITKPinchController>();
+
+        public bool isInteracting(ITKPinchController controller)
+        {
+            return controller.pinch > 0.8f;
+        }
+
+        public void Add(ITKPinchController controller)
+        {
+            if (!hoveringControllers.ContainsKey(controller))
+                hoveringControllers.Add(controller, new Data((!intention || controller.intention > 0.5) && isInteracting(controller)));
+        }
+
+        public void Remove(ITKPinchController controller)
+        {
+            OnInteractExit?.Invoke(this, controller);
+            hoveringControllers.Remove(controller);
+        }
+
+        private void Start()
+        {
+            interactables.Add(this);
+        }
+
+        private void OnDestroy()
+        {
+            interactables.Remove(this);
+        }
+
+        private void FixedUpdate()
+        {
+            ITKPinchController[] controllers = hoveringControllers.Keys.ToArray();
+            for (int i = 0; i < controllers.Length; ++i)
             {
-                if (interact)
-                {
-                    if (controller.locked || intent)
-                    {
-                        controller.Lock(this);
-                        if (!interactingControllers.Contains(controller)) interactingControllers.Add(controller);
+                ITKPinchController controller = controllers[i];
+                bool interact = isInteracting(controller);
+                bool intent = (!intention || controller.intention > 0.5);
 
-                        onInteractExit = true;
-                        OnInteract?.Invoke(this, controller);
-                    }
-                    else if (!intent) // No intent to grab, set interact state to true to ensure grab doesn't happen as hand moves back into intent frame
-                    {
-                        hoveringControllers[controller] = true;
-                    }
+                Data data = hoveringControllers[controller];
+
+                if (intent)
+                {
+                    data.onHoverExit = true;
+                    OnHover?.Invoke(this, controller);
                 }
-                else if (!interact)
+                else if (data.onHoverExit)
                 {
-                    interactingControllers.Remove(controller);
-                    controller.Unlock(this);
+                    data.onHoverExit = false;
+                    OnHoverExit?.Invoke(this, controller);
+                }
 
-                    if (onInteractExit)
+                if (data.initialState)
+                    data.initialState = interact;
+                else
+                {
+                    if (interact)
                     {
-                        onInteractExit = false;
-                        OnInteractExit?.Invoke(this, controller);
+                        if (controller.locked || intent)
+                        {
+                            controller.Lock(this);
+                            if (!interactingControllers.Contains(controller)) interactingControllers.Add(controller);
+
+                            data.onInteractExit = true;
+                            OnInteract?.Invoke(this, controller);
+                        }
+                        else if (!intent) // No intent to grab, set interact state to true to ensure grab doesn't happen as hand moves back into intent frame
+                        {
+                            data.initialState = true;
+                        }
                     }
-                    OnNoInteract?.Invoke(this, controller);
+                    else if (!interact)
+                    {
+                        interactingControllers.Remove(controller);
+                        controller.Unlock(this);
+
+                        if (data.onInteractExit)
+                        {
+                            data.onInteractExit = false;
+                            OnInteractExit?.Invoke(this, controller);
+                        }
+                        OnNoInteract?.Invoke(this, controller);
+                    }
                 }
             }
         }

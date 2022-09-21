@@ -5,11 +5,13 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace InteractionTK.HandTracking
+using InteractionTK.HandTracking;
+
+namespace InteractionTK
 {
     public class ITKInteractable : MonoBehaviour
     {
-        public static List<ITKInteractable> interactables = new List<ITKInteractable>();
+        public static HashSet<ITKInteractable> interactables = new HashSet<ITKInteractable>();
 
         public float distance = 0.05f;
         public Collider[] colliders;
@@ -25,30 +27,41 @@ namespace InteractionTK.HandTracking
             Pinch
         }
 
-        public UnityEvent<ITKInteractable> OnHover;
-        public UnityEvent<ITKInteractable> OnHoverExit;
-        public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteract;
-        public UnityEvent<ITKInteractable, ITKHandInteractController> OnNoInteract;
-        public UnityEvent<ITKInteractable, ITKHandInteractController> OnInteractExit;
+        public UnityEvent<ITKInteractable, ITKHandController> OnHover;
+        public UnityEvent<ITKInteractable, ITKHandController> OnHoverExit;
+        public UnityEvent<ITKInteractable, ITKHandController> OnInteract;
+        public UnityEvent<ITKInteractable, ITKHandController> OnNoInteract;
+        public UnityEvent<ITKInteractable, ITKHandController> OnInteractExit;
 
-        // If true it means the interaction was already grabbing, and needs to wait till its no longer grabbing
-        public Dictionary<ITKHandInteractController, bool> hoveringControllers = new Dictionary<ITKHandInteractController, bool>();
-        public Dictionary<ITKHandInteractController, Type> interactingControllers = new Dictionary<ITKHandInteractController, Type>();
+        public class Data
+        {
+            // If true it means the interaction was already grabbing, and needs to wait till its no longer grabbing
+            public bool initialState;
+            public bool onHoverExit = false;
+            public bool onInteractExit = false;
 
-        public void Add(ITKHandInteractController controller)
+            public Data (bool state)
+            {
+                initialState = state;
+            }
+        }
+        public Dictionary<ITKHandController, Data> hoveringControllers = new Dictionary<ITKHandController, Data>();
+        public Dictionary<ITKHandController, Type> interactingControllers = new Dictionary<ITKHandController, Type>();
+
+        public void Add(ITKHandController controller)
         {
             if (!hoveringControllers.ContainsKey(controller))
-                hoveringControllers.Add(controller, (!intention || controller.gesture.intention > 0.5) && isInteracting(controller, out _));
+                hoveringControllers.Add(controller, new Data((!intention || controller.gesture.intention > 0.5) && isInteracting(controller, out _)));
         }
 
-        public void Remove(ITKHandInteractController controller)
+        public void Remove(ITKHandController controller)
         {
             OnInteractExit?.Invoke(this, controller);
             hoveringControllers.Remove(controller);
             interactingControllers.Remove(controller);
         }
 
-        public bool isInteracting(ITKHandInteractController controller, out Type interactionType)
+        public bool isInteracting(ITKHandController controller, out Type interactionType)
         {
             bool interact = false;
             interactionType = Type.None;
@@ -82,33 +95,31 @@ namespace InteractionTK.HandTracking
             interactables.Remove(this);
         }
 
-        private bool onHoverExit = false;
-        private bool onInteractExit = false;
         private void FixedUpdate()
         {
-            if (hoveringControllers.Count > 0)
-            {
-                onHoverExit = true;
-                OnHover?.Invoke(this);
-            }
-            else if (onHoverExit)
-            {
-                onHoverExit = false;
-                OnHoverExit?.Invoke(this);
-            }
-
-            ITKHandInteractController[] controllers = hoveringControllers.Keys.ToArray();
+            ITKHandController[] controllers = hoveringControllers.Keys.ToArray();
             for (int i = 0; i < controllers.Length; ++i)
             {
-                ITKHandInteractController controller = controllers[i];
+                ITKHandController controller = controllers[i];
                 Type interactionType;
                 bool interact = isInteracting(controller, out interactionType);
                 bool intent = (!intention || controller.gesture.intention > 0.5);
 
-                if (hoveringControllers[controller])
+                Data data = hoveringControllers[controller];
+
+                if (intent)
                 {
-                    hoveringControllers[controller] = interact;
+                    data.onHoverExit = true;
+                    OnHover?.Invoke(this, controller);
                 }
+                else if (data.onHoverExit)
+                {
+                    data.onHoverExit = false;
+                    OnHoverExit?.Invoke(this, controller);
+                }
+
+                if (data.initialState)
+                    data.initialState = interact;
                 else
                 {
                     if (interact)
@@ -119,12 +130,12 @@ namespace InteractionTK.HandTracking
                             if (!interactingControllers.ContainsKey(controller))
                                 interactingControllers.Add(controller, interactionType);
 
-                            onInteractExit = true;
+                            data.onInteractExit = true;
                             OnInteract?.Invoke(this, controller);
                         }
                         else if (!intent) // No intent to grab, set interact state to true to ensure grab doesn't happen as hand moves back into intent frame
                         {
-                            hoveringControllers[controller] = true;
+                            data.initialState = true;
                         }
                     }
                     else if (!interact)
@@ -132,9 +143,9 @@ namespace InteractionTK.HandTracking
                         interactingControllers.Remove(controller);
                         controller.Unlock(this);
 
-                        if (onInteractExit)
+                        if (data.onInteractExit)
                         {
-                            onInteractExit = false;
+                            data.onInteractExit = false;
                             OnInteractExit?.Invoke(this, controller);
                         }
                         OnNoInteract?.Invoke(this, controller);

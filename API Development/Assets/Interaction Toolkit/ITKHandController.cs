@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace InteractionTK.HandTracking
+using InteractionTK.HandTracking;
+
+namespace InteractionTK
 {
-    public class ITKHandInteractController : MonoBehaviour
+    public class ITKHandController : MonoBehaviour
     {
         public ITKGestures gesture;
         public ITKHandPhysics physicsHand;
@@ -33,7 +35,7 @@ namespace InteractionTK.HandTracking
                 interactable = caller;
             }
             if (!interactable.hoveringControllers.ContainsKey(this))
-                interactable.hoveringControllers.Add(this, false);
+                interactable.hoveringControllers.Add(this, new ITKInteractable.Data(false));
             _locked = true;
         }
 
@@ -90,14 +92,13 @@ namespace InteractionTK.HandTracking
 
             float closest = float.PositiveInfinity;
             ITKInteractable newInteractable = null;
-            for (int i = 0; i < ITKInteractable.interactables.Count; ++i)
+            foreach (ITKInteractable interactable in ITKInteractable.interactables)
             {
-                ITKInteractable current = ITKInteractable.interactables[i];
-                float dist = gesture.Distance(current.colliders);
+                float dist = gesture.Distance(interactable.colliders);
                 if (dist < closest)
                 {
                     closest = dist;
-                    newInteractable = current;
+                    newInteractable = interactable;
                 }
             }
 
