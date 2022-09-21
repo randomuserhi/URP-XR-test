@@ -36,7 +36,7 @@ namespace VirtualRealityTK
             {
                 Debug.LogWarning("VRTK was not found, creating a new object.");
                 GameObject o = new GameObject("VirtualReality Toolkit");
-                instance = o.AddComponent<VirtualRealityToolkit>();
+                VirtualRealityToolkit.instance = o.AddComponent<VirtualRealityToolkit>();
             }
         }
     }

@@ -1415,9 +1415,6 @@ namespace InteractionTK.HandTracking
 
         public ITKSkeleton skeleton { private set; get; }
 
-        private bool safeEnable = true;
-        private int safeEnableFrame = 15; // Enable after 15 frames
-
         private bool frozen;
         private float massWeight = 1f;
 
@@ -1438,6 +1435,8 @@ namespace InteractionTK.HandTracking
         private int movingAverageIndex = 0;
         private ITKHand.Pose[] movingAverage;
 
+        private bool firstTrack = false;
+
         private void Start()
         {
             // Check if ignore layer exists
@@ -1450,13 +1449,11 @@ namespace InteractionTK.HandTracking
             // Due to bug on hololens, capsule colliders don't behave properly, so box colliders are used instead
             ITKHand.SkeletonDescription description = VRTK.device == VRTK.Device.Hololens2 ? ITKHand.handSkeletonBox : ITKHand.handSkeleton;
             skeleton = new ITKSkeleton(type, transform, description, material);
-            Disable(true);
+            Disable();
         }
 
         public void Enable()
         {
-            if (safeEnable) return; // Wait till safe enable finishes
-
             if (_active) return;
             _active = true;
 
@@ -1475,8 +1472,6 @@ namespace InteractionTK.HandTracking
 
         public void Enable(ITKHand.Pose pose, bool forceEnable = false)
         {
-            if (safeEnable) return; // Wait till safe enable finishes
-
             // Only enable if hand is not inside an object or forceEnable is set to true
             if (forceEnable || !Physics.CheckSphere(pose.positions[ITKHand.Root], 0.1f, ~LayerMask.GetMask("ITKHand", "ITKHandIgnore")))
             {
@@ -1488,7 +1483,7 @@ namespace InteractionTK.HandTracking
             }
         }
 
-        public void Disable(bool forceDisable = false)
+        public void Disable()
         {
             if (!_active) return;
             _active = false;
@@ -1527,6 +1522,16 @@ namespace InteractionTK.HandTracking
 
         public void Track(ITKHand.Pose pose, bool frozen = false)
         {
+            if (!firstTrack)
+            {
+                if (_active)
+                {
+                    Teleport(pose.positions[ITKHand.Root]);
+                    firstTrack = true;
+                }
+                return;
+            }
+
             ITKSkeleton.Node root = skeleton.root;
 
             this.frozen = frozen;
@@ -1588,18 +1593,6 @@ namespace InteractionTK.HandTracking
             {
                 Teleport(pose.positions[ITKHand.Root]);
             }
-
-            // safely enable when we are tracked properly - TODO:: check if hand is not inside of anything before enabling
-            if (safeEnable && safeEnableFrame <= 0 && !Physics.CheckSphere(root.rb.position, 0.1f, ~LayerMask.GetMask("ITKHandIgnore")) && Vector3.Distance(root.rb.position, pose.positions[ITKHand.Root]) < 0.1f)
-            {
-                safeEnable = false;
-                for (int i = 0; i < skeleton.nodes.Length; ++i)
-                {
-                    skeleton.nodes[i].Reset();
-                }
-                Enable();
-            }
-            else if (safeEnableFrame > 0) --safeEnableFrame;
 
             // Lerp velocity weight to 1
             massWeight = Mathf.Lerp(massWeight, 1, 0.5f);

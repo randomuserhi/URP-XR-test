@@ -1,8 +1,10 @@
 using InteractionTK.HandTracking;
+using Oculus.Platform.Models;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static OVRPlugin;
 
 public class ITKPinchGrabbable : MonoBehaviour
 {
@@ -118,7 +120,15 @@ public class ITKPinchGrabbable : MonoBehaviour
             if (rb) // wake up rb by adding tiny velocity => sometimes rb is asleep causing it to freeze in air
                 rb.velocity += new Vector3(0, 0.0001f, 0);
 
-            interactingHands[controller].joint.connectedAnchor = controller.ray.origin + controller.ray.direction * Mathf.Clamp(controller.hit.distance, minDist, float.PositiveInfinity);
+            // Make sure the object doesn't overshoot
+            Vector3 anchor = controller.ray.origin + controller.ray.direction * Mathf.Clamp(controller.hit.distance, minDist, float.PositiveInfinity);
+            Vector3 dir = anchor - rb.position;
+            if (rb.velocity.magnitude > 0.1f && Vector3.Dot(rb.velocity, dir) < 0)
+            {
+                rb.velocity *= 0.5f;
+                rb.angularVelocity *= 0.5f;
+            }
+            interactingHands[controller].joint.connectedAnchor = anchor;
         }
     }
 

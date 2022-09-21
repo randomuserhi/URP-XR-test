@@ -123,8 +123,6 @@ namespace InteractionTK.HandTracking
             Enable();
         }
 
-        private static Quaternion offsetRot = Quaternion.Euler(50, 0, 0);
-        private static Vector3 offsetPos = new Vector3(0.009f, -0.07f, 0.1f);
         public void FixedUpdate()
         {
             // If hand controller is interacting with something or gesture is inactive then disable as long as its not locked
@@ -139,12 +137,12 @@ namespace InteractionTK.HandTracking
             _pinch = Mathf.Clamp01((gesture.pinch - threshhold) / (1f - threshhold));
 
             Vector3 position = (gesture.pose.positions[ITKHand.ThumbTip] + gesture.pose.positions[ITKHand.IndexTip]) * 0.5f;
-            Quaternion rotation = gesture.pose.rotations[ITKHand.Wrist] * offsetRot;
+            Quaternion rotation = gesture.pose.rotations[ITKHand.Wrist] * (type == ITKHand.Handedness.Left ? Quaternion.Euler(36, 313, 310) : Quaternion.Euler(36, 47, 310));
 
             ray.direction = (rotation * Vector3.forward).normalized;
-            ray.origin = gesture.pose.positions[ITKHand.Wrist] + gesture.pose.rotations[ITKHand.Wrist] * offsetPos;
+            ray.origin = gesture.pose.positions[ITKHand.Wrist] + gesture.pose.rotations[ITKHand.Wrist] * new Vector3(type == ITKHand.Handedness.Left ? 0.015f : -0.015f, -0.07f, 0.1f);
 
-            if (pinchArrow) pinchArrow.transform.position = position;
+            if (pinchArrow) pinchArrow.transform.position = ray.origin;
 
             float newIntent = 0;
             RaycastHit newHit = new RaycastHit();
@@ -229,6 +227,9 @@ namespace InteractionTK.HandTracking
                 lineRenderer.SetPosition(0, pinchArrow.transform.position + dir * Mathf.Clamp(dist * 0.5f, 0.1f, 0.3f));
                 if (!interactable) lineRenderer.SetPosition(1, pinchArrow.transform.position + dir * dist);
 
+                AnimationCurve curve = new AnimationCurve();
+                curve.AddKey(0, Mathf.Clamp((1f - pinch), 0.1f, 1f) * 0.003f);
+                lineRenderer.widthCurve = curve;
                 lineRenderer.material.SetFloat("_Transparency", Mathf.Clamp01(0.01f + 0.5f * pinch));
             }
         }

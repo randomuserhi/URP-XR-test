@@ -28,6 +28,11 @@ namespace InteractionTK.HandTracking
         private bool frozenOutOfFrame = false; // True when frozen hand has been out of frame (may just be loss of tracking in front of you)
         private int frozenFrameTimer = 0;
 
+        private void Start()
+        {
+            Disable(true);
+        }
+
         private void Enable()
         {
             if (gestures != null)

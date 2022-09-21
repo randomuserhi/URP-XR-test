@@ -8,6 +8,7 @@ namespace VirtualRealityTK
     {
         public enum Device
         {
+            Desktop,
             Hololens2,
             Oculus,
             OculusV2 // Second version for oculus for hand tracking V2 in OVR settings
