@@ -497,13 +497,14 @@ namespace NetworkToolkit
             }
         }
 
-        public bool Send(NTK.Packet packet, NTK.PacketHeader header)
+        public bool Send(NTK.Packet packet, NTK.PacketHeader header, out ushort sequence)
         {
             try
             {
                 if (socket == null)
                 {
                     Log(Tag.Warning, "Socket was not initialized yet.");
+                    sequence = 0;
                     return false;
                 }
 
@@ -511,7 +512,7 @@ namespace NetworkToolkit
                 if (!connections.ContainsKey(ip)) connections.Add(ip, new Connection(ip));
                 Connection connection = connections[ip];
                 byte[][] bytes;
-                ushort seq = connection.sequence;
+                sequence = connection.sequence;
                 if (packet.GetBytes(header, out bytes))
                 {
                     if (bytes.Length == 0) return false;
@@ -519,7 +520,7 @@ namespace NetworkToolkit
                     for (int i = 0; i < bytes.Length; ++i)
                         socket.BeginSend(bytes[i], 0, bytes[i].Length, SocketFlags.None, null, null);
 
-                    connections[ip].sent.Add(seq);
+                    connections[ip].sent.Add(sequence);
                     return true;
                 }
             }
@@ -533,20 +534,21 @@ namespace NetworkToolkit
             return false;
         }
 
-        public bool SendTo(NTK.Packet packet, NTK.PacketHeader header, IPEndPoint destination)
+        public bool SendTo(NTK.Packet packet, NTK.PacketHeader header, IPEndPoint destination, out ushort sequence)
         {
             try
             {
                 if (socket == null)
                 {
                     Log(Tag.Warning, "Socket was not initialized yet.");
+                    sequence = 0;
                     return false;
                 }
 
                 if (!connections.ContainsKey(destination)) connections.Add(destination, new Connection(destination));
                 Connection connection = connections[destination];
                 byte[][] bytes;
-                ushort seq = connection.sequence;
+                sequence = connection.sequence;
                 if (packet.GetBytes(header, out bytes))
                 {
                     if (bytes.Length == 0) return false;
@@ -554,7 +556,7 @@ namespace NetworkToolkit
                     for (int i = 0; i < bytes.Length; ++i)
                         socket.BeginSendTo(bytes[i], 0, bytes[i].Length, SocketFlags.None, destination, null, null);
 
-                    connections[destination].sent.Add(seq);
+                    connections[destination].sent.Add(sequence);
                     return true;
                 }
             }
@@ -568,13 +570,14 @@ namespace NetworkToolkit
             return false;
         }
 
-        public bool Send(NTK.Packet packet)
+        public bool Send(NTK.Packet packet, out ushort sequence)
         {
             try
             {
                 if (socket == null)
                 {
                     Log(Tag.Warning, "Socket was not initialized yet.");
+                    sequence = 0;
                     return false;
                 }
 
@@ -582,10 +585,10 @@ namespace NetworkToolkit
                 if (!connections.ContainsKey(ip)) connections.Add(ip, new Connection(ip));
                 Connection connection = connections[ip];
                 byte[][] bytes;
-                ushort seq = connection.sequence;
+                sequence = connection.sequence;
                 NTK.PacketHeader header = new NTK.PacketHeader()
                 {
-                    sequence = seq,
+                    sequence = sequence,
                     ack = connections[ip].ack,
                     ackBitfield = connections[ip].ackBitField
                 };
@@ -596,7 +599,7 @@ namespace NetworkToolkit
                     for (int i = 0; i < bytes.Length; ++i)
                         socket.BeginSend(bytes[i], 0, bytes[i].Length, SocketFlags.None, null, null);
 
-                    connections[ip].sent.Add(seq);
+                    connections[ip].sent.Add(sequence);
                     return true;
                 }
             }
@@ -610,23 +613,24 @@ namespace NetworkToolkit
             return false;
         }
 
-        public bool SendTo(NTK.Packet packet, IPEndPoint destination)
+        public bool SendTo(NTK.Packet packet, IPEndPoint destination, out ushort sequence)
         {
             try
             {
                 if (socket == null)
                 {
                     Log(Tag.Warning, "Socket was not initialized yet.");
+                    sequence = 0;
                     return false;
                 }
 
                 if (!connections.ContainsKey(destination)) connections.Add(destination, new Connection(destination));
                 Connection connection = connections[destination];
                 byte[][] bytes;
-                ushort seq = connection.sequence;
+                sequence = connection.sequence;
                 NTK.PacketHeader header = new NTK.PacketHeader()
                 {
-                    sequence = seq,
+                    sequence = sequence,
                     ack = connections[destination].ack,
                     ackBitfield = connections[destination].ackBitField
                 };
@@ -637,7 +641,7 @@ namespace NetworkToolkit
                     for (int i = 0; i < bytes.Length; ++i)
                         socket.BeginSendTo(bytes[i], 0, bytes[i].Length, SocketFlags.None, destination, null, null);
 
-                    connections[destination].sent.Add(seq);
+                    connections[destination].sent.Add(sequence);
                     return true;
                 }
             }
