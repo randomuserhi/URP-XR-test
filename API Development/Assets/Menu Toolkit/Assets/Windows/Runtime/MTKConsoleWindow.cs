@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Net;
 
 namespace InteractionTK.Menus
 {
@@ -24,14 +25,63 @@ namespace InteractionTK.Menus
             keypad.gameObject.SetActive(false);
             keypad.OnClose.AddListener(() => keypad.gameObject.SetActive(false));
 
+            console.text = string.Empty;
+
             connectDisconnect.OnClick.AddListener(Connect);
         }
 
         private void Connect()
         {
             keypad.gameObject.SetActive(true);
+            keypad.value.text = string.Empty;
+            keypad.message.text = string.Empty;
             keypad.transform.localPosition = center.transform.localPosition + new Vector3(0, 0.2f, -0.1f);
             keypad.transform.localRotation = Quaternion.identity;
+
+            keypad.OnSubmit.RemoveAllListeners();
+            keypad.OnSubmit.AddListener(EstablishConnection);
+        }
+
+        private void EstablishConnection(string value)
+        {
+            string[] components = value.Split(':');
+            if (components.Length != 2)
+            {
+                keypad.message.text = "Invalid IP address.";
+                return;
+            }
+
+            IPAddress ip;
+            int port;
+            if (IPAddress.TryParse(components[0], out ip) && int.TryParse(components[1], out port))
+            {
+                // Insert connection code
+
+                keypad.gameObject.SetActive(false);
+
+                connectDisconnect.tmp.text = "Disconnect";
+                connectDisconnect.OnClick.RemoveAllListeners();
+                connectDisconnect.OnClick.AddListener(Disconnect);
+            }
+            else
+            {
+                keypad.message.text = "Invalid IP address.";
+            }
+        }
+
+        private void Disconnect()
+        {
+            // Insert disconnection code
+
+            connectDisconnect.tmp.text = "Connect";
+            connectDisconnect.OnClick.RemoveAllListeners();
+            connectDisconnect.OnClick.AddListener(Connect);
+        }
+
+        private void Host()
+        {
+            keypad.gameObject.SetActive(false);
+            connectDisconnect.gameObject.SetActive(false);
         }
 
         private float distance = 0.5f;
