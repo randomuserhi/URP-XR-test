@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4845860318853719933}
   - component: {fileID: 4845860318853719932}
+  - component: {fileID: 674843216}
   m_Layer: 0
   m_Name: RHand
   m_TagString: Untagged
@@ -48,11 +49,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  Tracking: 0
+  poseProvider: {fileID: 674843216}
+  tracking: 0
   gestures: {fileID: 235991629}
   physicsHand: {fileID: 4845860320586893632}
   nonPhysicsHand: {fileID: 0}
   hand: {fileID: 0}
+--- !u!114 &674843216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4845860318853718147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0d5b2b68f1016946b5fd7c478112550, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
 --- !u!1 &4845860320586893639
 GameObject:
   m_ObjectHideFlags: 0
@@ -102,7 +117,6 @@ MonoBehaviour:
   material: {fileID: 13400000, guid: 870b7bd3d70335649b00491ecdc1e84b, type: 2}
   type: 1
   model: {fileID: 4845860318606506865}
-  movingAverageFrameRange: 0
 --- !u!114 &235991629
 MonoBehaviour:
   m_ObjectHideFlags: 0

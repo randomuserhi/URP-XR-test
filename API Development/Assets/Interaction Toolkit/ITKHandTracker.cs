@@ -4,22 +4,15 @@ using System.Text;
 using System.IO;
 using UnityEngine;
 
-using Microsoft;
-using Microsoft.MixedReality.Toolkit.Utilities;
-using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.UI;
-
 namespace InteractionTK.HandTracking
 {
     public class ITKHandTracker : MonoBehaviour
     {
         public ITKHand.Handedness type;
-        private MixedRealityPose MRTKPose;
-        private ITKHand.Pose target = new ITKHand.Pose(ITKHand.NumJoints);
-        private ITKHand.Pose buffer = new ITKHand.Pose(ITKHand.NumJoints);
+        public ITKPoseProvider poseProvider;
         private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
 
-        public bool Tracking;
+        public bool tracking;
         public ITKGestures gestures;
         public ITKHandPhysics physicsHand;
         public ITKHandNonPhysics nonPhysicsHand;
@@ -48,9 +41,9 @@ namespace InteractionTK.HandTracking
 
         private void Disable(bool forceDisable = false)
         {
-            if (target.positions == null || target.rotations == null || Camera.main == null) return;
+            if (pose.positions == null || pose.rotations == null || Camera.main == null) return;
 
-            Vector3 handDir = target.positions[ITKHand.Root] - Camera.main.transform.position;
+            Vector3 handDir = pose.positions[ITKHand.Root] - Camera.main.transform.position;
             Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
             // Only disable if hand is behind you, otherwise to keep physics smooth allow hand tracking to be lost whilst its within 180 fov
             if (forceDisable || Vector3.Dot(cameraDir, handDir) < 0)
@@ -104,30 +97,24 @@ namespace InteractionTK.HandTracking
 
         private void FixedUpdate()
         {
-            Tracking = true;
-            for (int i = 0; i < ITKHand.MRTKJoints.Length; i++)
+            if (poseProvider == null)
             {
-                Handedness handedness = type == ITKHand.Handedness.Left ? Handedness.Left : Handedness.Right;
-                if (HandJointUtils.TryGetJointPose(ITKHand.MRTKJoints[i], handedness, out MRTKPose))
-                {
-                    buffer.positions[i] = MRTKPose.Position;
-                    buffer.rotations[i] = MRTKPose.Rotation;
-                }
-                else Tracking = false;
+                Debug.LogError("No pose provider was given.");
+                return;
+            }
+            else if (poseProvider.type != type)
+            {
+                Debug.LogError("No pose provider type does not match type of tracker.");
+                return;
             }
 
-            if (Tracking) // On successful track swap buffers
-            {
-                ITKHand.Pose temp = buffer;
-                buffer = target;
-                target = temp;
-            }
+            ITKHand.Pose target = poseProvider.GetPose(out tracking);
 
             // Interpolate to prevent jitter
             pose.Interpolate(target);
 
             // Enable or Disable based on tracking
-            if (Tracking)
+            if (tracking)
                 Enable();
             else
                 Disable();
