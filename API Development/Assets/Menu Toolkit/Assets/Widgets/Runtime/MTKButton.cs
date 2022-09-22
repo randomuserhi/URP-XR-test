@@ -29,7 +29,10 @@ namespace InteractionTK.Menus
             if (pinchInteractable == null) pinchInteractable = GetComponent<ITKPinchInteractable>();
             if (pinchInteractable)
             {
-
+                pinchInteractable.OnHover.AddListener(OnPinchHover);
+                pinchInteractable.OnHoverExit.AddListener(OnHoverExit);
+                pinchInteractable.OnInteract.AddListener(OnPinch);
+                pinchInteractable.OnInteractExit.AddListener(OnPinchExit);
             }
         }
 
@@ -43,15 +46,51 @@ namespace InteractionTK.Menus
                 for (int i = 0; i < initialState.Length; ++i) initialState[i] = false;
             }
         }
-        private Dictionary<ITKHandController, Data> hoveringControllers = new Dictionary<ITKHandController, Data>();
+        private Dictionary<ITKHandController, Data> hoveringHandControllers = new Dictionary<ITKHandController, Data>();
+        private Dictionary<ITKPinchController, Data> pinchControllers = new Dictionary<ITKPinchController, Data>();
+
+        private void OnPinch(ITKPinchInteractable interactable, ITKPinchController controller)
+        {
+            if (!pinchControllers.ContainsKey(controller))
+                pinchControllers.Add(controller, new Data());
+
+            Data data = pinchControllers[controller];
+            if (!data.pressed)
+            {
+                Debug.Log("Click");
+                data.pressed = true;
+            }
+        }
+
+        private void OnPinchExit(ITKPinchInteractable interactable, ITKPinchController controller)
+        {
+            if (!pinchControllers.ContainsKey(controller))
+                pinchControllers.Add(controller, new Data());
+
+            Data data = pinchControllers[controller];
+            if (data.pressed)
+            {
+                data.pressed = false;
+            }
+        }
+
+        private void OnPinchHover(ITKPinchInteractable interactable, ITKPinchController controller)
+        {
+
+        }
+
+        private void OnHoverExit(ITKPinchInteractable interactable, ITKPinchController controller)
+        {
+            pinchControllers.Remove(controller);
+        }
 
         private void OnInteractHover(ITKInteractable interactable, ITKHandController controller)
         {
-            if (!hoveringControllers.ContainsKey(controller))
-                hoveringControllers.Add(controller, new Data());
+            if (!hoveringHandControllers.ContainsKey(controller))
+                hoveringHandControllers.Add(controller, new Data());
             else
             {
-                Data data = hoveringControllers[controller];
+                Data data = hoveringHandControllers[controller];
 
                 for (int i = 0; i < ITKHand.NumTips; ++i)
                 {
@@ -101,7 +140,7 @@ namespace InteractionTK.Menus
 
         private void OnHoverExit(ITKInteractable interactable, ITKHandController controller)
         {
-            hoveringControllers.Remove(controller);
+            hoveringHandControllers.Remove(controller);
         }
     }
 }

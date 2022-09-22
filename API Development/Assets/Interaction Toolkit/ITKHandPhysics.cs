@@ -1430,11 +1430,6 @@ namespace InteractionTK.HandTracking
             get => _active;
         }
 
-        public int movingAverageFrameRange = 0;
-        private int movingAverageCount = 0;
-        private int movingAverageIndex = 0;
-        private ITKHand.Pose[] movingAverage;
-
         private bool firstTrack = false;
 
         private void Start()
@@ -1445,7 +1440,6 @@ namespace InteractionTK.HandTracking
                 Debug.LogError("Could not find ITKHandIgnore layer, please create it in the editor.");
             }
 
-            movingAverage = new ITKHand.Pose[movingAverageFrameRange];
             // Due to bug on hololens, capsule colliders don't behave properly, so box colliders are used instead
             ITKHand.SkeletonDescription description = VRTK.device == VRTK.Device.Hololens2 ? ITKHand.handSkeletonBox : ITKHand.handSkeleton;
             skeleton = new ITKSkeleton(type, transform, description, material);
@@ -1535,37 +1529,6 @@ namespace InteractionTK.HandTracking
             ITKSkeleton.Node root = skeleton.root;
 
             this.frozen = frozen;
-
-            if (movingAverage != null && movingAverage.Length > 0) // Calculate moving average
-            {
-                if (movingAverage[movingAverageIndex].positions == null) movingAverage[movingAverageIndex].positions = new Vector3[ITKHand.NumJoints];
-                if (movingAverage[movingAverageIndex].rotations == null) movingAverage[movingAverageIndex].rotations = new Quaternion[ITKHand.NumJoints];
-                movingAverage[movingAverageIndex].Copy(pose);
-                movingAverageIndex = (movingAverageIndex + 1) % movingAverage.Length;
-                if (movingAverageCount < movingAverage.Length) ++movingAverageCount;
-
-                if (movingAverageCount > 0)
-                {
-                    for (int i = 0; i < ITKHand.NumJoints; ++i)
-                    {
-                        Vector3 averagePos = Vector3.zero;
-                        Vector4 cumulative = new Vector4(0, 0, 0, 0);
-                        for (int j = 0; j < movingAverageCount; ++j)
-                        {
-                            averagePos += movingAverage[j].positions[i];
-                            VRTKUtils.AverageQuaternion_Internal(ref cumulative, movingAverage[j].rotations[i], movingAverage[0].rotations[i]);
-                        }
-                        float addDet = 1f / movingAverageCount;
-                        float x = cumulative.x * addDet;
-                        float y = cumulative.y * addDet;
-                        float z = cumulative.z * addDet;
-                        float w = cumulative.w * addDet;
-                        //note: if speed is an issue, you can skip the normalization step
-                        pose.rotations[i] = VRTKUtils.NormalizeQuaternion(new Quaternion(x, y, z, w));
-                        pose.positions[i] = averagePos / movingAverageCount;
-                    }
-                }
-            }
 
             // Track joints
             root.Track(pose, Quaternion.identity);

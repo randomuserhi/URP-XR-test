@@ -142,16 +142,15 @@ namespace InteractionTK.HandTracking
             Vector3 position = (gesture.pose.positions[ITKHand.ThumbTip] + gesture.pose.positions[ITKHand.IndexTip]) * 0.5f;
             Quaternion rotation = gesture.pose.rotations[ITKHand.Wrist] * (type == ITKHand.Handedness.Left ? Quaternion.Euler(36, 313, 310) : Quaternion.Euler(36, 47, 310));
 
-            ray.direction = (rotation * Vector3.forward).normalized;
             ray.origin = gesture.pose.positions[ITKHand.Wrist] + gesture.pose.rotations[ITKHand.Wrist] * new Vector3(type == ITKHand.Handedness.Left ? 0.015f : -0.015f, -0.07f, 0.1f);
+            ray.direction = (rotation * Vector3.forward).normalized;
 
             if (pinchArrow) pinchArrow.transform.position = ray.origin;
 
             float newIntent = 0;
-            RaycastHit newHit = new RaycastHit();
             ITKPinchInteractable newInteractable = null;
+            RaycastHit newHit = new RaycastHit();
             float distance = float.PositiveInfinity;
-            
             RaycastHit[] buffer = Physics.RaycastAll(ray, float.PositiveInfinity, ~LayerMask.GetMask("ITKHand"));
             bool success = false;
             for (int i = 0; i < buffer.Length; ++i)

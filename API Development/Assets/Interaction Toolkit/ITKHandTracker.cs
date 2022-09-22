@@ -15,8 +15,9 @@ namespace InteractionTK.HandTracking
     {
         public ITKHand.Handedness type;
         private MixedRealityPose MRTKPose;
-        private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
+        private ITKHand.Pose target = new ITKHand.Pose(ITKHand.NumJoints);
         private ITKHand.Pose buffer = new ITKHand.Pose(ITKHand.NumJoints);
+        private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
 
         public bool Tracking;
         public ITKGestures gestures;
@@ -47,9 +48,9 @@ namespace InteractionTK.HandTracking
 
         private void Disable(bool forceDisable = false)
         {
-            if (pose.positions == null || pose.rotations == null || Camera.main == null) return;
+            if (target.positions == null || target.rotations == null || Camera.main == null) return;
 
-            Vector3 handDir = pose.positions[ITKHand.Root] - Camera.main.transform.position;
+            Vector3 handDir = target.positions[ITKHand.Root] - Camera.main.transform.position;
             Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
             // Only disable if hand is behind you, otherwise to keep physics smooth allow hand tracking to be lost whilst its within 180 fov
             if (forceDisable || Vector3.Dot(cameraDir, handDir) < 0)
@@ -118,9 +119,12 @@ namespace InteractionTK.HandTracking
             if (Tracking) // On successful track swap buffers
             {
                 ITKHand.Pose temp = buffer;
-                buffer = pose;
-                pose = temp;
+                buffer = target;
+                target = temp;
             }
+
+            // Interpolate to prevent jitter
+            pose.Interpolate(target);
 
             // Enable or Disable based on tracking
             if (Tracking)

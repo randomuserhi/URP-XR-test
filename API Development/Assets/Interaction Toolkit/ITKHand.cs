@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
@@ -158,6 +159,18 @@ namespace InteractionTK.HandTracking
             {
                 Array.Copy(other.positions, positions, NumJoints);
                 Array.Copy(other.rotations, rotations, NumJoints);
+            }
+
+            // If a threshhold is 0 then interpolation will not take the respective differences into account
+            public void Interpolate(Pose other, float t = 1, float posThreshhold = 0.05f, float angleThreshhold = 10f)
+            {
+                for (int i = 0; i < NumJoints; ++i)
+                {
+                    if (posThreshhold == 0) positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t));
+                    else positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t * Vector3.Distance(positions[i], other.positions[i]) / posThreshhold));
+                    if (angleThreshhold == 0) rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t));
+                    else rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t * Quaternion.Angle(rotations[i], other.rotations[i]) / angleThreshhold));
+                }
             }
         }
 
