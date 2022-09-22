@@ -1,9 +1,11 @@
 using InteractionTK.HandTracking;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using VirtualRealityTK;
+using static DebugUIBuilder;
 
 namespace InteractionTK.Menus
 {
@@ -13,8 +15,10 @@ namespace InteractionTK.Menus
         public ITKInteractable interactable;
         public ITKPinchInteractable pinchInteractable;
 
+        public TextMeshProUGUI tmp;
+
         public UnityEvent<float> OnHover;
-        public UnityEvent OnPress;
+        public UnityEvent OnClick;
 
         // Start is called before the first frame update
         void Start()
@@ -57,7 +61,7 @@ namespace InteractionTK.Menus
             Data data = pinchControllers[controller];
             if (!data.pressed)
             {
-                Debug.Log("Click");
+                OnClick?.Invoke();
                 data.pressed = true;
             }
         }
@@ -98,9 +102,10 @@ namespace InteractionTK.Menus
 
                     // Check if tip is in the bounds of the button
                     Vector3 localPos = transform.InverseTransformPoint(controller.gesture.pose.positions[joint]);
+                    Vector3 scaledBounds = Vector3.Scale(bounds, transform.localScale);
                     bool bounded =
-                        localPos.x > -bounds.x / 2f && localPos.x < bounds.x / 2f &&
-                        localPos.y > -bounds.y / 2f && localPos.y < bounds.y / 2f;
+                        localPos.x > -scaledBounds.x / 2f && localPos.x < scaledBounds.x / 2f &&
+                        localPos.y > -scaledBounds.y / 2f && localPos.y < scaledBounds.y / 2f;
 
                     if (bounded)
                     {
@@ -116,16 +121,12 @@ namespace InteractionTK.Menus
                             {
                                 data.pressed = true;
                                 data.pressedJoint = joint;
-                                OnPress?.Invoke();
-
-                                Debug.Log("Press");
+                                OnClick?.Invoke();
                             }
                             else if (distance > 0.01 && (data.pressedJoint == null || data.pressedJoint.Value == joint))
                             {
                                 data.pressed = false;
                                 data.pressedJoint = null;
-                                
-                                //OnPressUp?.Invoke();
                             }
                         }
                     }

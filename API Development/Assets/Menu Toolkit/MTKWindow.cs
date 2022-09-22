@@ -10,9 +10,16 @@ namespace InteractionTK.Menus
         public ITKInteractable interaction;
         public ITKPinchInteractable pinchInteraction;
 
-        public void Start()
+        public MTKButton Close;
+
+        public virtual void Start()
         {
-            
+            Close.OnClick.AddListener(CloseWindow);
+        }
+
+        public virtual void CloseWindow()
+        {
+            Destroy(gameObject);
         }
     }
 }

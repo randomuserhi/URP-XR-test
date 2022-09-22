@@ -10,8 +10,6 @@ namespace NetworkToolkit
     {
         public static NetworkToolkit instance;
 
-        private NTKClient client;
-        private NTK.Packet p;
 
         public void Start()
         {
@@ -23,30 +21,14 @@ namespace NetworkToolkit
             }
 
             instance = this;
-
-            p = NTK.Packet.Create(NTK.bufferSize);
-            client = new NTKClient();
-            client.Connect("192.168.8.141", 26950);
         }
 
-        public TextMeshProUGUI log;
         public void FixedUpdate()
         {
-            log.text = client.log;
-
-            if (client.connected)
-            {
-                p.Reset();
-                p.Write("hello");
-                client.Send(p);
-
-                client.Tick();
-            }
         }
 
         public void OnApplicationExit()
         {
-            client.Dispose();
         }
 
         [RuntimeInitializeOnLoadMethod]

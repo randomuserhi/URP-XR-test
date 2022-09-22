@@ -39,7 +39,7 @@ namespace InteractionTK.HandTracking
                 for (int i = 0; i < colliders.Length; ++i)
                 {
                     Collider c = colliders[i];
-                    if (c.enabled)
+                    if (c.enabled && c.gameObject.activeInHierarchy)
                     {
                         float closestJoint = float.PositiveInfinity;
                         for (int j = 0; j < validJoints.Length; ++j)

@@ -221,6 +221,13 @@ namespace InteractionTK.HandTracking
                     AssignValues(newHit, newIntent);
                 }
             }
+            else
+            {
+                if (!ITKPinchInteractable.interactables.Contains(interactable) || !interactable.enabled || !interactable.gameObject.activeInHierarchy)
+                {
+                    Unlock(interactable);
+                }
+            }
 
             if (pinchArrowRenderer)
             {

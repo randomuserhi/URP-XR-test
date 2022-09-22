@@ -598,6 +598,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef8fa10e364d56943a23a97e15c1d489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 1, y: 1}
+  bounds: {x: 0.03, y: 0.03}
   interactable: {fileID: 1641700133}
   pinchInteractable: {fileID: 1641700132}
+  tmp: {fileID: 936378055}
+  OnHover:
+    m_PersistentCalls:
+      m_Calls: []
+  OnClick:
+    m_PersistentCalls:
+      m_Calls: []

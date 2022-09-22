@@ -85,7 +85,14 @@ namespace InteractionTK
 
         private void FixedUpdate()
         {
-            if (_locked) return;
+            if (_locked)
+            {
+                if (!ITKInteractable.interactables.Contains(interactable) || !interactable.enabled || !interactable.gameObject.activeInHierarchy)
+                {
+                    Unlock(interactable);
+                }
+                return;
+            }
             if (!gesture.active) Disable();
             else Enable();
             if (!_active) return;
