@@ -2059,24 +2059,5 @@ PrefabInstance:
       propertyPath: m_Name
       value: Console
       objectReference: {fileID: 0}
-    - target: {fileID: 2650314899874476217, guid: 0bdba412a698bc94a91f0fce3d722631, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8117460231870061669, guid: 0bdba412a698bc94a91f0fce3d722631, type: 3}
-      propertyPath: keypad
-      value: 
-      objectReference: {fileID: 8066617772646757495}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0bdba412a698bc94a91f0fce3d722631, type: 3}
---- !u!114 &8066617772646757495 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2257817659803851717, guid: 0bdba412a698bc94a91f0fce3d722631, type: 3}
-  m_PrefabInstance: {fileID: 8066617772646757494}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf6e030a188f5094d8b53b8c57d0ff78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

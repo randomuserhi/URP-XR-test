@@ -339,6 +339,17 @@ namespace NetworkToolkit
                 writtenSize += sizeof(float);
             }
 
+            /*[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void WriteHalf(float value)
+            {
+                if (index + sizeof(ushort) > data.Length) throw new Exception("Not enough space in buffer for half.");
+                ushort half;
+
+                WriteBytes(half, data, index);
+                index += sizeof(ushort);
+                writtenSize += sizeof(ushort);
+            }*/
+
             // TODO:: add exception for end of data (index + sizeof(data) > writtenLength)
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

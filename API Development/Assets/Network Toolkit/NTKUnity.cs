@@ -48,24 +48,60 @@ namespace NetworkToolkit
                 switch (i)
                 {
                     case 0:
-                        Write(value.y);
-                        Write(value.z);
-                        Write(value.w);
+                        if (value.x >= 0)
+                        {
+                            Write(value.y);
+                            Write(value.z);
+                            Write(value.w);
+                        }
+                        else
+                        {
+                            Write(-value.y);
+                            Write(-value.z);
+                            Write(-value.w);
+                        }
                         break;
                     case 1:
-                        Write(value.x);
-                        Write(value.z);
-                        Write(value.w);
+                        if (value.y >= 0)
+                        {
+                            Write(value.x);
+                            Write(value.z);
+                            Write(value.w);
+                        }
+                        else
+                        {
+                            Write(-value.x);
+                            Write(-value.z);
+                            Write(-value.w);
+                        }
                         break;
                     case 2:
-                        Write(value.x);
-                        Write(value.y);
-                        Write(value.w);
+                        if (value.z >= 0)
+                        {
+                            Write(value.x);
+                            Write(value.y);
+                            Write(value.w);
+                        }
+                        else
+                        {
+                            Write(-value.x);
+                            Write(-value.y);
+                            Write(-value.w);
+                        }
                         break;
                     case 3:
-                        Write(value.x);
-                        Write(value.y);
-                        Write(value.z);
+                        if (value.w >= 0)
+                        {
+                            Write(value.x);
+                            Write(value.y);
+                            Write(value.z);
+                        }
+                        else
+                        {
+                            Write(-value.x);
+                            Write(-value.y);
+                            Write(-value.z);
+                        }
                         break;
                 }
             }
