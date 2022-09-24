@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using UnityEngine;
 
 namespace NetworkToolkit
 {
@@ -123,6 +124,39 @@ namespace NetworkToolkit
             int to32 = *((int*)&value);
             if (!BitConverter.IsLittleEndian) to32 = ReverseEndianness(to32);
             _WriteBytes((byte*)&to32, sizeof(int), destination, index);
+        }
+
+        // https://stackoverflow.com/questions/1659440/32-bit-to-16-bit-floating-point-conversion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe uint AsUInt(float x) {
+            return *(uint*)&x;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe float AsFloat(uint x)
+        {
+            return *(float*)&x;
+        }
+
+        // NOTE:: These Half <-> Float conversions does not account for Infinity or NaN!
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float HalfToFloat(ushort x)
+        { 
+            // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+            int e = (x & 0x7C00) >> 10; // exponent
+            int m = (x & 0x03FF) << 13; // mantissa
+            int v = (int)(AsUInt((float)m) >> 23); // evil log2 bit hack to count leading zeros in denormalized format
+            return AsFloat((uint)((x & 0x8000) << 16 | Convert.ToInt32(e != 0) * ((e + 112) << 23 | m) | (Convert.ToInt32(e == 0) & Convert.ToInt32(m != 0)) * ((v - 37) << 23 | ((m << (150 - v)) & 0x007FE000)))); // sign : normalized : denormalized
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ushort FloatToHalf(float x)
+        { 
+            // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+            uint b = AsUInt(x) + 0x00001000; // round-to-nearest-even: add last bit after truncated mantissa
+            uint e = (b & 0x7F800000) >> 23; // exponent
+            uint m = b & 0x007FFFFF; // mantissa; in line below: 0x007FF000 = 0x00800000-0x00001000 = decimal indicator flag - initial rounding
+            return (ushort)((b & 0x80000000) >> 16 | Convert.ToInt32(e > 112) * ((((e - 112) << 10) & 0x7C00) | m >> 13) | (Convert.ToInt32(e < 113) & Convert.ToInt32(e > 101)) * ((((0x007FF000 + m) >> (int)(125 - e)) + 1) >> 1) | Convert.ToUInt32(e > 143) * 0x7FFF); // sign : normalized : denormalized : saturate
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -339,16 +373,14 @@ namespace NetworkToolkit
                 writtenSize += sizeof(float);
             }
 
-            /*[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void WriteHalf(float value)
             {
                 if (index + sizeof(ushort) > data.Length) throw new Exception("Not enough space in buffer for half.");
-                ushort half;
-
-                WriteBytes(half, data, index);
+                WriteBytes(FloatToHalf(value), data, index); // TODO implement this
                 index += sizeof(ushort);
                 writtenSize += sizeof(ushort);
-            }*/
+            }
 
             // TODO:: add exception for end of data (index + sizeof(data) > writtenLength)
 
@@ -415,6 +447,14 @@ namespace NetworkToolkit
                 float temp = NTK.ReadFloat(data, index);
                 index += sizeof(float);
                 return temp;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public float ReadHalf()
+            {
+                ushort temp = NTK.ReadUShort(data, index);
+                index += sizeof(ushort);
+                return HalfToFloat(temp);
             }
 
             // TODO:: add exception for sending no data
