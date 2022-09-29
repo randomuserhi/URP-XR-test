@@ -429,7 +429,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a41f669894321f45841b8fdf87e5c84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  device: 1
+  device: 3
   master: {fileID: 831817652}
 --- !u!114 &2073010918
 MonoBehaviour:
