@@ -59,7 +59,8 @@ namespace InteractionTK
         public float minDist = 0.15f;
 
         private Rigidbody rb;
-        private bool physicsObject;
+        public bool physicsObject = true;
+        public bool useGravity = true;
 
         private Dictionary<ITKPinchController, Grab> interactingHands = new Dictionary<ITKPinchController, Grab>();
         private HashSet<ITKPinchController> hands = new HashSet<ITKPinchController>();
@@ -80,8 +81,6 @@ namespace InteractionTK
                 rb.isKinematic = true;
                 rb.mass = 0.5f; // Make mass reasonable
             }
-
-            physicsObject = !rb.isKinematic;
         }
 
         public void OnInteract(ITKPinchInteractable interactable, ITKPinchController controller)
@@ -124,7 +123,7 @@ namespace InteractionTK
             if (interactingHands.ContainsKey(controller))
             {
                 if (!physicsObject) rb.isKinematic = true;
-                rb.useGravity = true;
+                rb.useGravity = useGravity;
 
                 interactingHands[controller].Destroy();
                 interactingHands.Remove(controller);

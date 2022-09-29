@@ -1,3 +1,4 @@
+using NetworkToolkit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace InteractionTK.HandTracking
     public class ITKGestures : MonoBehaviour
     {
         public ITKHand.Handedness type;
+        public VRTKPlayer master;
         public ITKHand.Pose pose { private set; get; } = new ITKHand.Pose(ITKHand.NumJoints);
 
         private float _intention;
@@ -122,8 +124,8 @@ namespace InteractionTK.HandTracking
         public float CalculateIntent(Vector3 point)
         {
             const float fov = 50f;
-            Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
-            float t = 1f - Mathf.Clamp(Vector3.Angle(cameraDir, point - Camera.main.transform.position) / fov, 0f, 1f);
+            Vector3 cameraDir = master.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
+            float t = 1f - Mathf.Clamp(Vector3.Angle(cameraDir, point - master.main.transform.position) / fov, 0f, 1f);
             float x = (t * 2f) - 1f;
             const float scale = 1.5f;
             const float rate = -9f;

@@ -161,15 +161,43 @@ namespace InteractionTK.HandTracking
                 Array.Copy(other.rotations, rotations, NumJoints);
             }
 
-            // If a threshhold is 0 then interpolation will not take the respective differences into account
-            public void Interpolate(Pose other, float t = 1, float posThreshhold = 0.05f, float angleThreshhold = 10f)
+            public enum InterpolateType
             {
-                for (int i = 0; i < NumJoints; ++i)
+                All,
+                Root
+            }
+
+            // If a threshhold is 0 then interpolation will not take the respective differences into account
+            public void Interpolate(Pose other, float t = 1, float posThreshhold = 0.05f, float angleThreshhold = 10f, InterpolateType type = InterpolateType.All)
+            {
+                switch (type)
                 {
-                    if (posThreshhold == 0) positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t));
-                    else positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t * Vector3.Distance(positions[i], other.positions[i]) / posThreshhold));
-                    if (angleThreshhold == 0) rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t));
-                    else rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t * Quaternion.Angle(rotations[i], other.rotations[i]) / angleThreshhold));
+                    case InterpolateType.All:
+                        for (int i = 0; i < NumJoints; ++i)
+                        {
+                            if (posThreshhold == 0) positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t));
+                            else positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t * Vector3.Distance(positions[i], other.positions[i]) / posThreshhold));
+                            if (angleThreshhold == 0) rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t));
+                            else rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t * Quaternion.Angle(rotations[i], other.rotations[i]) / angleThreshhold));
+                        }
+                        break;
+                    case InterpolateType.Root:
+                        for (int i = 0; i < NumJoints; ++i)
+                        {
+                            if (i == Root)
+                            {
+                                if (posThreshhold == 0) positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t));
+                                else positions[i] = Vector3.Lerp(positions[i], other.positions[i], Mathf.Clamp01(t * Vector3.Distance(positions[i], other.positions[i]) / posThreshhold));
+                                if (angleThreshhold == 0) rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t));
+                                else rotations[i] = Quaternion.Lerp(rotations[i], other.rotations[i], Mathf.Clamp01(t * Quaternion.Angle(rotations[i], other.rotations[i]) / angleThreshhold));
+                            }
+                            else
+                            {
+                                positions[i] = other.positions[i];
+                                rotations[i] = other.rotations[i];
+                            }
+                        }
+                        break;
                 }
             }
         }

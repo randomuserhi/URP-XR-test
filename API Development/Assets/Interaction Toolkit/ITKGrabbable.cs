@@ -80,7 +80,7 @@ namespace InteractionTK
         public float safeDist = 0.01f;
 
         private Rigidbody rb;
-        private bool physicsObject;
+        public bool physicsObject = true;
 
         private Dictionary<ITKHandController, Grab> interactingHands = new Dictionary<ITKHandController, Grab>();
         private HashSet<ITKHandController> hands = new HashSet<ITKHandController>();

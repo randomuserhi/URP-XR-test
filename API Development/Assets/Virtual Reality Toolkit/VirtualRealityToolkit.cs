@@ -5,11 +5,23 @@ using VirtualRealityTK;
 
 namespace VirtualRealityTK
 {
+    public partial class VRTK
+    {
+        public static VRTKPlayer master 
+        { 
+            get
+            {
+                return VirtualRealityToolkit.instance.master;
+            }
+        }
+    }
+
     public class VirtualRealityToolkit : MonoBehaviour
     {
-        private static VirtualRealityToolkit instance;
+        internal static VirtualRealityToolkit instance;
 
         public VRTK.Device device = VRTK.Device.Hololens2;
+        public VRTKPlayer master;
 
         public void Start()
         {

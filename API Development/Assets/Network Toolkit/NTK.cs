@@ -138,7 +138,7 @@ namespace NetworkToolkit
             return *(float*)&x;
         }
 
-        // NOTE:: These Half <-> Float conversions does not account for Infinity or NaN!
+        // NOTE:: These Half <-> Float conversions do not account for Infinity or NaN!
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float HalfToFloat(ushort x)

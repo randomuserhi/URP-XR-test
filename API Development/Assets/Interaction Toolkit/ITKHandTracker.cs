@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using UnityEngine;
+using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
     public class ITKHandTracker : MonoBehaviour
     {
         public ITKHand.Handedness type;
+        public VRTKPlayer master;
         public ITKPoseProvider poseProvider;
         private ITKHand.Pose pose = new ITKHand.Pose(ITKHand.NumJoints);
 
@@ -41,10 +43,10 @@ namespace InteractionTK.HandTracking
 
         private void Disable(bool forceDisable = false)
         {
-            if (pose.positions == null || pose.rotations == null || Camera.main == null) return;
+            if (pose.positions == null || pose.rotations == null || master.main == null) return;
 
-            Vector3 handDir = pose.positions[ITKHand.Root] - Camera.main.transform.position;
-            Vector3 cameraDir = Camera.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
+            Vector3 handDir = pose.positions[ITKHand.Root] - master.main.transform.position;
+            Vector3 cameraDir = master.main.transform.rotation * Vector3.forward; //TODO:: enable support for not main camera
             // Only disable if hand is behind you, otherwise to keep physics smooth allow hand tracking to be lost whilst its within 180 fov
             if (forceDisable || Vector3.Dot(cameraDir, handDir) < 0)
             {
@@ -99,7 +101,7 @@ namespace InteractionTK.HandTracking
         {
             if (poseProvider == null)
             {
-                Debug.LogError("No pose provider was given.");
+                Disable(true);
                 return;
             }
             else if (poseProvider.type != type)
@@ -111,7 +113,7 @@ namespace InteractionTK.HandTracking
             ITKHand.Pose target = poseProvider.GetPose(out tracking);
 
             // Interpolate to prevent jitter
-            pose.Interpolate(target);
+            pose.Interpolate(target, type: ITKHand.Pose.InterpolateType.Root);
 
             // Enable or Disable based on tracking
             if (tracking)

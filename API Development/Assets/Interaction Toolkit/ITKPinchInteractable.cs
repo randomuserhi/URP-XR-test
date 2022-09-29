@@ -39,7 +39,7 @@ namespace InteractionTK
 
         public bool isInteracting(ITKPinchController controller)
         {
-            return controller.pinch > 0.75f;
+            return controller.pinch > 0.9f;
         }
 
         public void Add(ITKPinchController controller)

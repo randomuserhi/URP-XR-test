@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VirtualRealityTK;
 
 namespace InteractionTK.HandTracking
 {
@@ -11,9 +12,9 @@ namespace InteractionTK.HandTracking
         public ITKHand.Handedness type;
 
         public ITKGestures gesture;
+        public VRTKPlayer master { get => gesture.master; }
         public ITKHandController controller;
 
-        public GameObject pinchCursor;
         public GameObject line;
         public GameObject pinchArrow;
         private SkinnedMeshRenderer pinchArrowRenderer;
@@ -82,7 +83,6 @@ namespace InteractionTK.HandTracking
             _active = true;
 
             if (pinchArrow) pinchArrow.SetActive(true);
-            if (pinchCursor) pinchCursor.SetActive(true);
             if (lineRenderer) lineRenderer.enabled = true;
         }
         public void Disable()
@@ -91,7 +91,6 @@ namespace InteractionTK.HandTracking
             _active = false;
 
             if (pinchArrow) pinchArrow.SetActive(false);
-            if (pinchCursor) pinchCursor.SetActive(false);
             if (lineRenderer) lineRenderer.enabled = false;
 
             _pinch = 0;

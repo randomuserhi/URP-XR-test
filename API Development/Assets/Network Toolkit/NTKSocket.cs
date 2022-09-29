@@ -9,7 +9,7 @@ using System.Net;
 
 namespace NetworkToolkit
 {
-    public class NTKSocket
+    public abstract class NTKSocket
     {
         protected byte[] buffer;
         private EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -61,7 +61,7 @@ namespace NetworkToolkit
             }
         }
 
-        protected virtual void OnError(Exception e) { }
+        protected abstract void OnError(Exception e);
 
         protected struct PacketIdentifier
         {
@@ -152,7 +152,7 @@ namespace NetworkToolkit
                 }
             }
         }
-        protected virtual void OnPacketReconstructionTimeout(PacketIdentifier packet) { }
+        protected abstract void OnPacketReconstructionTimeout(PacketIdentifier packet);
 
         private class Connection
         {
@@ -280,13 +280,13 @@ namespace NetworkToolkit
                 }
             }
         }
-        protected virtual void OnTimeout(IPEndPoint ip) { }
-        protected virtual void OnConnect(IPEndPoint ip) { }
+        protected abstract void OnTimeout(IPEndPoint ip);
+        protected abstract void OnConnect(IPEndPoint ip);
 
         // NOTE:: OnReceive, OnAcknowledge and OnAcknowledgeFail can be called concurrently, so make sure they are thread safe
-        protected virtual void OnReceive(IPEndPoint ip, NTK.Packet packet) { }
-        protected virtual void OnAcknowledge(IPEndPoint ip, ushort sequence) { }
-        protected virtual void OnAcknowledgeFail(IPEndPoint ip, ushort sequence) { }
+        protected abstract void OnReceive(IPEndPoint ip, NTK.Packet packet);
+        protected abstract void OnAcknowledge(IPEndPoint ip, ushort sequence);
+        protected abstract void OnAcknowledgeFail(IPEndPoint ip, ushort sequence);
 
         public void Tick()
         {
@@ -311,7 +311,7 @@ namespace NetworkToolkit
 
             OnTick();
         }
-        protected virtual void OnTick() { }
+        protected abstract void OnTick();
 
         public NTKSocket()
         {
@@ -396,6 +396,7 @@ namespace NetworkToolkit
                     packets.Clear();
                 }
                 socket.Bind(ip);
+                Log("Successfully bound to " + socket.LocalEndPoint + "...");
                 BeginReceive();
             }
             catch (Exception e)
@@ -664,6 +665,6 @@ namespace NetworkToolkit
             OnDispose();
         }
 
-        protected virtual void OnDispose() { }
+        protected abstract void OnDispose();
     }
 }

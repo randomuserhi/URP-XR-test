@@ -19,6 +19,16 @@ namespace InteractionTK.HandTracking
             new Joint[] { Joint.RingMetacarpal, Joint.RingKnuckle, Joint.RingMiddle, Joint.RingDistal, Joint.RingTip },
             new Joint[] { Joint.PinkyMetacarpal, Joint.PinkyKnuckle, Joint.PinkyMiddle, Joint.PinkyDistal, Joint.PinkyTip }
         };
+
+        public static float[][] distances = new float[][]
+        {
+            new float[] { 0 },
+            new float[] { 0, 0.05f, 0.05f, 0.05f },
+            new float[] { 0, 0.05f, 0.05f, 0.05f, 0.05f },
+            new float[] { 0, 0.05f, 0.05f, 0.05f, 0.05f },
+            new float[] { 0, 0.05f, 0.05f, 0.05f, 0.05f },
+            new float[] { 0, 0.05f, 0.05f, 0.05f, 0.05f }
+        };
     }
 
     public class ITKDebugHand : MonoBehaviour
