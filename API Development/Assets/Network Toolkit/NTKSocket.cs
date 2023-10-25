@@ -4,9 +4,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 
-// NOTE:: System.Net and System.Net.Sockets are not available in older UWP versions and thus
-//        this library may not work with Hololens 1 or versions less than UWP 10
-
 namespace NetworkToolkit
 {
     public abstract class NTKSocket
@@ -194,7 +191,7 @@ namespace NetworkToolkit
                 this.ip = ip;
             }
 
-            private readonly object acknowledgeLock = new object();
+            public readonly object acknowledgeLock = new object();
             public void Acknowledge(NTK.Packet packet, NTKSocket socket)
             {
                 timeSinceResponse = 0;
@@ -259,6 +256,8 @@ namespace NetworkToolkit
                     {
                         int delta = this.ack > sequence ? this.ack - sequence : ushort.MaxValue - sequence + this.ack + 1;
                         this.ackBitField |= 1 << (--delta);
+
+                        Console.WriteLine("Packet is older than current (out of order).");
                     }
                 }
             }
@@ -362,7 +361,6 @@ namespace NetworkToolkit
                     if (!connections.ContainsKey(ip))
                     {
                         connections.Add(ip, new Connection(ip));
-                        OnConnect(ip);
                     }
                 }
                 lock (packetLock)
@@ -510,19 +508,22 @@ namespace NetworkToolkit
                 }
 
                 IPEndPoint ip = socket.RemoteEndPoint as IPEndPoint;
-                if (!connections.ContainsKey(ip)) connections.Add(ip, new Connection(ip));
+                if (!connections.ContainsKey(ip)) lock (connectionLock) connections.Add(ip, new Connection(ip));
                 Connection connection = connections[ip];
-                byte[][] bytes;
-                sequence = connection.sequence;
-                if (packet.GetBytes(header, out bytes))
+                lock (connection.acknowledgeLock)
                 {
-                    if (bytes.Length == 0) return false;
+                    byte[][] bytes;
+                    sequence = connection.sequence;
+                    if (packet.GetBytes(header, out bytes))
+                    {
+                        if (bytes.Length == 0) return false;
 
-                    for (int i = 0; i < bytes.Length; ++i)
-                        socket.BeginSend(bytes[i], 0, bytes[i].Length, SocketFlags.None, null, null);
+                        for (int i = 0; i < bytes.Length; ++i)
+                            socket.BeginSend(bytes[i], 0, bytes[i].Length, SocketFlags.None, null, null);
 
-                    connections[ip].sent.Add(sequence);
-                    return true;
+                        connections[ip].sent.Add(sequence);
+                        return true;
+                    }
                 }
             }
             catch (Exception e)
@@ -546,19 +547,22 @@ namespace NetworkToolkit
                     return false;
                 }
 
-                if (!connections.ContainsKey(destination)) connections.Add(destination, new Connection(destination));
+                if (!connections.ContainsKey(destination)) lock (connectionLock) connections.Add(destination, new Connection(destination));
                 Connection connection = connections[destination];
-                byte[][] bytes;
-                sequence = connection.sequence;
-                if (packet.GetBytes(header, out bytes))
+                lock (connection.acknowledgeLock)
                 {
-                    if (bytes.Length == 0) return false;
+                    byte[][] bytes;
+                    sequence = connection.sequence;
+                    if (packet.GetBytes(header, out bytes))
+                    {
+                        if (bytes.Length == 0) return false;
 
-                    for (int i = 0; i < bytes.Length; ++i)
-                        socket.BeginSendTo(bytes[i], 0, bytes[i].Length, SocketFlags.None, destination, null, null);
+                        for (int i = 0; i < bytes.Length; ++i)
+                            socket.BeginSendTo(bytes[i], 0, bytes[i].Length, SocketFlags.None, destination, null, null);
 
-                    connections[destination].sent.Add(sequence);
-                    return true;
+                        connections[destination].sent.Add(sequence);
+                        return true;
+                    }
                 }
             }
             catch (Exception e)
@@ -583,25 +587,28 @@ namespace NetworkToolkit
                 }
 
                 IPEndPoint ip = socket.RemoteEndPoint as IPEndPoint;
-                if (!connections.ContainsKey(ip)) connections.Add(ip, new Connection(ip));
+                if (!connections.ContainsKey(ip)) lock (connectionLock) connections.Add(ip, new Connection(ip));
                 Connection connection = connections[ip];
-                byte[][] bytes;
-                sequence = connection.sequence;
-                NTK.PacketHeader header = new NTK.PacketHeader()
+                lock (connection.acknowledgeLock)
                 {
-                    sequence = sequence,
-                    ack = connections[ip].ack,
-                    ackBitfield = connections[ip].ackBitField
-                };
-                if (packet.GetBytes(header, out bytes))
-                {
-                    if (bytes.Length == 0) return false;
+                    byte[][] bytes;
+                    sequence = connection.sequence;
+                    NTK.PacketHeader header = new NTK.PacketHeader()
+                    {
+                        sequence = sequence,
+                        ack = connections[ip].ack,
+                        ackBitfield = connections[ip].ackBitField
+                    };
+                    if (packet.GetBytes(header, out bytes))
+                    {
+                        if (bytes.Length == 0) return false;
 
-                    for (int i = 0; i < bytes.Length; ++i)
-                        socket.BeginSend(bytes[i], 0, bytes[i].Length, SocketFlags.None, null, null);
+                        for (int i = 0; i < bytes.Length; ++i)
+                            socket.BeginSend(bytes[i], 0, bytes[i].Length, SocketFlags.None, null, null);
 
-                    connections[ip].sent.Add(sequence);
-                    return true;
+                        connections[ip].sent.Add(sequence);
+                        return true;
+                    }
                 }
             }
             catch (Exception e)
@@ -625,25 +632,28 @@ namespace NetworkToolkit
                     return false;
                 }
 
-                if (!connections.ContainsKey(destination)) connections.Add(destination, new Connection(destination));
+                if (!connections.ContainsKey(destination)) lock (connectionLock) connections.Add(destination, new Connection(destination));
                 Connection connection = connections[destination];
-                byte[][] bytes;
-                sequence = connection.sequence;
-                NTK.PacketHeader header = new NTK.PacketHeader()
+                lock (connection.acknowledgeLock)
                 {
-                    sequence = sequence,
-                    ack = connections[destination].ack,
-                    ackBitfield = connections[destination].ackBitField
-                };
-                if (packet.GetBytes(header, out bytes))
-                {
-                    if (bytes.Length == 0) return false;
+                    byte[][] bytes;
+                    sequence = connection.sequence;
+                    NTK.PacketHeader header = new NTK.PacketHeader()
+                    {
+                        sequence = sequence,
+                        ack = connections[destination].ack,
+                        ackBitfield = connections[destination].ackBitField
+                    };
+                    if (packet.GetBytes(header, out bytes))
+                    {
+                        if (bytes.Length == 0) return false;
 
-                    for (int i = 0; i < bytes.Length; ++i)
-                        socket.BeginSendTo(bytes[i], 0, bytes[i].Length, SocketFlags.None, destination, null, null);
+                        for (int i = 0; i < bytes.Length; ++i)
+                            socket.BeginSendTo(bytes[i], 0, bytes[i].Length, SocketFlags.None, destination, null, null);
 
-                    connections[destination].sent.Add(sequence);
-                    return true;
+                        connections[destination].sent.Add(sequence);
+                        return true;
+                    }
                 }
             }
             catch (Exception e)

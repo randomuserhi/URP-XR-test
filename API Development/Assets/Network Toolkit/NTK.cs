@@ -1,20 +1,15 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text;
-using UnityEngine;
 
 namespace NetworkToolkit
 {
     public static partial class NTK
     {
         public const int bufferSize = 4069;
-        public const int bufferSizeNoHeader = bufferSize - NTK.Packet.groupHeaderSize;
+        public const int bufferSizeNoHeader = bufferSize - Packet.groupHeaderSize;
 
-        public static float tickRate = 100f;
+        public static float tickRate = 60f;
         public static int timeout = 1000;
 
         private static ushort _packetID = 0;
